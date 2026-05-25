@@ -1,4 +1,7 @@
+"use client";
 import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import styles from '@/style/sidebar.module.css';
 import { 
   LayoutDashboard, 
@@ -9,13 +12,16 @@ import {
   Users, 
   Award, 
   Megaphone, 
-  BarChart3, 
   Contact, 
-  Settings, 
+  Clock,
   X 
 } from '@/lib/icons';
 
 export default function Sidebar({ isOpen, onClose }) {
+  const pathname = usePathname();
+
+  const isActive = (path) => pathname === path;
+
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       <button className={styles.closeBtn} onClick={onClose} aria-label="Close Sidebar">
@@ -35,34 +41,64 @@ export default function Sidebar({ isOpen, onClose }) {
           <h2 className={styles.sectionTitle}>Operations</h2>
           <ul className={styles.menuList}>
             <li>
-              <a className={styles.activeMenuItem} href="#">
+              <Link 
+                className={isActive('/dashboard') ? styles.activeMenuItem : styles.menuItem} 
+                href="/dashboard"
+                onClick={onClose}
+              >
                 <span className={styles.menuIcon}><LayoutDashboard size={20} /></span>
                 Dashboard
-              </a>
+              </Link>
             </li>
             <li>
-              <a className={styles.menuItem} href="#">
+              <Link 
+                className={isActive('/service') ? styles.activeMenuItem : styles.menuItem} 
+                href="/service"
+                onClick={onClose}
+              >
+                <span className={styles.menuIcon}><Clock size={20} /></span>
+                Service
+              </Link>
+            </li>
+            <li>
+              <Link 
+                className={isActive('/orders') ? styles.activeMenuItem : styles.menuItem} 
+                href="/orders"
+                onClick={onClose}
+              >
                 <span className={styles.menuIcon}><Receipt size={20} /></span>
                 Orders
-              </a>
+              </Link>
             </li>
             <li>
-              <a className={styles.menuItem} href="#">
+              <Link 
+                className={isActive('/menu') ? styles.activeMenuItem : styles.menuItem} 
+                href="/menu"
+                onClick={onClose}
+              >
                 <span className={styles.menuIcon}><Utensils size={20} /></span>
                 Menu
-              </a>
+              </Link>
             </li>
             <li>
-              <a className={styles.menuItem} href="#">
+              <Link 
+                className={isActive('/tables') ? styles.activeMenuItem : styles.menuItem} 
+                href="/tables"
+                onClick={onClose}
+              >
                 <span className={styles.menuIcon}><CalendarDays size={20} /></span>
                 Tables
-              </a>
+              </Link>
             </li>
             <li>
-              <a className={styles.menuItem} href="#">
+              <Link 
+                className={isActive('/kds') ? styles.activeMenuItem : styles.menuItem} 
+                href="/kds"
+                onClick={onClose}
+              >
                 <span className={styles.menuIcon}><Monitor size={20} /></span>
                 Kitchen Display
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -71,22 +107,34 @@ export default function Sidebar({ isOpen, onClose }) {
           <h2 className={styles.sectionTitle}>CRM</h2>
           <ul className={styles.menuList}>
             <li>
-              <a className={styles.menuItem} href="#">
+              <Link 
+                className={isActive('/customers') ? styles.activeMenuItem : styles.menuItem} 
+                href="/customers"
+                onClick={onClose}
+              >
                 <span className={styles.menuIcon}><Users size={20} /></span>
                 Customers
-              </a>
+              </Link>
             </li>
             <li>
-              <a className={styles.menuItem} href="#">
+              <Link 
+                className={isActive('/loyalty') ? styles.activeMenuItem : styles.menuItem} 
+                href="/loyalty"
+                onClick={onClose}
+              >
                 <span className={styles.menuIcon}><Award size={20} /></span>
                 Loyalty
-              </a>
+              </Link>
             </li>
             <li>
-              <a className={styles.menuItem} href="#">
+              <Link 
+                className={isActive('/campaigns') ? styles.activeMenuItem : styles.menuItem} 
+                href="/campaigns"
+                onClick={onClose}
+              >
                 <span className={styles.menuIcon}><Megaphone size={20} /></span>
                 Campaigns
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -95,22 +143,14 @@ export default function Sidebar({ isOpen, onClose }) {
           <h2 className={styles.sectionTitle}>Business</h2>
           <ul className={styles.menuList}>
             <li>
-              <a className={styles.menuItem} href="#">
-                <span className={styles.menuIcon}><BarChart3 size={20} /></span>
-                Analytics
-              </a>
-            </li>
-            <li>
-              <a className={styles.menuItem} href="#">
+              <Link 
+                className={isActive('/staff') ? styles.activeMenuItem : styles.menuItem} 
+                href="/staff"
+                onClick={onClose}
+              >
                 <span className={styles.menuIcon}><Contact size={20} /></span>
                 Staff
-              </a>
-            </li>
-            <li>
-              <a className={styles.menuItem} href="#">
-                <span className={styles.menuIcon}><Settings size={20} /></span>
-                Settings
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

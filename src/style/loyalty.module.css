@@ -1,0 +1,405 @@
+/* ── Loyalty Page Layout ─────────────────────────── */
+.container {
+  flex: 1;
+  min-height: 100vh;
+}
+
+.inner {
+  padding: var(--spacing-margin-page, 24px);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* ── Page Header ─────────────────────────────────── */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pageTitle {
+  font-family: Newsreader, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--color-ink, #141413);
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  color: var(--color-secondary, #605e5b);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.outlineBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  color: var(--color-secondary, #605e5b);
+  background-color: var(--color-surface, #fbf8f3);
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.outlineBtn:hover {
+  color: var(--color-primary, #5c6f3e);
+  border-color: var(--color-primary, #5c6f3e);
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--color-primary, #5c6f3e);
+  color: #ffffff;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  border: none;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.primaryBtn:hover {
+  opacity: 0.88;
+}
+
+/* ── Tier Cards (Row 1) ──────────────────────────── */
+.tierGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-gutter, 16px);
+  margin-bottom: 2rem;
+}
+
+.tierCard {
+  background-color: var(--color-surface-card, #efe9de);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 10px;
+  padding: var(--spacing-card-padding, 20px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 180px;
+}
+
+.tierCardActive {
+  background-color: var(--color-surface-card, #efe9de);
+  border: 1px solid var(--color-primary, #5c6f3e);
+  border-radius: 10px;
+  padding: var(--spacing-card-padding, 20px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 180px;
+}
+
+.tierCardDark {
+  background-color: var(--color-ink, #141413);
+  border: 1px solid var(--color-ink, #141413);
+  border-radius: 10px;
+  padding: var(--spacing-card-padding, 20px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 180px;
+}
+
+.tierCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.tierCardTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tierIcon {
+  color: var(--color-secondary, #605e5b);
+}
+
+.tierIconPrimary {
+  color: var(--color-primary, #5c6f3e);
+}
+
+.tierIconAmber {
+  color: #e8a55a;
+}
+
+.tierName {
+  font-family: Newsreader, serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-ink, #141413);
+}
+
+.tierNameLight {
+  font-family: Newsreader, serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: #ffffff;
+}
+
+.tierBadge {
+  background-color: var(--color-surface-container-low, #f4f4f0);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary, #605e5b);
+}
+
+.tierBottom {
+  margin-top: auto;
+}
+
+.tierLabel {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--color-secondary, #605e5b);
+  margin-bottom: 4px;
+}
+
+.tierCount {
+  font-family: Newsreader, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--color-primary, #5c6f3e);
+}
+
+.tierCountAmber {
+  font-family: Newsreader, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #e8a55a;
+}
+
+.tierCountSuffix {
+  font-family: Inter, sans-serif;
+  font-size: 16px;
+  color: var(--color-secondary, #605e5b);
+  margin-left: 4px;
+}
+
+/* ── Lists Row (Row 2) ───────────────────────────── */
+.listsGrid {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: var(--spacing-gutter, 16px);
+  margin-bottom: 2rem;
+}
+
+.card {
+  background-color: var(--color-surface-card, #efe9de);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 10px;
+  padding: var(--spacing-card-padding, 20px);
+}
+
+.cardTitle {
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-ink, #141413);
+  margin-bottom: 1.5rem;
+}
+
+/* Redemption rows */
+.redemptionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border-hairline, #e6dfd8);
+}
+
+.redemptionRow:last-child {
+  border-bottom: none;
+}
+
+.redemptionLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-surface, #fbf8f3);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-secondary, #605e5b);
+  flex-shrink: 0;
+}
+
+.redemptionName {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink, #141413);
+}
+
+.redemptionDesc {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--color-secondary, #605e5b);
+  margin-top: 2px;
+}
+
+.redemptionPts {
+  font-family: Newsreader, serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--color-primary, #5c6f3e);
+  white-space: nowrap;
+}
+
+/* Expiring rows */
+.expiringRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.75rem;
+  border-left: 3px solid #e8a55a;
+  border-bottom: 1px solid var(--color-border-hairline, #e6dfd8);
+  margin-bottom: 0.5rem;
+}
+
+.expiringRow:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.expiringName {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink, #141413);
+}
+
+.expiringDesc {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--color-secondary, #605e5b);
+  margin-top: 2px;
+}
+
+.reminderBtn {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--color-primary, #5c6f3e);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0;
+  transition: text-decoration 0.15s;
+}
+
+.reminderBtn:hover {
+  text-decoration: underline;
+}
+
+/* ── Dark Metrics Footer ─────────────────────────── */
+.metricsFooter {
+  background-color: var(--color-ink, #141413);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.metricItem {
+  flex: 1;
+  text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0 1rem;
+}
+
+.metricItem:last-child {
+  border-right: none;
+}
+
+.metricLabel {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-secondary, #605e5b);
+  margin-bottom: 0.5rem;
+}
+
+.metricValue {
+  font-family: Newsreader, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #ffffff;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 1024px) {
+  .listsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .tierGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .metricsFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .metricItem {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 1rem 0;
+  }
+
+  .metricItem:last-child {
+    border-bottom: none;
+  }
+}
