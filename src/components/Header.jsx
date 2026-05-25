@@ -50,9 +50,11 @@ export default function Header({ onMenuToggle }) {
         <button className={styles.notificationBtn} aria-label="Notifications">
           <Bell size={20} />
         </button>
-        <button className={styles.newOrderBtn}>
-          New Order
-        </button>
+        {!pathname.startsWith('/menu') && (
+          <button className={styles.newOrderBtn}>
+            New Order
+          </button>
+        )}
       </div>
     </header>
   );
