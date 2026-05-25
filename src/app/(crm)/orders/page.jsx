@@ -97,27 +97,6 @@ export default function Page() {
 
   return (
     <>
-      <meta charSet="utf-8" />
-      <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-      <title>DineFlow - Orders</title>
-      {/* Google Fonts */}
-      <link href="https://fonts.googleapis.com" rel="preconnect" />
-      <link crossOrigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap"
-        rel="stylesheet"
-      />
-      {/* Material Symbols */}
-      <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet"
-      />
-      <style
-        dangerouslySetInnerHTML={{
-          __html:
-            "\n        body { background-color: theme('colors.canvas'); color: theme('colors.on-background'); }\n    "
-        }}
-      />
       {/* Main Canvas Area */}
       <main className={styles.main}>
         {/* Kanban Board */}
