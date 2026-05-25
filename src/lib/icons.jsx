@@ -164,3 +164,105 @@ export const X = ({ className, size = 24 }) => (
     <line x1="6" x2="18" y1="6" y2="18" />
   </svg>
 );
+
+// Lucide TrendingUp (Trending Up Icon)
+export const TrendingUp = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+    <polyline points="16 7 22 7 22 13" />
+  </svg>
+);
+
+// Lucide ArrowUp (Arrow Up Icon)
+export const ArrowUp = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <line x1="12" y1="19" x2="12" y2="5" />
+    <polyline points="5 12 12 5 19 12" />
+  </svg>
+);
+
+// Lucide CheckCircle (Check Circle Icon)
+export const CheckCircle = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+// Lucide Sliders (Sliders/Tune Icon)
+export const Sliders = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <line x1="4" y1="21" x2="4" y2="14" />
+    <line x1="4" y1="10" x2="4" y2="3" />
+    <line x1="12" y1="21" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12" y2="3" />
+    <line x1="20" y1="21" x2="20" y2="16" />
+    <line x1="20" y1="12" x2="20" y2="3" />
+    <line x1="2" y1="14" x2="6" y2="14" />
+    <line x1="10" y1="8" x2="14" y2="8" />
+    <line x1="18" y1="16" x2="22" y2="16" />
+  </svg>
+);
+
+// Lucide Heart (Heart/Loyalty Icon)
+export const Heart = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+  </svg>
+);
+
+// Lucide FileText (Report/Summary Icon)
+export const FileText = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+    <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+    <path d="M10 9H8" />
+    <path d="M16 13H8" />
+    <path d="M16 17H8" />
+  </svg>
+);
+
+// Lucide BookOpen (Book Open/Reservation Icon)
+export const BookOpen = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </svg>
+);
+
+// Lucide AlertTriangle (At Risk Icon)
+export const AlertTriangle = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+    <line x1="12" x2="12" y1="9" y2="13" />
+    <line x1="12" x2="12.01" y1="17" y2="17" />
+  </svg>
+);
+
+// Lucide UserPlus (New Customer Icon)
+export const UserPlus = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <line x1="19" x2="19" y1="8" y2="14" />
+    <line x1="22" x2="16" y1="11" y2="11" />
+  </svg>
+);
+
+// Lucide Sparkles (Premium Icon)
+export const Sparkles = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z" />
+    <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5Z" />
+    <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z" />
+  </svg>
+);
+
+// Lucide Medal (Silver/Bronze Icon)
+export const Medal = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" />
+    <circle cx="12" cy="15" r="5" />
+    <path d="M12 18v-2" />
+  </svg>
+);

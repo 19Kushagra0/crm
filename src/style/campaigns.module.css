@@ -1,0 +1,502 @@
+/* ── Campaigns Page Layout ─────────────────────────── */
+.container {
+  flex: 1;
+  min-height: 100vh;
+}
+
+.inner {
+  padding: var(--spacing-margin-page, 24px);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-bottom: 30px;
+}
+
+/* ── Page Header ─────────────────────────────────── */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.pageTitle {
+  font-family: Newsreader, serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--color-ink, #141413);
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  color: var(--color-secondary, #605e5b);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ── Filter Pills ────────────────────────────────── */
+.filterPills {
+  display: flex;
+  background-color: #efe9de;
+  border-radius: 9999px;
+  padding: 4px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+}
+
+.filterTab {
+  background: none;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-secondary, #605e5b);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterTab:hover {
+  color: var(--color-ink, #141413);
+}
+
+.filterTabActive {
+  background-color: var(--color-surface, #fbf8f3);
+  color: var(--color-ink, #141413);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--color-primary, #5c6f3e);
+  color: #ffffff;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  border: none;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.primaryBtn:hover {
+  opacity: 0.88;
+}
+
+/* ── Campaign Grid ───────────────────────────────── */
+.campaignGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.card {
+  background-color: #efe9de;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.2s ease;
+}
+
+.card:hover {
+  background-color: #eae3d6;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.cardTitle {
+  font-family: Newsreader, serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-ink, #141413);
+  margin-bottom: 0.5rem;
+}
+
+.badgeGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badgeActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #f4fffa;
+  color: var(--color-primary, #5c6f3e);
+  border: 1px solid #98f3e0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badgeActiveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-primary, #5c6f3e);
+}
+
+.badgeScheduled {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #fffaf4;
+  color: #e8a55a;
+  border: 1px solid #ffe3c2;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badgeScheduledDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #e8a55a;
+}
+
+.badgeCompleted {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #f5f4f0;
+  color: var(--color-secondary, #605e5b);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badgeType {
+  background-color: var(--color-surface, #fbf8f3);
+  color: var(--color-secondary, #605e5b);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.segmentInfo {
+  text-align: right;
+}
+
+.segmentLabel {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-secondary, #605e5b);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.segmentValue {
+  display: inline-block;
+  background-color: var(--color-surface, #fbf8f3);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-ink, #141413);
+}
+
+/* Stats Row */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  border-top: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-bottom: 1px solid var(--color-border-hairline, #e6dfd8);
+  padding: 1rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.statsRowMuted {
+  composes: statsRow;
+  opacity: 0.55;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statItem:not(:first-child) {
+  border-left: 1px solid var(--color-border-hairline, #e6dfd8);
+  padding-left: 1rem;
+}
+
+.statLabel {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-secondary, #605e5b);
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-family: Newsreader, serif;
+  font-size: 20px;
+  color: var(--color-ink, #141413);
+}
+
+.statSubtext {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.statGreen {
+  color: var(--color-primary, #5c6f3e);
+}
+
+.statPrimary {
+  color: var(--color-primary, #5c6f3e);
+}
+
+/* Preview text */
+.previewContainer {
+  background-color: var(--color-surface, #fbf8f3);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.previewText {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--color-secondary, #605e5b);
+}
+
+/* Card Footer */
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  margin-top: auto;
+}
+
+.footerDate {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  color: var(--color-secondary, #605e5b);
+}
+
+.actionBtn {
+  background: none;
+  border: none;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary, #5c6f3e);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  transition: opacity 0.15s ease;
+}
+
+.actionBtn:hover {
+  opacity: 0.8;
+}
+
+.performanceBand {
+  background-color: var(--color-ink, #141413);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 3rem;
+}
+
+.bandInner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.metricsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1a1a19;
+  border-radius: 8px;
+  padding: 1.25rem 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.metricItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.metricItem:not(:first-child) {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 2rem;
+}
+
+.metricLabel {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary, #605e5b);
+  margin-bottom: 4px;
+}
+
+.metricValue {
+  font-family: Newsreader, serif;
+  font-size: 26px;
+  color: #ffffff;
+}
+
+.metricValueAmber {
+  composes: metricValue;
+  color: #e8a55a;
+}
+
+/* Best Performing side */
+.bestPerformingSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bestPerformingTitle {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary, #605e5b);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 6px;
+}
+
+.performanceRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.performanceName {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: #e6dfd8;
+  width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progressBarTrack {
+  flex: 1;
+  height: 6px;
+  background-color: #1a1a19;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: var(--color-primary, #5c6f3e);
+  border-radius: 9999px;
+}
+
+.performanceValue {
+  font-family: var(--font-data-mono, monospace);
+  font-size: 12px;
+  color: #ffffff;
+  width: 32px;
+  text-align: right;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 1200px) {
+  .campaignGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .bandInner {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .metricsContainer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .metricItem:not(:first-child) {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 0;
+    padding-top: 1rem;
+  }
+}

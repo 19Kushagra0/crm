@@ -1,0 +1,508 @@
+.container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+/* Controls Toolbar */
+.controlsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem var(--spacing-margin-page, 24px);
+  background-color: var(--color-canvas, #fbf8f3);
+  border-bottom: 1px solid var(--color-border-hairline, #e6dfd8);
+  flex-shrink: 0;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stationsWrapper {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-surface-container-low, #f4f4f0);
+  border-radius: 9999px;
+  padding: 4px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+}
+
+.stationBtnActive {
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  color: var(--color-ink, #141413);
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.stationBtn {
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  background-color: transparent;
+  color: var(--color-secondary, #605e5b);
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.stationBtn:hover {
+  color: var(--color-ink, #141413);
+}
+
+.timeDisplay {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--color-ink, #141413);
+  background-color: var(--color-surface-container-low, #f4f4f0);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+}
+
+/* Quick Action Buttons */
+.quickActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.quickActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.4rem 0.875rem;
+  border-radius: 6px;
+  background-color: transparent;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  color: var(--color-ink, #141413);
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.quickActionBtn:hover {
+  background-color: var(--color-surface-container, #efeeea);
+  border-color: var(--color-secondary, #605e5b);
+}
+
+.quickActionBtnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.4rem 0.875rem;
+  border-radius: 6px;
+  background-color: var(--color-primary, #5c6f3e);
+  border: 1px solid transparent;
+  color: #ffffff;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.quickActionBtnPrimary:hover {
+  opacity: 0.88;
+}
+
+/* Ticket Grid Scroll Containers */
+.ticketGridContainer {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: var(--spacing-margin-page, 24px);
+  padding-bottom: 6rem;
+}
+
+.ticketGridRow {
+  display: flex;
+  gap: var(--spacing-gutter, 16px);
+  height: 100%;
+  padding-bottom: 1rem;
+  align-items: start;
+  width: max-content;
+}
+
+/* Ticket Cards */
+.ticketCard {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 10px;
+  width: 320px;
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ticketCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.ticketCardUrgent {
+  background-color: #ffffff;
+  border: 2px solid #cc785c;
+  border-radius: 10px;
+  width: 320px;
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(204, 120, 92, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ticketCardUrgent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(204, 120, 92, 0.18);
+}
+
+.ticketHeader {
+  padding: 18px;
+  border-bottom: 1px solid var(--color-border-hairline, #e6dfd8);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-surface-container-lowest, #fffcf9);
+}
+
+.ticketHeaderGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ticketNum {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-ink, #141413);
+}
+
+.tableBadge {
+  background-color: var(--color-surface-container-high, #e9e8e4);
+  color: var(--color-ink, #141413);
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.tableBadgeUrgent {
+  background-color: #cc785c;
+  color: #ffffff;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.ticketDurationUrgent {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #cc785c;
+}
+
+.ticketDurationWarning {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #e8a55a;
+}
+
+.ticketDurationNew {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-muted, #6c6a64);
+}
+
+/* Ticket Body Elements */
+.ticketBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.itemRow {
+  display: flex;
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.itemQty {
+  color: #cc785c;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.itemDetails {
+  flex: 1;
+}
+
+.itemName {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-ink, #141413);
+  line-height: 1.4;
+}
+
+.itemNotes {
+  font-size: 13px;
+  color: var(--color-muted, #6c6a64);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.stationTag {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 6px;
+  background-color: var(--color-surface-container, #efeeea);
+  color: var(--color-muted, #6c6a64);
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+}
+
+.itemDivider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--color-border-hairline, #e6dfd8);
+}
+
+/* Ticket Footer Components */
+.ticketFooter {
+  padding: 18px;
+  padding-top: 0;
+  margin-top: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bumpBtn {
+  width: 100%;
+  padding: 12px;
+  background-color: #5db872;
+  border: 1px solid #5db872;
+  color: #ffffff;
+  border-radius: 6px;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.bumpBtn:hover {
+  opacity: 0.9;
+}
+
+.startBtn {
+  flex: 1;
+  padding: 12px;
+  background-color: transparent;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  color: var(--color-ink, #141413);
+  border-radius: 6px;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.startBtn:hover {
+  background-color: var(--color-surface-container, #efeeea);
+}
+
+.indicatorBarUrgent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background-color: #cc785c;
+}
+
+.indicatorBarWarning {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background-color: #e8a55a;
+}
+
+.indicatorBarNew {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background-color: #5db872;
+}
+
+/* Bottom Status Bar */
+.statusBar {
+  background-color: var(--color-surface-card, #efe9de);
+  border-top: 1px solid var(--color-border-hairline, #e6dfd8);
+  height: 56px;
+  position: fixed;
+  bottom: 0;
+  left: 220px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding-left: var(--spacing-margin-page, 24px);
+  padding-right: var(--spacing-margin-page, 24px);
+  z-index: 40;
+  transition: left 0.3s ease;
+}
+
+.statusBarStats {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 2rem;
+}
+
+.statusBarGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.statusBarLabel {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-muted, #6c6a64);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.statusBarValue {
+  font-family: Newsreader, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-ink, #141413);
+}
+
+.statusBarDivider {
+  height: 60%;
+  width: 1px;
+  background-color: var(--color-border-hairline, #e6dfd8);
+  flex-shrink: 0;
+}
+
+/* Responsive Overrides */
+@media (max-width: 960px) {
+  .statusBar {
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .statusBarStats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 1.5rem;
+    width: 100%;
+  }
+
+  .statusBarDivider {
+    display: none;
+  }
+
+  .statusBarGroup {
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .controlsRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .stationsWrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .stationBtn, .stationBtnActive {
+    flex: 1;
+    text-align: center;
+  }
+
+  .timeDisplay {
+    text-align: center;
+    width: 100%;
+  }
+
+  .ticketGridContainer {
+    padding: 16px;
+    padding-bottom: 7.5rem; /* Ensure bottom tickets are not covered by multi-line grid footer */
+  }
+
+  .ticketCard, .ticketCardUrgent {
+    width: 290px;
+  }
+
+  .statusBar {
+    left: 0;
+  }
+}
