@@ -1,8 +1,65 @@
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
 import { TrendingUp, ArrowUp, CheckCircle, Sliders, Star, BookOpen, Heart, FileText } from '@/lib/icons';
 import styles from '@/style/service.module.css';
+import Link from 'next/link';
+
+const initialOrders = [
+  { id: 'T-14', title: "Dégustation Menu x2", notes: "No walnuts, allergy.", time: "2m ago", status: "incoming" },
+  { id: 'T-08', title: "Chef's Table Selection", time: "5m ago", status: "incoming" },
+  { id: 'T-02', title: "Roasted Sea Bass", subtitle: "Wagyu A5 Strips", time: "12:04", status: "preparing" },
+  { id: 'T-22', title: "Wine Pairing • Flight A", status: "ready" }
+];
+
+const initialReservations = [
+  { id: 1, guest: "Mr. Alistair Cook", details: "Party of 4 • VIP Tier 2", time: "19:30", status: "SEATED" },
+  { id: 2, guest: "Elena Rodriguez", details: "Party of 2 • Anniversary", time: "20:00", status: "CONFIRMED" },
+  { id: 3, guest: "The Goldman Group", details: "Party of 8 • Private Room", time: "20:15", status: "PENDING" },
+  { id: 4, guest: "Sarah Jenkins", details: "Party of 3", time: "21:00", status: "LATER" }
+];
 
 export default function ServicePage() {
+  const [orders, setOrders] = useState(initialOrders);
+  const [reservations, setReservations] = useState(initialReservations);
+
+  const incomingCount = orders.filter(o => o.status === 'incoming').length;
+  const preparingCount = orders.filter(o => o.status === 'preparing').length;
+  const readyCount = orders.filter(o => o.status === 'ready').length;
+
+  const cycleOrderStatus = (orderId) => {
+    setOrders(prev =>
+      prev.map(o => {
+        if (o.id === orderId) {
+          if (o.status === 'incoming') return { ...o, status: 'preparing', time: 'Just now' };
+          if (o.status === 'preparing') return { ...o, status: 'ready' };
+          if (o.status === 'ready') return { ...o, status: 'served' };
+        }
+        return o;
+      }).filter(o => o.status !== 'served')
+    );
+  };
+
+  const cycleReservationStatus = (resId) => {
+    const statuses = ["PENDING", "CONFIRMED", "SEATED", "LATER"];
+    setReservations(prev =>
+      prev.map(r => {
+        if (r.id === resId) {
+          const nextIndex = (statuses.indexOf(r.status) + 1) % statuses.length;
+          return { ...r, status: statuses[nextIndex] };
+        }
+        return r;
+      })
+    );
+  };
+
+  const getReservationBadgeClass = (status) => {
+    if (status === 'SEATED') return styles.badgeSeated;
+    if (status === 'CONFIRMED') return styles.badgeConfirmed;
+    if (status === 'PENDING') return styles.badgePending;
+    return styles.badgeLater;
+  };
+
   return (
     <main className={styles.container}>
       <div className={styles.contentWrapper}>
@@ -31,7 +88,7 @@ export default function ServicePage() {
               ACTIVE ORDERS
             </p>
             <div className={styles.kpiContent}>
-              <h3 className={styles.kpiValue}>18</h3>
+              <h3 className={styles.kpiValue}>{orders.length}</h3>
               <span className={styles.kpiTrendMuted}>
                 Avg 42m/table
               </span>
@@ -94,84 +151,96 @@ export default function ServicePage() {
               <h4 className={styles.sectionTitle}>
                 Live Orders Pipeline
               </h4>
-              <button className={styles.sectionHeaderLink}>
+              <Link href="/orders" className={styles.sectionHeaderLink} style={{ textDecoration: 'none' }}>
                 VIEW ALL ORDERS
-              </button>
+              </Link>
             </div>
             <div className={styles.pipelineGrid}>
               {/* Column: Incoming */}
               <div className={styles.pipelineColumn}>
                 <p className={styles.pipelineColumnHeader}>
                   <span className={`${styles.columnDot} ${styles.bgOutline}`} />{" "}
-                  INCOMING (4)
+                  INCOMING ({incomingCount})
                 </p>
                 <div className={styles.orderList}>
-                  <div className={styles.orderCard}>
-                    <div className={styles.orderCardHeader}>
-                      <span className={styles.orderTable}>
-                        T-14
-                      </span>
-                      <span className={styles.orderTime}>2m ago</span>
+                  {orders.filter(o => o.status === 'incoming').map(o => (
+                    <div key={o.id} className={styles.orderCard} onClick={() => cycleOrderStatus(o.id)} style={{ cursor: 'pointer' }}>
+                      <div className={styles.orderCardHeader}>
+                        <span className={styles.orderTable}>
+                          {o.id}
+                        </span>
+                        <span className={styles.orderTime}>{o.time}</span>
+                      </div>
+                      <p className={styles.orderTitle}>
+                        {o.title}
+                      </p>
+                      {o.notes && (
+                        <p className={styles.orderNotes}>
+                          {o.notes}
+                        </p>
+                      )}
                     </div>
-                    <p className={styles.orderTitle}>
-                      Dégustation Menu x2
-                    </p>
-                    <p className={styles.orderNotes}>
-                      No walnuts, allergy.
-                    </p>
-                  </div>
-                  <div className={styles.orderCard}>
-                    <div className={styles.orderCardHeader}>
-                      <span className={styles.orderTable}>
-                        T-08
-                      </span>
-                      <span className={styles.orderTime}>5m ago</span>
+                  ))}
+                  {incomingCount === 0 && (
+                    <div style={{ textAlign: 'center', padding: '24px 12px', color: '#888', fontStyle: 'italic', fontSize: '13px' }}>
+                      No incoming orders
                     </div>
-                    <p className={styles.orderTitleSecondary}>
-                      Chef's Table Selection
-                    </p>
-                  </div>
+                  )}
                 </div>
               </div>
               {/* Column: Preparing */}
               <div className={styles.pipelineColumn}>
                 <p className={styles.pipelineColumnHeader}>
                   <span className={`${styles.columnDot} ${styles.bgAmber}`} />{" "}
-                  PREPARING (7)
+                  PREPARING ({preparingCount})
                 </p>
                 <div className={styles.orderList}>
-                  <div className={styles.orderCardPreparing}>
-                    <div className={styles.orderCardHeader}>
-                      <span className={styles.orderTable}>
-                        T-02
-                      </span>
-                      <span className={styles.orderTime}>
-                        12:04
-                      </span>
+                  {orders.filter(o => o.status === 'preparing').map(o => (
+                    <div key={o.id} className={styles.orderCardPreparing} onClick={() => cycleOrderStatus(o.id)} style={{ cursor: 'pointer' }}>
+                      <div className={styles.orderCardHeader}>
+                        <span className={styles.orderTable}>
+                          {o.id}
+                        </span>
+                        <span className={styles.orderTime}>
+                          {o.time}
+                        </span>
+                      </div>
+                      <p className={styles.orderTitle}>{o.title}</p>
+                      {o.subtitle && <p className={styles.orderTitleSecondary}>{o.subtitle}</p>}
                     </div>
-                    <p className={styles.orderTitle}>Roasted Sea Bass</p>
-                    <p className={styles.orderTitleSecondary}>Wagyu A5 Strips</p>
-                  </div>
+                  ))}
+                  {preparingCount === 0 && (
+                    <div style={{ textAlign: 'center', padding: '24px 12px', color: '#888', fontStyle: 'italic', fontSize: '13px' }}>
+                      No orders preparing
+                    </div>
+                  )}
                 </div>
               </div>
               {/* Column: Ready */}
               <div className={styles.pipelineColumn}>
                 <p className={styles.pipelineColumnHeader}>
                   <span className={`${styles.columnDot} ${styles.bgTertiary}`} /> READY
-                  TO SERVE (3)
+                  TO SERVE ({readyCount})
                 </p>
                 <div className={styles.orderList}>
-                  <div className={styles.orderCardReady}>
-                    <div className={styles.orderCardHeader}>
-                      <span className={styles.orderTable}>
-                        T-22
-                      </span>
-                      <CheckCircle size={18} className="text-tertiary" />
+                  {orders.filter(o => o.status === 'ready').map(o => (
+                    <div key={o.id} className={styles.orderCardReady} onClick={() => cycleOrderStatus(o.id)} style={{ cursor: 'pointer' }}>
+                      <div className={styles.orderCardHeader}>
+                        <span className={styles.orderTable}>
+                          {o.id}
+                        </span>
+                        <CheckCircle size={18} className="text-tertiary" />
+                      </div>
+                      <p className={styles.orderTitleSecondary}>
+                        {o.title}
+                      </p>
                     </div>
-                    <p className={styles.orderTitleSecondary}>
-                      Wine Pairing • Flight A
-                    </p>
-                  </div>
+                  ))}
+                  {readyCount === 0 && (
+                    <div style={{ textAlign: 'center', padding: '24px 12px', color: '#888', fontStyle: 'italic', fontSize: '13px' }}>
+                      No orders ready to serve
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -199,72 +268,24 @@ export default function ServicePage() {
                 </span>
               </div>
               <div className={styles.reservationsList}>
-                {/* Reservation 1 */}
-                <div className={styles.reservationRow}>
-                  <div className={styles.reservationGuestInfo}>
-                    <p className={styles.guestName}>
-                      Mr. Alistair Cook
-                    </p>
-                    <p className={styles.guestParty}>
-                      Party of 4 • VIP Tier 2
-                    </p>
+                {reservations.map(r => (
+                  <div key={r.id} className={styles.reservationRow} onClick={() => cycleReservationStatus(r.id)} style={{ cursor: 'pointer' }}>
+                    <div className={styles.reservationGuestInfo}>
+                      <p className={styles.guestName}>
+                        {r.guest}
+                      </p>
+                      <p className={styles.guestParty}>
+                        {r.details}
+                      </p>
+                    </div>
+                    <div className={styles.reservationTime}>{r.time}</div>
+                    <div className={styles.reservationStatus}>
+                      <span className={getReservationBadgeClass(r.status)}>
+                        {r.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className={styles.reservationTime}>19:30</div>
-                  <div className={styles.reservationStatus}>
-                    <span className={styles.badgeSeated}>
-                      SEATED
-                    </span>
-                  </div>
-                </div>
-                {/* Reservation 2 */}
-                <div className={styles.reservationRow}>
-                  <div className={styles.reservationGuestInfo}>
-                    <p className={styles.guestName}>
-                      Elena Rodriguez
-                    </p>
-                    <p className={styles.guestParty}>
-                      Party of 2 • Anniversary
-                    </p>
-                  </div>
-                  <div className={styles.reservationTime}>20:00</div>
-                  <div className={styles.reservationStatus}>
-                    <span className={styles.badgeConfirmed}>
-                      CONFIRMED
-                    </span>
-                  </div>
-                </div>
-                {/* Reservation 3 */}
-                <div className={styles.reservationRow}>
-                  <div className={styles.reservationGuestInfo}>
-                    <p className={styles.guestName}>
-                      The Goldman Group
-                    </p>
-                    <p className={styles.guestParty}>
-                      Party of 8 • Private Room
-                    </p>
-                  </div>
-                  <div className={styles.reservationTime}>20:15</div>
-                  <div className={styles.reservationStatus}>
-                    <span className={styles.badgePending}>
-                      PENDING
-                    </span>
-                  </div>
-                </div>
-                {/* Reservation 4 */}
-                <div className={styles.reservationRowLater}>
-                  <div className={styles.reservationGuestInfo}>
-                    <p className={styles.guestName}>
-                      Sarah Jenkins
-                    </p>
-                    <p className={styles.guestParty}>Party of 3</p>
-                  </div>
-                  <div className={styles.reservationTime}>21:00</div>
-                  <div className={styles.reservationStatus}>
-                    <span className={styles.badgeLater}>
-                      LATER
-                    </span>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>

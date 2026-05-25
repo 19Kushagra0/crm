@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '@/style/tables.module.css';
+import { Plus } from '@/lib/icons';
 
 export default function TablesPage() {
   return (
@@ -21,7 +22,7 @@ export default function TablesPage() {
               </button>
             </div>
             <button className={styles.newReservationBtn}>
-              <span className="material-symbols-outlined text-[18px]">add</span>
+              <Plus size={16} />
               New Reservation
             </button>
           </div>
