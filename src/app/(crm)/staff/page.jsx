@@ -81,10 +81,47 @@ const performanceData = [
 
 export default function StaffPage() {
   const [filter, setFilter] = useState('All');
+  const [staffList, setStaffList] = useState(staffData);
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  // Form State
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('Waiter');
+  const [category, setCategory] = useState('Waiter');
+  const [onShift, setOnShift] = useState(true);
+
+  const handleAddStaff = (e) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+
+    // Initials calculation
+    const words = name.trim().split(' ');
+    const initials = words.map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'S';
+
+    const newStaff = {
+      id: Date.now(),
+      name,
+      initials,
+      role,
+      category,
+      onShift,
+      orders: 0,
+      tables: 0,
+      rating: "5.0★",
+      tenure: "Since May 2026",
+    };
+
+    setStaffList([newStaff, ...staffList]);
+    setName('');
+    setRole('Waiter');
+    setCategory('Waiter');
+    setOnShift(true);
+    setShowAddModal(false);
+  };
 
   const filteredStaff = filter === 'All'
-    ? staffData
-    : staffData.filter(s => s.category.toLowerCase() === filter.toLowerCase() || s.role.toLowerCase().includes(filter.toLowerCase()));
+    ? staffList
+    : staffList.filter(s => s.category.toLowerCase() === filter.toLowerCase() || s.role.toLowerCase().includes(filter.toLowerCase()));
 
   return (
     <main className={styles.container}>
@@ -92,11 +129,10 @@ export default function StaffPage() {
         {/* Page Header */}
         <div className={styles.pageHeader}>
           <div className={styles.titleGroup}>
-            <h1 className={styles.pageTitle}>Staff</h1>
-            <p className={styles.pageSubtitle}>12 staff members · 8 on shift today</p>
+            
           </div>
           <div className={styles.headerActions}>
-            <button className={styles.primaryBtn}>
+            <button className={styles.primaryBtn} onClick={() => setShowAddModal(true)}>
               <PlusIcon />
               Add Staff
             </button>
@@ -259,6 +295,84 @@ export default function StaffPage() {
           </div>
         </section>
       </div>
+
+      {showAddModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowAddModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>Add Staff Member</h2>
+            <form onSubmit={handleAddStaff}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Elena Rostova"
+                  className={styles.formInput}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Broad Category</label>
+                <select
+                  className={styles.formSelect}
+                  value={category}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    if (e.target.value === 'Manager') setRole('General Manager');
+                    else if (e.target.value === 'Waiter') setRole('Waiter');
+                    else if (e.target.value === 'Kitchen') setRole('Sous Chef');
+                    else if (e.target.value === 'Host') setRole('Hostess');
+                  }}
+                >
+                  <option value="Manager">Manager</option>
+                  <option value="Waiter">Waiter</option>
+                  <option value="Kitchen">Kitchen</option>
+                  <option value="Host">Host</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Specific Role</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Head Waiter, Sous Chef"
+                  className={styles.formInput}
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Initial Shift Status</label>
+                <select
+                  className={styles.formSelect}
+                  value={onShift ? 'true' : 'false'}
+                  onChange={(e) => setOnShift(e.target.value === 'true')}
+                >
+                  <option value="true">On Shift Today</option>
+                  <option value="false">Off Shift Today</option>
+                </select>
+              </div>
+
+              <div className={styles.modalActions}>
+                <button
+                  type="button"
+                  className={styles.modalCancelBtn}
+                  onClick={() => setShowAddModal(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className={styles.modalSaveBtn}>
+                  Add Member
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

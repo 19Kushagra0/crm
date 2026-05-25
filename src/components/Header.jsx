@@ -18,12 +18,21 @@ export default function Header({ onMenuToggle }) {
   } else if (pathname.startsWith('/menu')) {
     title = "Menu";
     subtitle = "48 items across 6 categories";
+  } else if (pathname.startsWith('/customers')) {
+    title = "Customers";
+    subtitle = "1,247 guests · 84 active this month";
   } else if (pathname.startsWith('/tables')) {
     title = "Tables";
     subtitle = "9 of 14 tables occupied · Next reservation in 28 min";
   } else if (pathname.startsWith('/kds')) {
     title = "Kitchen Display";
     subtitle = "Dinner Service · 19:42 · 9 tickets open";
+  } else if (pathname.startsWith('/staff')) {
+    title = "Staff";
+    subtitle = "12 staff members · 8 on shift today";
+  } else if (pathname.startsWith('/campaigns')) {
+    title = "Campaigns";
+    subtitle = "3 active · 12 sent this month · 68% avg open rate";
   }
 
   return (

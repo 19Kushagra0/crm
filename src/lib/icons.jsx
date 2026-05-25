@@ -266,3 +266,52 @@ export const Medal = ({ className, size = 24 }) => (
     <path d="M12 18v-2" />
   </svg>
 );
+
+// Lucide Plus
+export const Plus = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M5 12h14" />
+    <path d="M12 5v14" />
+  </svg>
+);
+
+// Lucide Search
+export const Search = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.3-4.3" />
+  </svg>
+);
+
+// Lucide Pencil (Edit)
+export const Pencil = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+  </svg>
+);
+
+// Lucide Trash2 (Delete)
+export const Trash2 = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M3 6h18" />
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    <line x1="10" x2="10" y1="11" y2="17" />
+    <line x1="14" x2="14" y1="11" y2="17" />
+  </svg>
+);
+
+// Lucide ChevronLeft
+export const ChevronLeft = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="m15 18-6-6 6-6" />
+  </svg>
+);
+
+// Lucide ChevronRight
+export const ChevronRight = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="m9 18 6-6-6-6" />
+  </svg>
+);

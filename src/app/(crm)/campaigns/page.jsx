@@ -101,10 +101,53 @@ const campaignsData = [
 
 export default function CampaignsPage() {
   const [filter, setFilter] = useState('All');
+  const [campaigns, setCampaigns] = useState(campaignsData);
+  const [showModal, setShowModal] = useState(false);
+
+  // Form State
+  const [campaignTitle, setCampaignTitle] = useState('');
+  const [campaignType, setCampaignType] = useState('Email');
+  const [campaignSegment, setCampaignSegment] = useState('Gold');
+  const [campaignStatus, setCampaignStatus] = useState('scheduled');
+  const [campaignPreview, setCampaignPreview] = useState('');
+
+  const handleCreateCampaign = (e) => {
+    e.preventDefault();
+    if (!campaignTitle.trim() || !campaignPreview.trim()) return;
+
+    let segmentMeta = "⭐ Gold · 156 customers";
+    if (campaignSegment === 'At Risk') segmentMeta = "⚠️ At Risk · 42 customers";
+    if (campaignSegment === 'Silver') segmentMeta = "🥈 Silver · 80 customers";
+    if (campaignSegment === 'Bronze') segmentMeta = "🥉 Bronze · 64 customers";
+    if (campaignSegment === 'New') segmentMeta = "🆕 New · 112 customers";
+
+    const newCampaign = {
+      id: Date.now(),
+      title: campaignTitle,
+      status: campaignStatus,
+      type: campaignType,
+      segment: campaignSegment,
+      segmentMeta,
+      sent: campaignStatus === 'completed' ? 80 : 0,
+      opened: campaignStatus === 'completed' ? 72 : 0,
+      openedPct: campaignStatus === 'completed' ? "90%" : "0%",
+      redeemed: campaignStatus === 'completed' ? 18 : 0,
+      redeemedPct: campaignStatus === 'completed' ? "22.5%" : "0%",
+      preview: campaignPreview,
+      footerText: campaignStatus === 'active' ? 'Sent Just Now' : campaignStatus === 'scheduled' ? 'Scheduled Tomorrow 7PM' : 'Drafted',
+      actionLabel: campaignStatus === 'scheduled' ? 'Edit Campaign' : 'View Report',
+      isEmail: campaignType === 'Email',
+    };
+
+    setCampaigns([newCampaign, ...campaigns]);
+    setCampaignTitle('');
+    setCampaignPreview('');
+    setShowModal(false);
+  };
 
   const filteredCampaigns = filter === 'All' 
-    ? campaignsData 
-    : campaignsData.filter(c => c.status.toLowerCase() === filter.toLowerCase());
+    ? campaigns 
+    : campaigns.filter(c => c.status.toLowerCase() === filter.toLowerCase());
 
   return (
     <main className={styles.container}>
@@ -112,10 +155,7 @@ export default function CampaignsPage() {
         {/* Page Header */}
         <div className={styles.pageHeader}>
           <div className={styles.titleGroup}>
-            <h1 className={styles.pageTitle}>Campaigns</h1>
-            <p className={styles.pageSubtitle}>
-              3 active · 12 sent this month · 68% avg open rate
-            </p>
+            
           </div>
           <div className={styles.headerActions}>
             {/* Filter Pills */}
@@ -130,7 +170,7 @@ export default function CampaignsPage() {
                 </button>
               ))}
             </div>
-            <button className={styles.primaryBtn}>
+            <button className={styles.primaryBtn} onClick={() => setShowModal(true)}>
               <PlusIcon />
               New Campaign
             </button>
@@ -268,6 +308,92 @@ export default function CampaignsPage() {
           </div>
         </div>
       </div>
+
+      {showModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>New Campaign</h2>
+            <form onSubmit={handleCreateCampaign}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Campaign Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Summer Solstice Special"
+                  className={styles.formInput}
+                  value={campaignTitle}
+                  onChange={(e) => setCampaignTitle(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Marketing Channel</label>
+                <select
+                  className={styles.formSelect}
+                  value={campaignType}
+                  onChange={(e) => setCampaignType(e.target.value)}
+                >
+                  <option value="Email">Email</option>
+                  <option value="SMS">SMS</option>
+                  <option value="WhatsApp">WhatsApp</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Target Segment</label>
+                <select
+                  className={styles.formSelect}
+                  value={campaignSegment}
+                  onChange={(e) => setCampaignSegment(e.target.value)}
+                >
+                  <option value="Gold">⭐ Gold Segment</option>
+                  <option value="Silver">🥈 Silver Segment</option>
+                  <option value="Bronze">🥉 Bronze Segment</option>
+                  <option value="New">🆕 New Segment</option>
+                  <option value="At Risk">⚠️ At Risk Segment</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Initial Status</label>
+                <select
+                  className={styles.formSelect}
+                  value={campaignStatus}
+                  onChange={(e) => setCampaignStatus(e.target.value)}
+                >
+                  <option value="scheduled">Scheduled</option>
+                  <option value="active">Launch Instantly</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Message Content</label>
+                <textarea
+                  required
+                  placeholder="Type your message body here..."
+                  className={styles.formTextArea}
+                  value={campaignPreview}
+                  onChange={(e) => setCampaignPreview(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.modalActions}>
+                <button
+                  type="button"
+                  className={styles.modalCancelBtn}
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className={styles.modalSaveBtn}>
+                  Create Campaign
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
