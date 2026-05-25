@@ -124,24 +124,6 @@ export default function Page() {
 
   return (
     <main className={styles.container}>
-      <meta charSet="utf-8" />
-      <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-      <title>DineFlow - Customers</title>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&family=Newsreader:wght@400&display=swap"
-        rel="stylesheet"
-      />
-      <style
-        dangerouslySetInnerHTML={{
-          __html:
-            "\n        .material-symbols-outlined {\n            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;\n        }\n        .material-symbols-outlined[data-weight=\"fill\"] {\n            font-variation-settings: 'FILL' 1;\n        }\n    "
-        }}
-      />
-
       <div className={styles.contentWrapper}>
         {/* Page Header */}
         <section className={styles.pageHeader} style={{ justifyContent: 'flex-end', paddingTop: 0 }}>

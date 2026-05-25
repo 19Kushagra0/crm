@@ -102,24 +102,6 @@ export default function Page() {
 
   return (
     <>
-      <meta charSet="utf-8" />
-      <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-      <title>DineFlow - Menu Management</title>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&family=Newsreader:opsz,wght@6..72,400&display=swap"
-        rel="stylesheet"
-      />
-      <style
-        dangerouslySetInnerHTML={{
-          __html:
-            "\n        body { font-family: 'Inter', sans-serif; }\n        .material-symbols-outlined { font-variation-settings: 'FILL' 0; }\n        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }\n    "
-        }}
-      />
-      
       {/* Main Content Wrapper */}
       <div className={styles.container}>
         {/* Page Canvas */}
