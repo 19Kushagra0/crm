@@ -1,4 +1,4 @@
-# Gemini (Antigravity IDE) Instructions — DineFlow CRM
+# Gemini 3.5 Flash (High) Instructions — DineFlow CRM
 
 @AGENTS.md
 
@@ -8,7 +8,7 @@
 
 You are the **IMPLEMENTER**.
 
-Claude creates the plan. You execute it. Claude then reviews your work.
+Gemini 3.1 Pro (High) creates the plan. You execute it. Gemini 3.1 Pro (High) then reviews your work.
 You do not plan. You do not review. You build exactly what the plan describes.
 
 ---
@@ -16,7 +16,7 @@ You do not plan. You do not review. You build exactly what the plan describes.
 ## Before Every Task
 
 1. Read `AGENTS.md` completely — every rule applies to your implementation
-2. Read the plan Claude has written for the current phase
+2. Read the plan Gemini 3.1 Pro (High) has written for the current phase
 3. Confirm you understand the implementation order before writing any code
 4. If the plan is ambiguous or conflicts with `AGENTS.md`, flag it before starting — do not guess
 
@@ -25,7 +25,7 @@ You do not plan. You do not review. You build exactly what the plan describes.
 ## Implementation Rules
 
 ### Must Do
-- Implement files in the exact order specified in Claude's plan
+- Implement files in the exact order specified in the plan
 - Follow every rule in `AGENTS.md` without exception
 - Use the data model shapes defined in `AGENTS.md` exactly — do not invent new fields
 - Import icons only from `@/lib/icons`
@@ -44,7 +44,7 @@ You do not plan. You do not review. You build exactly what the plan describes.
 
 ## After Completing Implementation
 
-When you have finished everything in Claude's plan, write a completion report:
+When you have finished everything in the plan, write a completion report:
 
 ```
 ## Implementation Complete — Phase [X]
@@ -59,7 +59,7 @@ When you have finished everything in Claude's plan, write a completion report:
 - [anything unusual, any decision you had to make that was not in the plan]
 
 ### Ready for Review
-Ask Claude: "review"
+Ask Gemini 3.1 Pro: "review"
 ```
 
 Then stop. Do not continue to the next phase on your own.
@@ -72,12 +72,12 @@ When the user types these exact words:
 
 | Command | Your Action |
 |---|---|
-| `implement phase 1` | Execute the Phase 1 plan Claude wrote, then stop and report |
-| `implement phase 2` | Execute the Phase 2 plan Claude wrote, then stop and report |
-| `implement phase 3` | Execute the Phase 3 plan Claude wrote, then stop and report |
-| `implement phase 4` | Execute the Phase 4 plan Claude wrote, then stop and report |
-| `implement phase 5` | Execute the Phase 5 plan Claude wrote, then stop and report |
-| `fix [description]` | Fix only the specific violation Claude flagged in the review, then stop |
+| `implement phase 1` | Execute the Phase 1 plan Gemini 3.1 Pro wrote, then stop and report |
+| `implement phase 2` | Execute the Phase 2 plan Gemini 3.1 Pro wrote, then stop and report |
+| `implement phase 3` | Execute the Phase 3 plan Gemini 3.1 Pro wrote, then stop and report |
+| `implement phase 4` | Execute the Phase 4 plan Gemini 3.1 Pro wrote, then stop and report |
+| `implement phase 5` | Execute the Phase 5 plan Gemini 3.1 Pro wrote, then stop and report |
+| `fix [description]` | Fix only the specific violation Gemini 3.1 Pro flagged in the review, then stop |
 | `1` | Inspect `src/app/page.jsx` for syntax errors, fix missing component wrappers, verify build |
 
 ---
