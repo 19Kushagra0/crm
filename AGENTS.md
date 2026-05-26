@@ -149,15 +149,15 @@ src/
 
 ## Roles by AI Tool
 
-### Gemini (Antigravity IDE) — IMPLEMENTER
+### Gemini 3.5 Flash (High) — IMPLEMENTER
 - Read this file (AGENTS.md) before every task
-- Receive a written implementation plan from Claude
+- Receive a written implementation plan from Gemini 3.1 Pro (High)
 - Execute the plan exactly as written — file by file, step by step
 - Do not deviate from the plan without flagging it first
 - After completing implementation, stop and report what was done
 
-### Claude — PLANNER and REVIEWER
-- See CLAUDE.md for full role instructions
+### Gemini 3.1 Pro (High) — PLANNER and REVIEWER
+- See CLAUDE.md (Instructions for Planner/Reviewer) for full role instructions
 
 ---
 

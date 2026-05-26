@@ -8,11 +8,11 @@ All AI tools should check this file for quick-trigger instructions.
 ## Workflow Overview
 
 ```
-1. You → Claude:  "plan phase X"       Claude writes the plan, then stops
-2. You → Gemini:  "implement phase X"  Gemini executes the plan, then stops
-3. You → Claude:  "review"             Claude audits, flags violations, then stops
-4. You → Gemini:  "fix [description]"  Gemini fixes only what Claude flagged, then stops
-5. Repeat from step 3 until Claude says APPROVED
+1. You → Gemini 3.1 Pro (High):  "plan phase X"       Writes the plan, then stops
+2. You → Gemini 3.5 Flash (High): "implement phase X" Executes the plan, then stops
+3. You → Gemini 3.1 Pro (High):  "review"             Audits, flags violations, then stops
+4. You → Gemini 3.5 Flash (High): "fix [description]" Fixes only what was flagged, then stops
+5. Repeat from step 3 until Gemini 3.1 Pro says APPROVED
 6. Move to next phase
 ```
 
@@ -20,9 +20,9 @@ All AI tools should check this file for quick-trigger instructions.
 
 ## Shortcut Command Reference
 
-### For Claude
+### For Gemini 3.1 Pro (High) — PLANNER and REVIEWER
 
-| Command | What Claude Does |
+| Command | What Gemini 3.1 Pro Does |
 |---|---|
 | `plan phase 1` | Write Phase 1 implementation plan — Fix metadata title, lock data models |
 | `plan phase 2` | Write Phase 2 implementation plan — Install Zustand, create stores and services |
@@ -33,35 +33,65 @@ All AI tools should check this file for quick-trigger instructions.
 | `status` | Show which phases are done, in progress, not started |
 | `what next` | State the next uncompleted task from the AGENTS.md checklist |
 
-### For Gemini
+### For Gemini 3.5 Flash (High) — IMPLEMENTER
 
-| Command | What Gemini Does |
+| Command | What Gemini 3.5 Flash Does |
 |---|---|
-| `implement phase 1` | Execute Phase 1 plan from Claude |
-| `implement phase 2` | Execute Phase 2 plan from Claude |
-| `implement phase 3` | Execute Phase 3 plan from Claude |
-| `implement phase 4` | Execute Phase 4 plan from Claude |
-| `implement phase 5` | Execute Phase 5 plan from Claude |
-| `fix [description]` | Fix specific violation Claude flagged in review |
+| `implement phase 1` | Execute Phase 1 plan from Gemini 3.1 Pro (High) |
+| `implement phase 2` | Execute Phase 2 plan from Gemini 3.1 Pro (High) |
+| `implement phase 3` | Execute Phase 3 plan from Gemini 3.1 Pro (High) |
+| `implement phase 4` | Execute Phase 4 plan from Gemini 3.1 Pro (High) |
+| `implement phase 5` | Execute Phase 5 plan from Gemini 3.1 Pro (High) |
+| `fix [description]` | Fix specific violation Gemini 3.1 Pro (High) flagged in review |
 | `1` | Inspect and fix `src/app/page.jsx` syntax issues and verify build |
 
 ---
 
 ## Phase Summary
 
-| Phase | Goal | Status |
-|---|---|---|
-| Phase 1 | Fix metadata title + lock data model shapes | ⬜ Not Started |
-| Phase 2 | Install Zustand + create stores + create service layer | ⬜ Not Started |
-| Phase 3 | Connect orders, service, kds, dashboard pages to stores | ⬜ Not Started |
-| Phase 4 | Fix Header dynamic subtitles + real computed order timers | ⬜ Not Started |
-| Phase 5 | Tables interactivity + loyalty page + loading/error states | ⬜ Not Started |
+| Phase | Goal | Status | Implemented By | Reviewed By |
+|---|---|---|---|---|
+| Phase 1 | Fix metadata title + lock data model shapes | ✅ Complete | Gemini 3.5 Flash (High) | Gemini 3.1 Pro (High) - APPROVED |
+| Phase 2 | Install Zustand + create stores + create service layer | ✅ Complete | Gemini 3.5 Flash (High) | Gemini 3.1 Pro (High) - APPROVED |
+| Phase 3 | Connect orders, service, kds, dashboard pages to stores | ⬜ Not Started | — | — |
+| Phase 4 | Fix Header dynamic subtitles + real computed order timers | ⬜ Not Started | — | — |
+| Phase 5 | Tables interactivity + loyalty page + loading/error states | ⬜ Not Started | — | — |
+
+---
+
+## Implementation Log
+
+### Phase 1 — ✅ Complete
+- **Implemented by:** Gemini 3.5 Flash (High)
+- **Reviewed by:** ✅ Gemini 3.1 Pro (High) - Approved
+- **Files modified:**
+  - `src/app/layout.js` — Updated title from `"Create Next App"` to `"DineFlow"` and added description metadata
+  - `src/app/(crm)/orders/page.jsx` — Replaced all static `timer` string fields with `createdAt: new Date(Date.now() - X * 60 * 1000)` to match the canonical Order data model
+  - `src/app/(crm)/service/page.jsx` — Added TODO comments above each static `time` field flagging them for Phase 3 dynamic computation
+- **Build result:** ✅ Zero errors
+
+### Phase 2 — ✅ Complete
+- **Implemented by:** Gemini 3.5 Flash (High)
+- **Reviewed by:** ✅ Gemini 3.1 Pro (High) - Approved
+- **Files created:**
+  - `src/lib/stores/ordersStore.js` — Zustand store, exports `useOrdersStore`. Holds active and completed orders. Actions: `transitionOrder`, `serveAndClose`.
+  - `src/lib/stores/customersStore.js` — Zustand store, exports `useCustomersStore`. Holds customers list. Actions: `addCustomer`, `updateCustomer`. Uses locked tiers: `"Standard" | "VIP" | "Platinum"`.
+  - `src/lib/stores/tablesStore.js` — Zustand store, exports `useTablesStore`. Holds table floor map. Action: `setTableStatus`.
+  - `src/services/OrderService.js` — Service layer, default export `OrderService`. Wraps `useOrdersStore.getState()` calls.
+  - `src/services/CustomerService.js` — Service layer, default export `CustomerService`. Wraps `useCustomersStore.getState()` calls.
+  - `src/services/TablesService.js` — Service layer, default export `TablesService`. Wraps `useTablesStore.getState()` calls.
+- **Files modified:**
+  - `package.json` — Added `zustand ^5.0.13` to `dependencies`
+- **Known conflict recorded:** `customers/page.jsx` uses non-standard tiers (`"Gold"`, `"Silver"`, `"At Risk"`). Store uses locked model tiers. Will be reconciled in Phase 3.
+- **No page files were modified in this phase**
+- **Build result:** ✅ Compiled successfully in 7.3s, zero errors, all 14 pages generated
 
 ---
 
 ## Notes
 
-- Claude is the PLANNER and REVIEWER — see `CLAUDE.md`
-- Gemini is the IMPLEMENTER — see `GEMINI.md`
+- Gemini 3.1 Pro (High) is the PLANNER and REVIEWER — see `CLAUDE.md`
+- Gemini 3.5 Flash (High) is the IMPLEMENTER — see `GEMINI.md`
 - All architectural rules live in `AGENTS.md` — every AI must read it first
 - Never skip a phase — each phase is a dependency for the next
+- Current reviewer: **Gemini 3.1 Pro (High)** (Phase 2 implementation check passed)
