@@ -13,7 +13,7 @@ const initialActiveOrders = [
       { name: "1x Scallop Crudo" }
     ],
     status: "incoming",
-    timer: "2m ago",
+    createdAt: new Date(Date.now() - 2 * 60 * 1000),
     price: "$64.00"
   },
   {
@@ -24,7 +24,7 @@ const initialActiveOrders = [
       { name: "2x Negroni" }
     ],
     status: "incoming",
-    timer: "4m ago",
+    createdAt: new Date(Date.now() - 4 * 60 * 1000),
     price: "$48.00"
   },
   {
@@ -36,7 +36,7 @@ const initialActiveOrders = [
       { name: "1x Grilled Asparagus" }
     ],
     status: "preparing",
-    timer: "18m elapsed",
+    createdAt: new Date(Date.now() - 18 * 60 * 1000),
     price: "$215.00",
     isDelayed: true
   },
@@ -48,7 +48,7 @@ const initialActiveOrders = [
       { name: "1x Pommes Purée" }
     ],
     status: "preparing",
-    timer: "12m elapsed",
+    createdAt: new Date(Date.now() - 12 * 60 * 1000),
     price: "$88.00"
   },
   {
@@ -59,7 +59,7 @@ const initialActiveOrders = [
       { name: "2x Caesar Salad" }
     ],
     status: "ready",
-    timer: "Waiting: 3m",
+    createdAt: new Date(Date.now() - 3 * 60 * 1000),
     price: "$145.00"
   }
 ];
