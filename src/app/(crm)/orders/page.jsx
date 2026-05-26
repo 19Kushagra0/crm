@@ -3,75 +3,17 @@
 import React, { useState } from 'react';
 import styles from '@/style/orders.module.css';
 import { Clock } from '@/lib/icons';
+import OrderService from '@/services/OrderService';
 
-const initialActiveOrders = [
-  {
-    id: "ORD-9012",
-    table: "T-12",
-    items: [
-      { name: "2x Wagyu Tartare" },
-      { name: "1x Scallop Crudo" }
-    ],
-    status: "incoming",
-    createdAt: new Date(Date.now() - 2 * 60 * 1000),
-    price: "$64.00"
-  },
-  {
-    id: "ORD-9013",
-    table: "Bar-2",
-    items: [
-      { name: "1x Truffle Fries" },
-      { name: "2x Negroni" }
-    ],
-    status: "incoming",
-    createdAt: new Date(Date.now() - 4 * 60 * 1000),
-    price: "$48.00"
-  },
-  {
-    id: "ORD-8998",
-    table: "T-4",
-    items: [
-      { name: "1x Tomahawk Ribeye", meta: "Med Rare" },
-      { name: "2x Lobster Mac" },
-      { name: "1x Grilled Asparagus" }
-    ],
-    status: "preparing",
-    createdAt: new Date(Date.now() - 18 * 60 * 1000),
-    price: "$215.00",
-    isDelayed: true
-  },
-  {
-    id: "ORD-9005",
-    table: "T-8",
-    items: [
-      { name: "2x Duck Breast" },
-      { name: "1x Pommes Purée" }
-    ],
-    status: "preparing",
-    createdAt: new Date(Date.now() - 12 * 60 * 1000),
-    price: "$88.00"
-  },
-  {
-    id: "ORD-8990",
-    table: "T-1",
-    items: [
-      { name: "1x Châteaubriand" },
-      { name: "2x Caesar Salad" }
-    ],
-    status: "ready",
-    createdAt: new Date(Date.now() - 3 * 60 * 1000),
-    price: "$145.00"
-  }
-];
-
-const initialCompletedOrders = [
-  { id: "ORD-8985", table: "T-6", price: "$320.00" },
-  { id: "ORD-8984", table: "Bar-1", price: "$45.00" }
-];
+const getMinutesAgo = (createdAt) => {
+  const diffMs = Date.now() - new Date(createdAt).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  return `${diffMins}m`;
+};
 
 export default function Page() {
-  const [activeOrders, setActiveOrders] = useState(initialActiveOrders);
-  const [completedOrders, setCompletedOrders] = useState(initialCompletedOrders);
+  const activeOrders = OrderService.useActiveOrders();
+  const completedOrders = OrderService.useCompletedOrders();
   const [activeFilter, setActiveFilter] = useState('All');
 
   const incomingCount = activeOrders.filter(o => o.status === 'incoming').length;
@@ -80,20 +22,13 @@ export default function Page() {
   const totalActive = activeOrders.length;
 
   const transitionOrder = (orderId, newStatus) => {
-    setActiveOrders(prev =>
-      prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o)
-    );
+    OrderService.transitionOrder(orderId, newStatus);
   };
 
   const serveAndCloseOrder = (order) => {
-    // Remove from active list
-    setActiveOrders(prev => prev.filter(o => o.id !== order.id));
-    // Add to completed list
-    setCompletedOrders(prev => [
-      { id: order.id, table: order.table, price: order.price },
-      ...prev
-    ]);
+    OrderService.serveAndClose(order);
   };
+
 
   return (
     <>
@@ -173,7 +108,7 @@ export default function Page() {
                         <div className={styles.cardTimerRow}>
                           <Clock size={14} className={styles.timerIcon} />
                           <span className={styles.cardTimer}>
-                            {o.timer}
+                            {getMinutesAgo(o.createdAt)}
                           </span>
                         </div>
                         <span className={styles.cardPrice}>
@@ -240,7 +175,7 @@ export default function Page() {
                         <div className={styles.cardTimerRow}>
                           <Clock size={14} className={o.isDelayed ? styles.timerIconDelayed : styles.timerIcon} />
                           <span className={o.isDelayed ? styles.cardTimerDelayed : styles.cardTimer}>
-                            {o.timer}
+                            {getMinutesAgo(o.createdAt)}
                           </span>
                         </div>
                         <span className={styles.cardPrice}>
@@ -302,7 +237,7 @@ export default function Page() {
                         <div className={styles.cardTimerRow}>
                           <Clock size={14} className={styles.timerIcon} />
                           <span className={styles.cardTimer}>
-                            {o.timer}
+                            {getMinutesAgo(o.createdAt)}
                           </span>
                         </div>
                         <span className={styles.cardPrice}>

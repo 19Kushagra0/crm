@@ -1,8 +1,19 @@
+"use client";
+
 import React from 'react';
 import styles from '@/style/dashboard.module.css';
 import { Clock, Star, CalendarDays, Megaphone, BarChart3 } from '@/lib/icons';
+import OrderService from '@/services/OrderService';
+import TablesService from '@/services/TablesService';
 
 export default function DashboardPage() {
+  const activeOrders = OrderService.useActiveOrders();
+  const tables = TablesService.useTables();
+
+  const occupiedTables = tables.filter(t => t.status === 'occupied').length;
+  const totalTables = tables.length;
+  const tablesOccupiedPercentage = totalTables > 0 ? (occupiedTables / totalTables) * 100 : 0;
+
   return (
     <div className={styles.container}>
       {/* Row 1: KPI Cards */}
@@ -19,18 +30,18 @@ export default function DashboardPage() {
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <span className={styles.kpiLabel}>Active Orders</span>
-            <span className={styles.badgePrimary}>3 New</span>
+            <span className={styles.badgePrimary}>Live</span>
           </div>
-          <div className={styles.kpiValue}>14</div>
+          <div className={styles.kpiValue}>{activeOrders.length}</div>
         </div>
         {/* Tables */}
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeaderMargin}>
             <span className={styles.kpiLabel}>Tables Occupied</span>
-            <span className={styles.dataMonoValue}>9 / 14</span>
+            <span className={styles.dataMonoValue}>{occupiedTables} / {totalTables}</span>
           </div>
           <div className={styles.progressBarContainer}>
-            <div className={styles.progressBarFill} style={{ width: '64%' }} />
+            <div className={styles.progressBarFill} style={{ width: `${tablesOccupiedPercentage}%` }} />
           </div>
         </div>
         {/* Avg Order Value */}

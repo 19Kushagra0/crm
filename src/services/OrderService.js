@@ -1,5 +1,8 @@
 import { useOrdersStore } from "@/lib/stores/ordersStore";
 const OrderService = {
+  useActiveOrders: () => useOrdersStore((state) => state.activeOrders),
+
+  useCompletedOrders: () => useOrdersStore((state) => state.completedOrders),
 
   getActiveOrders: () => useOrdersStore.getState().activeOrders,
 
