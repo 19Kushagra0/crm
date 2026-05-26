@@ -168,7 +168,7 @@ export default function ServicePage() {
                         <span className={styles.orderTable}>
                           {o.table}
                         </span>
-                        <span className={styles.orderTime}>{o.createdAt ? getMinutesAgo(o.createdAt) : '5m ago'}</span>
+                        <span className={styles.orderTime}>{getMinutesAgo(o.createdAt)}</span>
                       </div>
                       <p className={styles.orderTitle}>
                         {o.items.map(item => item.name).join(', ')}
@@ -201,7 +201,7 @@ export default function ServicePage() {
                           {o.table}
                         </span>
                         <span className={styles.orderTime}>
-                          {o.createdAt ? getMinutesAgo(o.createdAt) : '10m ago'}
+                          {getMinutesAgo(o.createdAt)}
                         </span>
                       </div>
                       <p className={styles.orderTitle}>{o.items.map(item => item.name).join(', ')}</p>

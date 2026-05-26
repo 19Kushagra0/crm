@@ -6,6 +6,13 @@ import { Clock, Star, CalendarDays, Megaphone, BarChart3 } from '@/lib/icons';
 import OrderService from '@/services/OrderService';
 import TablesService from '@/services/TablesService';
 
+const getMinutesAgo = (createdAt) => {
+  if (!createdAt) return '0m';
+  const diffMs = Date.now() - new Date(createdAt).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  return `${diffMins}m`;
+};
+
 export default function DashboardPage() {
   const activeOrders = OrderService.useActiveOrders();
   const tables = TablesService.useTables();
@@ -13,6 +20,14 @@ export default function DashboardPage() {
   const occupiedTables = tables.filter(t => t.status === 'occupied').length;
   const totalTables = tables.length;
   const tablesOccupiedPercentage = totalTables > 0 ? (occupiedTables / totalTables) * 100 : 0;
+
+  const incomingOrders = activeOrders.filter(o => o.status === 'incoming');
+  const preparingOrders = activeOrders.filter(o => o.status === 'preparing');
+  const readyOrders = activeOrders.filter(o => o.status === 'ready');
+
+  const incomingCount = incomingOrders.length;
+  const preparingCount = preparingOrders.length;
+  const readyCount = readyOrders.length;
 
   return (
     <div className={styles.container}>
@@ -67,58 +82,61 @@ export default function DashboardPage() {
             <div>
               <div className={styles.columnHeader}>
                 <span className={`${styles.columnDot} ${styles.bgAmber}`} />
-                <span className={styles.kpiLabel}>Incoming (4)</span>
+                <span className={styles.kpiLabel}>Incoming ({incomingCount})</span>
               </div>
-              {/* Order Card */}
-              <div className={styles.orderCard}>
-                <div className={styles.orderCardHeader}>
-                  <span className={styles.orderCardId}>#ORD-892</span>
-                  <span className={styles.tableBadge}>T-12</span>
+              {incomingOrders.map(o => (
+                <div key={o.id} className={styles.orderCard}>
+                  <div className={styles.orderCardHeader}>
+                    <span className={styles.orderCardId}>#{o.id}</span>
+                    <span className={styles.tableBadge}>{o.table}</span>
+                  </div>
+                  <p className={styles.orderDetails}>{o.items.map(i => i.name).join(', ')}</p>
+                  <div className={styles.cardTimerRow}>
+                    <Clock size={14} className={styles.timerAmber} />
+                    <span className={`${styles.orderCardId} ${styles.timerAmber}`}>{getMinutesAgo(o.createdAt)}</span>
+                  </div>
                 </div>
-                <p className={styles.orderDetails}>2x Truffle Risotto, 1x Wagyu Steak, 1x Sparkling Water</p>
-                <div className={styles.cardTimerRow}>
-                  <Clock size={14} className={styles.timerAmber} />
-                  <span className={`${styles.orderCardId} ${styles.timerAmber}`}>12m</span>
-                </div>
-              </div>
+              ))}
             </div>
             {/* Preparing */}
             <div>
               <div className={styles.columnHeader}>
                 <span className={`${styles.columnDot} ${styles.bgTertiary}`} />
-                <span className={styles.kpiLabel}>Preparing (6)</span>
+                <span className={styles.kpiLabel}>Preparing ({preparingCount})</span>
               </div>
-              {/* Order Card */}
-              <div className={styles.orderCard}>
-                <div className={styles.orderCardHeader}>
-                  <span className={styles.orderCardId}>#ORD-890</span>
-                  <span className={styles.tableBadge}>T-04</span>
+              {preparingOrders.map(o => (
+                <div key={o.id} className={styles.orderCard}>
+                  <div className={styles.orderCardHeader}>
+                    <span className={styles.orderCardId}>#{o.id}</span>
+                    <span className={styles.tableBadge}>{o.table}</span>
+                  </div>
+                  <p className={styles.orderDetails}>{o.items.map(i => i.name).join(', ')}</p>
+                  <div className={styles.cardTimerRow}>
+                    <Clock size={14} className={styles.timerSecondary} />
+                    <span className={`${styles.orderCardId} ${styles.timerSecondary}`}>{getMinutesAgo(o.createdAt)}</span>
+                  </div>
                 </div>
-                <p className={styles.orderDetails}>1x Seafood Platter, 2x White Wine, 1x Oysters</p>
-                <div className={styles.cardTimerRow}>
-                  <Clock size={14} className={styles.timerSecondary} />
-                  <span className={`${styles.orderCardId} ${styles.timerSecondary}`}>24m</span>
-                </div>
-              </div>
+              ))}
             </div>
             {/* Ready */}
             <div>
               <div className={styles.columnHeader}>
                 <span className={`${styles.columnDot} ${styles.bgPrimary}`} />
-                <span className={styles.kpiLabel}>Ready (4)</span>
+                <span className={styles.kpiLabel}>Ready ({readyCount})</span>
               </div>
-              {/* Order Card */}
-              <div className={styles.orderCard}>
-                <div className={styles.orderCardHeader}>
-                  <span className={styles.orderCardId}>#ORD-885</span>
-                  <span className={styles.tableBadge}>T-08</span>
+              {readyOrders.map(o => (
+                <div key={o.id} className={styles.orderCard}>
+                  <div className={styles.orderCardHeader}>
+                    <span className={styles.orderCardId}>#{o.id}</span>
+                    <span className={styles.tableBadge}>{o.table}</span>
+                  </div>
+                  <p className={styles.orderDetails}>{o.items.map(i => i.name).join(', ')}</p>
+                  <div className={styles.cardTimerRow}>
+                    <Clock size={14} className={styles.timerSecondary} />
+                    <span className={`${styles.orderCardId} ${styles.timerSecondary}`}>{getMinutesAgo(o.createdAt)}</span>
+                  </div>
                 </div>
-                <p className={styles.orderDetails}>3x Chocolate Souffle, 3x Espresso</p>
-                <div className={styles.cardTimerRow}>
-                  <Clock size={14} className={styles.timerSecondary} />
-                  <span className={`${styles.orderCardId} ${styles.timerSecondary}`}>2m</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

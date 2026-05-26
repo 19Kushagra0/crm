@@ -1,32 +1,48 @@
+"use client";
+
 import React from 'react';
 import styles from '@/style/header.module.css';
 import { Bell, Menu } from '@/lib/icons';
 import { usePathname } from 'next/navigation';
+import OrderService from '@/services/OrderService';
+import TablesService from '@/services/TablesService';
+import CustomerService from '@/services/CustomerService';
 
 export default function Header({ onMenuToggle }) {
   const pathname = usePathname() || '';
 
+  const activeOrders = OrderService.useActiveOrders();
+  const tables = TablesService.useTables();
+  const customers = CustomerService.useCustomers();
+
+  const formattedDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
   let title = "Dashboard";
-  let subtitle = "Saturday, 24 May 2026";
+  let subtitle = formattedDate;
 
   if (pathname.startsWith('/service')) {
     title = "Service";
-    subtitle = "Saturday, 24 May 2026";
+    subtitle = formattedDate;
   } else if (pathname.startsWith('/orders')) {
     title = "Orders";
-    subtitle = "14 active orders";
+    subtitle = `${activeOrders.length} active orders`;
   } else if (pathname.startsWith('/menu')) {
     title = "Menu";
     subtitle = "48 items across 6 categories";
   } else if (pathname.startsWith('/customers')) {
     title = "Customers";
-    subtitle = "1,247 guests · 84 active this month";
+    subtitle = `${customers.length} guests`;
   } else if (pathname.startsWith('/tables')) {
     title = "Tables";
-    subtitle = "9 of 14 tables occupied · Next reservation in 28 min";
+    subtitle = `${tables.filter(t => t.status === 'occupied').length} of ${tables.length} tables occupied`;
   } else if (pathname.startsWith('/kds')) {
     title = "Kitchen Display";
-    subtitle = "Dinner Service · 19:42 · 9 tickets open";
+    subtitle = `Dinner Service · ${activeOrders.length} tickets open`;
   } else if (pathname.startsWith('/staff')) {
     title = "Staff";
     subtitle = "12 staff members · 8 on shift today";
