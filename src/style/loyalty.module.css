@@ -228,6 +228,14 @@
   margin-bottom: 1.5rem;
 }
 
+.emptyState {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: var(--color-secondary, #605e5b);
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
 /* Redemption rows */
 .redemptionRow {
   display: flex;

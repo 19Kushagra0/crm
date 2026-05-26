@@ -1,8 +1,146 @@
+"use client";
+
 import React from 'react';
 import styles from '@/style/tables.module.css';
 import { Plus } from '@/lib/icons';
+import TablesService from '@/services/TablesService';
 
 export default function TablesPage() {
+  const tables = TablesService.useTables();
+
+  const handleTableClick = (table) => {
+    const statuses = ["available", "occupied", "reserved", "cleaning"];
+    const currentIndex = statuses.indexOf(table.status);
+    const nextStatus = statuses[(currentIndex + 1) % statuses.length];
+    
+    let reservedAt = undefined;
+    if (nextStatus === "reserved") {
+      reservedAt = table.reservedAt || (table.id === "T-4" ? "19:30" : "20:00");
+    }
+    
+    TablesService.setTableStatus(table.id, nextStatus, reservedAt);
+  };
+
+  const renderTable = (t) => {
+    const isWindow = t.zone === 'WINDOW';
+    const isCenter = t.zone === 'CENTER';
+    const isBar = t.zone === 'BAR';
+    const isPrivate = t.zone === 'PRIVATE';
+
+    if (isWindow) {
+      if (t.status === 'available') {
+        return (
+          <div key={t.id} className={styles.tableCardRectAvailable} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <span className={styles.tableCapacity}>{t.seats}p</span>
+          </div>
+        );
+      } else if (t.status === 'occupied') {
+        return (
+          <div key={t.id} className={styles.tableCardRectOccupied} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <div className={styles.capacityBadge}>{t.seats}p</div>
+          </div>
+        );
+      } else if (t.status === 'reserved') {
+        return (
+          <div key={t.id} className={styles.tableCardRectReserved} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <span className={styles.tableTime}>{t.reservedAt || '19:30'}</span>
+          </div>
+        );
+      } else { // cleaning
+        return (
+          <div key={t.id} className={styles.tableCardRectAvailable} style={{ opacity: 0.6 }} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <span className={styles.tableCapacity} style={{ fontStyle: 'italic' }}>Clean</span>
+          </div>
+        );
+      }
+    }
+
+    if (isCenter) {
+      if (t.status === 'available') {
+        return (
+          <div key={t.id} className={styles.tableCardRoundAvailable} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <span className={styles.tableCapacity}>{t.seats}p</span>
+          </div>
+        );
+      } else if (t.status === 'occupied') {
+        return (
+          <div key={t.id} className={styles.tableCardRoundOccupied} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <div className={styles.capacityBadge}>{t.seats}p</div>
+          </div>
+        );
+      } else if (t.status === 'reserved') {
+        return (
+          <div key={t.id} className={styles.tableCardRoundReserved} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <span className={styles.tableTime}>{t.reservedAt || '20:00'}</span>
+          </div>
+        );
+      } else { // cleaning
+        return (
+          <div key={t.id} className={styles.tableCardRoundAvailable} style={{ opacity: 0.6 }} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <span className={styles.tableCapacity} style={{ fontStyle: 'italic' }}>Clean</span>
+          </div>
+        );
+      }
+    }
+
+    if (isBar) {
+      const label = t.id.replace('T-', 'B').replace('B-', 'B');
+      if (t.status === 'occupied') {
+        return (
+          <div key={t.id} className={styles.barStoolOccupied} onClick={() => handleTableClick(t)}>
+            {label}
+          </div>
+        );
+      } else {
+        return (
+          <div key={t.id} className={styles.barStoolCleaning} onClick={() => handleTableClick(t)}>
+            {label}
+          </div>
+        );
+      }
+    }
+
+    if (isPrivate) {
+      if (t.status === 'available') {
+        return (
+          <div key={t.id} className={styles.privateTableAvailable} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <span className={styles.tableCapacity}>{t.seats}p</span>
+          </div>
+        );
+      } else if (t.status === 'occupied') {
+        return (
+          <div key={t.id} className={styles.privateTableOccupied} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <div className={styles.capacityBadge}>{t.seats}p</div>
+          </div>
+        );
+      } else { // cleaning or reserved fallback
+        return (
+          <div key={t.id} className={styles.privateTableCleaning} onClick={() => handleTableClick(t)}>
+            <span className={styles.tableName}>{t.id}</span>
+            <span className={styles.privateStatus}>Cleaning</span>
+          </div>
+        );
+      }
+    }
+
+    return null;
+  };
+
+  const windowTables = tables.filter(t => t.zone === 'WINDOW');
+  const centerTables = tables.filter(t => t.zone === 'CENTER');
+  const barTables = tables.filter(t => t.zone === 'BAR');
+  const privateTables = tables.filter(t => t.zone === 'PRIVATE');
+
   return (
     <main className={styles.container}>
       {/* Floor Plan Area */}
@@ -36,62 +174,12 @@ export default function TablesPage() {
                   <div className={styles.zoneLabel}>
                     WINDOW
                   </div>
-                  {/* T-1 Available */}
-                  <div className={styles.tableCardRectAvailable}>
-                    <span className={styles.tableName}>T-1</span>
-                    <span className={styles.tableCapacity}>2p</span>
-                  </div>
-                  {/* T-2 Occupied */}
-                  <div className={styles.tableCardRectOccupied}>
-                    <span className={styles.tableName}>T-2</span>
-                    <div className={styles.capacityBadge}>
-                      2p
-                    </div>
-                  </div>
-                  {/* T-3 Occupied */}
-                  <div className={styles.tableCardRectOccupied}>
-                    <span className={styles.tableName}>T-3</span>
-                    <div className={styles.capacityBadge}>
-                      4p
-                    </div>
-                  </div>
-                  {/* T-4 Reserved */}
-                  <div className={styles.tableCardRectReserved}>
-                    <span className={styles.tableName}>T-4</span>
-                    <span className={styles.tableTime}>
-                      19:30
-                    </span>
-                  </div>
+                  {windowTables.map(renderTable)}
                 </div>
 
                 {/* Center Grid */}
                 <div className={styles.centerGrid}>
-                  {/* T-5 Available */}
-                  <div className={styles.tableCardRoundAvailable}>
-                    <span className={styles.tableName}>T-5</span>
-                    <span className={styles.tableCapacity}>4p</span>
-                  </div>
-                  {/* T-6 Occupied */}
-                  <div className={styles.tableCardRoundOccupied}>
-                    <span className={styles.tableName}>T-6</span>
-                    <div className={styles.capacityBadge}>
-                      4p
-                    </div>
-                  </div>
-                  {/* T-7 Reserved */}
-                  <div className={styles.tableCardRoundReserved}>
-                    <span className={styles.tableName}>T-7</span>
-                    <span className={styles.tableTime}>
-                      20:00
-                    </span>
-                  </div>
-                  {/* T-8 Occupied */}
-                  <div className={styles.tableCardRoundOccupied}>
-                    <span className={styles.tableName}>T-8</span>
-                    <div className={styles.capacityBadge}>
-                      6p
-                    </div>
-                  </div>
+                  {centerTables.map(renderTable)}
                 </div>
 
                 {/* Private Row Back & Bar */}
@@ -102,18 +190,7 @@ export default function TablesPage() {
                       BAR
                     </div>
                     <div className={styles.barStoolsRow}>
-                      {/* T-9 Occupied */}
-                      <div className={styles.barStoolOccupied}>
-                        B1
-                      </div>
-                      {/* T-10 Cleaning */}
-                      <div className={styles.barStoolCleaning}>
-                        B2
-                      </div>
-                      {/* T-11 Occupied */}
-                      <div className={styles.barStoolOccupied}>
-                        B3
-                      </div>
+                      {barTables.map(renderTable)}
                     </div>
                   </div>
 
@@ -121,25 +198,7 @@ export default function TablesPage() {
                     <div className={styles.zoneLabel}>
                       PRIVATE
                     </div>
-                    {/* T-12 Available */}
-                    <div className={styles.privateTableAvailable}>
-                      <span className={styles.tableName}>T-12</span>
-                      <span className={styles.tableCapacity}>8p</span>
-                    </div>
-                    {/* T-13 Cleaning */}
-                    <div className={styles.privateTableCleaning}>
-                      <span className={styles.tableName}>T-13</span>
-                      <span className={styles.privateStatus}>
-                        Cleaning
-                      </span>
-                    </div>
-                    {/* T-14 Occupied */}
-                    <div className={styles.privateTableOccupied}>
-                      <span className={styles.tableName}>T-14</span>
-                      <div className={styles.capacityBadge}>
-                        10p
-                      </div>
-                    </div>
+                    {privateTables.map(renderTable)}
                   </div>
                 </div>
               </div>
@@ -180,6 +239,7 @@ export default function TablesPage() {
                 </span>
               </div>
             </div>
+
             <div>
               <div className={styles.statLabel}>
                 NO-SHOWS
@@ -188,6 +248,7 @@ export default function TablesPage() {
                 1
               </div>
             </div>
+
             <div>
               <div className={styles.statLabel}>
                 WALK-INS
@@ -202,3 +263,4 @@ export default function TablesPage() {
     </main>
   );
 }
+

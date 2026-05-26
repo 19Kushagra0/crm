@@ -1,0 +1,65 @@
+.container {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  width: 100%;
+  background-color: var(--color-canvas, #fbf8f3);
+}
+
+.errorCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 400px;
+  padding: 2.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  background-color: var(--color-surface-card, #efe9de);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.iconWrapper {
+  color: var(--color-primary, #8f482f);
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-family: Newsreader, serif;
+  font-size: 24px;
+  color: var(--color-ink, #141413);
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: var(--color-muted, #6c6a64);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.retryBtn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--color-primary, #8f482f);
+  color: var(--color-on-primary, #ffffff);
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retryBtn:hover {
+  opacity: 0.9;
+}
+
+.retryBtn:active {
+  transform: scale(0.95);
+}
