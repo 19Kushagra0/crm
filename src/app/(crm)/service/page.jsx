@@ -4,37 +4,13 @@ import React, { useState } from 'react';
 import { TrendingUp, ArrowUp, CheckCircle, Sliders, Star, BookOpen, Heart, FileText } from '@/lib/icons';
 import styles from '@/style/service.module.css';
 import Link from 'next/link';
+import OrderService from '@/services/OrderService';
 
-const initialOrders = [
-  { 
-    id: 'T-14', 
-    title: "Dégustation Menu x2", 
-    notes: "No walnuts, allergy.", 
-    // TODO Phase 3: derive from createdAt in ordersStore
-    time: "2m ago", 
-    status: "incoming" 
-  },
-  { 
-    id: 'T-08', 
-    title: "Chef's Table Selection", 
-    // TODO Phase 3: derive from createdAt in ordersStore
-    time: "5m ago", 
-    status: "incoming" 
-  },
-  { 
-    id: 'T-02', 
-    title: "Roasted Sea Bass", 
-    subtitle: "Wagyu A5 Strips", 
-    // TODO Phase 3: derive from createdAt in ordersStore
-    time: "12:04", 
-    status: "preparing" 
-  },
-  { 
-    id: 'T-22', 
-    title: "Wine Pairing • Flight A", 
-    status: "ready" 
-  }
-];
+const getMinutesAgo = (createdAt) => {
+  const diffMs = Date.now() - new Date(createdAt).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  return `${diffMins}m ago`;
+};
 
 const initialReservations = [
   { id: 1, guest: "Mr. Alistair Cook", details: "Party of 4 • VIP Tier 2", time: "19:30", status: "SEATED" },
@@ -44,7 +20,7 @@ const initialReservations = [
 ];
 
 export default function ServicePage() {
-  const [orders, setOrders] = useState(initialOrders);
+  const orders = OrderService.useActiveOrders();
   const [reservations, setReservations] = useState(initialReservations);
 
   const incomingCount = orders.filter(o => o.status === 'incoming').length;
@@ -52,16 +28,15 @@ export default function ServicePage() {
   const readyCount = orders.filter(o => o.status === 'ready').length;
 
   const cycleOrderStatus = (orderId) => {
-    setOrders(prev =>
-      prev.map(o => {
-        if (o.id === orderId) {
-          if (o.status === 'incoming') return { ...o, status: 'preparing', time: 'Just now' };
-          if (o.status === 'preparing') return { ...o, status: 'ready' };
-          if (o.status === 'ready') return { ...o, status: 'served' };
-        }
-        return o;
-      }).filter(o => o.status !== 'served')
-    );
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+    if (order.status === 'incoming') {
+      OrderService.transitionOrder(orderId, 'preparing');
+    } else if (order.status === 'preparing') {
+      OrderService.transitionOrder(orderId, 'ready');
+    } else if (order.status === 'ready') {
+      OrderService.serveAndClose(order);
+    }
   };
 
   const cycleReservationStatus = (resId) => {
@@ -191,16 +166,16 @@ export default function ServicePage() {
                     <div key={o.id} className={styles.orderCard} onClick={() => cycleOrderStatus(o.id)} style={{ cursor: 'pointer' }}>
                       <div className={styles.orderCardHeader}>
                         <span className={styles.orderTable}>
-                          {o.id}
+                          {o.table}
                         </span>
-                        <span className={styles.orderTime}>{o.time}</span>
+                        <span className={styles.orderTime}>{o.createdAt ? getMinutesAgo(o.createdAt) : '5m ago'}</span>
                       </div>
                       <p className={styles.orderTitle}>
-                        {o.title}
+                        {o.items.map(item => item.name).join(', ')}
                       </p>
-                      {o.notes && (
+                      {o.items.some(it => it.meta) && (
                         <p className={styles.orderNotes}>
-                          {o.notes}
+                          {o.items.map(it => it.meta).filter(Boolean).join(', ')}
                         </p>
                       )}
                     </div>
@@ -223,14 +198,18 @@ export default function ServicePage() {
                     <div key={o.id} className={styles.orderCardPreparing} onClick={() => cycleOrderStatus(o.id)} style={{ cursor: 'pointer' }}>
                       <div className={styles.orderCardHeader}>
                         <span className={styles.orderTable}>
-                          {o.id}
+                          {o.table}
                         </span>
                         <span className={styles.orderTime}>
-                          {o.time}
+                          {o.createdAt ? getMinutesAgo(o.createdAt) : '10m ago'}
                         </span>
                       </div>
-                      <p className={styles.orderTitle}>{o.title}</p>
-                      {o.subtitle && <p className={styles.orderTitleSecondary}>{o.subtitle}</p>}
+                      <p className={styles.orderTitle}>{o.items.map(item => item.name).join(', ')}</p>
+                      {o.items.some(it => it.meta) && (
+                        <p className={styles.orderTitleSecondary}>
+                          {o.items.map(it => it.meta).filter(Boolean).join(', ')}
+                        </p>
+                      )}
                     </div>
                   ))}
                   {preparingCount === 0 && (
@@ -251,12 +230,12 @@ export default function ServicePage() {
                     <div key={o.id} className={styles.orderCardReady} onClick={() => cycleOrderStatus(o.id)} style={{ cursor: 'pointer' }}>
                       <div className={styles.orderCardHeader}>
                         <span className={styles.orderTable}>
-                          {o.id}
+                          {o.table}
                         </span>
                         <CheckCircle size={18} className="text-tertiary" />
                       </div>
                       <p className={styles.orderTitleSecondary}>
-                        {o.title}
+                        {o.items.map(item => item.name).join(', ')}
                       </p>
                     </div>
                   ))}

@@ -3,51 +3,29 @@
 import React, { useState, useEffect } from 'react';
 import styles from '@/style/kds.module.css';
 import { Award, Utensils, FileText } from '@/lib/icons';
+import OrderService from '@/services/OrderService';
 
-const initialTickets = [
-  {
-    id: 1,
-    num: "1042",
-    table: "T-4",
-    duration: "18:45",
-    isUrgent: true,
-    isStarted: true,
-    items: [
-      { name: "Bone-in Ribeye", qty: "2x", notes: "Medium Rare, No compound butter", station: "GRILL" },
-      { name: "Charred Asparagus", qty: "1x", station: "GRILL" },
-      { name: "Pommes Purée", qty: "1x", station: "HOT" }
-    ]
-  },
-  {
-    id: 2,
-    num: "1045",
-    table: "T-12",
-    duration: "12:10",
-    isWarning: true,
-    isStarted: false,
-    items: [
-      { name: "Diver Scallops", qty: "1x", notes: "Allergy: Dairy (Use oil prep)", station: "HOT" },
-      { name: "Heirloom Tomato Salad", qty: "2x", station: "COLD" }
-    ]
-  },
-  {
-    id: 3,
-    num: "1048",
-    table: "Bar",
-    duration: "04:30",
-    isNew: true,
-    isStarted: false,
-    items: [
-      { name: "Truffle Fries", qty: "1x", station: "FRYER" },
-      { name: "Wagyu Sliders", qty: "1x", notes: "Medium, no pickles", station: "GRILL" }
-    ]
+const getMinutesAgo = (createdAt) => {
+  const diffMs = Date.now() - new Date(createdAt).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  return `${diffMins}:00`;
+};
+
+const getStation = (itemName) => {
+  const lower = itemName.toLowerCase();
+  if (lower.includes('ribeye') || lower.includes('steak') || lower.includes('sliders') || lower.includes('grill') || lower.includes('fries') || lower.includes('tartare')) {
+    return 'GRILL';
   }
-];
+  if (lower.includes('salad') || lower.includes('crudo') || lower.includes('cold')) {
+    return 'COLD';
+  }
+  return 'HOT';
+};
 
 export default function KitchenDisplayPage() {
-  const [tickets, setTickets] = useState(initialTickets);
+  const tickets = OrderService.useActiveOrders();
+  const completedOrders = OrderService.useCompletedOrders();
   const [selectedStation, setSelectedStation] = useState('ALL STATIONS');
-  const [completedCount, setCompletedCount] = useState(38);
   const [time, setTime] = useState('19:42:05');
 
   useEffect(() => {
@@ -61,20 +39,21 @@ export default function KitchenDisplayPage() {
   }, []);
 
   const handleStartTicket = (ticketId) => {
-    setTickets(prev =>
-      prev.map(t => t.id === ticketId ? { ...t, isStarted: true } : t)
-    );
+    OrderService.transitionOrder(ticketId, 'preparing');
   };
 
   const handleBumpTicket = (ticketId) => {
-    setTickets(prev => prev.filter(t => t.id !== ticketId));
-    setCompletedCount(prev => prev + 1);
+    OrderService.transitionOrder(ticketId, 'ready');
   };
 
-  const filteredTickets = tickets.filter(t => {
+  const activeTickets = tickets.filter(t => t.status === 'incoming' || t.status === 'preparing');
+
+  const filteredTickets = activeTickets.filter(t => {
     if (selectedStation === 'ALL STATIONS') return true;
-    return t.items.some(item => item.station === selectedStation);
+    return t.items.some(item => getStation(item.name) === selectedStation);
   });
+
+  const completedCount = 38 + completedOrders.length;
 
   return (
     <main className={styles.container}>
@@ -122,23 +101,27 @@ export default function KitchenDisplayPage() {
       <div className={styles.ticketGridContainer}>
         <div className={styles.ticketGridRow}>
           {filteredTickets.map((t) => {
-            const cardClass = t.isUrgent 
+            const isUrgent = t.isDelayed || (Date.now() - new Date(t.createdAt).getTime() > 15 * 60 * 1000);
+            const isWarning = !isUrgent && (Date.now() - new Date(t.createdAt).getTime() > 10 * 60 * 1000);
+            const isNew = !isUrgent && !isWarning && (Date.now() - new Date(t.createdAt).getTime() < 3 * 60 * 1000);
+
+            const cardClass = isUrgent 
               ? styles.ticketCardUrgent 
               : styles.ticketCard;
             
-            const badgeClass = t.isUrgent
+            const badgeClass = isUrgent
               ? styles.tableBadgeUrgent
               : styles.tableBadge;
 
-            const durationClass = t.isUrgent
+            const durationClass = isUrgent
               ? styles.ticketDurationUrgent
-              : t.isWarning
+              : isWarning
                 ? styles.ticketDurationWarning
                 : styles.ticketDurationNew;
 
-            const indicatorBarClass = t.isUrgent
+            const indicatorBarClass = isUrgent
               ? styles.indicatorBarUrgent
-              : t.isWarning
+              : isWarning
                 ? styles.indicatorBarWarning
                 : styles.indicatorBarNew;
 
@@ -147,14 +130,14 @@ export default function KitchenDisplayPage() {
                 <header className={styles.ticketHeader}>
                   <div className={styles.ticketHeaderGroup}>
                     <span className={styles.ticketNum}>
-                      #{t.num}
+                      #{t.id.replace('ORD-', '')}
                     </span>
                     <span className={badgeClass}>
                       {t.table}
                     </span>
                   </div>
                   <span className={durationClass}>
-                    {t.duration}
+                    {getMinutesAgo(t.createdAt)}
                   </span>
                 </header>
                 <div className={styles.ticketBody}>
@@ -163,15 +146,15 @@ export default function KitchenDisplayPage() {
                       {idx > 0 && <div className={styles.itemDivider} />}
                       <div className={styles.itemRow}>
                         <span className={styles.itemQty}>
-                          {item.qty}
+                          {item.name.match(/^\d+x/)?.[0] || ""}
                         </span>
                         <div className={styles.itemDetails}>
                           <p className={styles.itemName}>
-                            {item.name}
+                            {item.name.replace(/^\d+x\s*/, '')}
                           </p>
-                          {item.notes && <p className={styles.itemNotes}>{item.notes}</p>}
+                          {item.meta && <p className={styles.itemNotes}>{item.meta}</p>}
                           <span className={styles.stationTag}>
-                            {item.station}
+                            {getStation(item.name)}
                           </span>
                         </div>
                       </div>
@@ -179,7 +162,7 @@ export default function KitchenDisplayPage() {
                   ))}
                 </div>
                 <footer className={styles.ticketFooter}>
-                  {t.isStarted ? (
+                  {t.status === 'preparing' ? (
                     <button 
                       className={styles.bumpBtn}
                       onClick={() => handleBumpTicket(t.id)}

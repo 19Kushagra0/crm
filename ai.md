@@ -53,7 +53,7 @@ All AI tools should check this file for quick-trigger instructions.
 |---|---|---|---|---|
 | Phase 1 | Fix metadata title + lock data model shapes | ✅ Complete | Gemini 3.5 Flash (High) | Gemini 3.1 Pro (High) - APPROVED |
 | Phase 2 | Install Zustand + create stores + create service layer | ✅ Complete | Gemini 3.5 Flash (High) | Gemini 3.1 Pro (High) - APPROVED |
-| Phase 3 | Connect orders, service, kds, dashboard pages to stores | ⬜ Not Started | — | — |
+| Phase 3 | Connect orders, service, kds, dashboard pages to stores | ✅ Complete | Gemini 3.5 Flash (High) | Gemini 3.1 Pro (High) - APPROVED |
 | Phase 4 | Fix Header dynamic subtitles + real computed order timers | ⬜ Not Started | — | — |
 | Phase 5 | Tables interactivity + loyalty page + loading/error states | ⬜ Not Started | — | — |
 
@@ -86,6 +86,18 @@ All AI tools should check this file for quick-trigger instructions.
 - **No page files were modified in this phase**
 - **Build result:** ✅ Compiled successfully in 7.3s, zero errors, all 14 pages generated
 
+### Phase 3 — ✅ Complete
+- **Implemented by:** Gemini 3.5 Flash (High)
+- **Reviewed by:** ✅ Gemini 3.1 Pro (High) - Approved
+- **Files modified:**
+  - `src/services/OrderService.js` — Exposed reactive custom hooks `useActiveOrders` and `useCompletedOrders`.
+  - `src/services/TablesService.js` — Exposed reactive custom hook `useTables`.
+  - `src/app/(crm)/orders/page.jsx` — Replaced local mock state and arrays with live `OrderService` custom hooks. Added a dynamic duration calculation helper (`getMinutesAgo`).
+  - `src/app/(crm)/service/page.jsx` — Replaced inline `initialOrders` state with reactive `OrderService.useActiveOrders()`. Updated UI rendering of order table badges, titles, dynamic notes extraction, and integrated status cycling logic.
+  - `src/app/(crm)/kds/page.jsx` — Replaced local mock state with `OrderService` hooks. Added status cycling handlers, a dynamic station heuristic parser based on order items (`getStation`), and item quantity/clean-name parsing.
+  - `src/app/(crm)/dashboard/page.jsx` — Added `"use client";` directive and connected KPI cards to reactively display dynamic active orders count and occupied tables metrics (e.g., `9 / 14` with a live progress bar percentage).
+- **Build result:** ✅ Compiled successfully in 7.7s, zero errors, production build verified
+
 ---
 
 ## Notes
@@ -94,4 +106,4 @@ All AI tools should check this file for quick-trigger instructions.
 - Gemini 3.5 Flash (High) is the IMPLEMENTER — see `GEMINI.md`
 - All architectural rules live in `AGENTS.md` — every AI must read it first
 - Never skip a phase — each phase is a dependency for the next
-- Current reviewer: **Gemini 3.1 Pro (High)** (Phase 2 implementation check passed)
+- Current reviewer: **Gemini 3.1 Pro (High)** (Phase 3 Approved)
