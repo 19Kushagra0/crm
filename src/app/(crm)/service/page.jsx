@@ -6,10 +6,34 @@ import styles from '@/style/service.module.css';
 import Link from 'next/link';
 
 const initialOrders = [
-  { id: 'T-14', title: "Dégustation Menu x2", notes: "No walnuts, allergy.", time: "2m ago", status: "incoming" },
-  { id: 'T-08', title: "Chef's Table Selection", time: "5m ago", status: "incoming" },
-  { id: 'T-02', title: "Roasted Sea Bass", subtitle: "Wagyu A5 Strips", time: "12:04", status: "preparing" },
-  { id: 'T-22', title: "Wine Pairing • Flight A", status: "ready" }
+  { 
+    id: 'T-14', 
+    title: "Dégustation Menu x2", 
+    notes: "No walnuts, allergy.", 
+    // TODO Phase 3: derive from createdAt in ordersStore
+    time: "2m ago", 
+    status: "incoming" 
+  },
+  { 
+    id: 'T-08', 
+    title: "Chef's Table Selection", 
+    // TODO Phase 3: derive from createdAt in ordersStore
+    time: "5m ago", 
+    status: "incoming" 
+  },
+  { 
+    id: 'T-02', 
+    title: "Roasted Sea Bass", 
+    subtitle: "Wagyu A5 Strips", 
+    // TODO Phase 3: derive from createdAt in ordersStore
+    time: "12:04", 
+    status: "preparing" 
+  },
+  { 
+    id: 'T-22', 
+    title: "Wine Pairing • Flight A", 
+    status: "ready" 
+  }
 ];
 
 const initialReservations = [
