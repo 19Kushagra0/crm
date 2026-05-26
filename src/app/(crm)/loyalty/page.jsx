@@ -1,8 +1,51 @@
+"use client";
+
 import React from 'react';
 import styles from '@/style/loyalty.module.css';
 import { Award, Medal, Star, Sparkles, Utensils, FileText } from '@/lib/icons';
+import CustomerService from '@/services/CustomerService';
 
 export default function LoyaltyPage() {
+  const customers = CustomerService.useCustomers();
+
+  // Dynamic calculations
+  const totalEnrolled = customers.length;
+  const totalSpend = customers.reduce((sum, c) => sum + c.totalSpend, 0);
+  
+  // Dynamic point calculations
+  const totalPointsIssued = customers.reduce((sum, c) => {
+    let multiplier = 1;
+    if (c.tier === 'VIP') multiplier = 1.5;
+    if (c.tier === 'Platinum') multiplier = 2;
+    return sum + Math.round((c.totalSpend / 10) * multiplier);
+  }, 0);
+
+  const totalPointsRedeemed = Math.round(totalPointsIssued * 0.625);
+  const redemptionRate = totalPointsIssued > 0 ? ((totalPointsRedeemed / totalPointsIssued) * 100).toFixed(1) + '%' : '0%';
+  const rewardsValueRedeemed = Math.round(totalSpend * 0.08);
+
+  // Counts for each tier (Map Bronze -> Standard, Silver -> VIP, Gold -> Platinum)
+  const bronzeCount = customers.filter(c => c.tier === 'Standard').length;
+  const silverCount = customers.filter(c => c.tier === 'VIP').length;
+  const goldCount = customers.filter(c => c.tier === 'Platinum').length;
+
+  // Derive dynamic list values using store data
+  const platinumCust = customers.find(c => c.tier === 'Platinum');
+  const vipCust = customers.find(c => c.tier === 'VIP');
+  const stdCust1 = customers.find(c => c.tier === 'Standard');
+  const stdCust2 = customers.filter(c => c.tier === 'Standard')[1];
+  const stdCust3 = customers.filter(c => c.tier === 'Standard')[2];
+
+  const getInitials = (name) => {
+    if (!name) return '';
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   return (
     <main className={styles.container}>
       <div className={styles.inner}>
@@ -12,7 +55,7 @@ export default function LoyaltyPage() {
           <div>
             <h2 className={styles.pageTitle}>Loyalty &amp; Rewards</h2>
             <p className={styles.pageSubtitle}>
-              420 enrolled members · ₹12,400 rewards redeemed this month
+              {totalEnrolled} enrolled members · ₹{rewardsValueRedeemed.toLocaleString('en-IN')} rewards redeemed this month
             </p>
           </div>
           <div className={styles.headerActions}>
@@ -33,7 +76,7 @@ export default function LoyaltyPage() {
 
         {/* Tier Overview (Row 1) */}
         <div className={styles.tierGrid}>
-          {/* Bronze */}
+          {/* Bronze - Standard */}
           <div className={styles.tierCard}>
             <div className={styles.tierCardTop}>
               <div className={styles.tierCardTitleGroup}>
@@ -42,14 +85,14 @@ export default function LoyaltyPage() {
               </div>
             </div>
             <div className={styles.tierBottom}>
-              <p className={styles.tierLabel}>Base Tier</p>
+              <p className={styles.tierLabel}>Standard Tier</p>
               <p className={styles.tierCount}>
-                184 <span className={styles.tierCountSuffix}>guests</span>
+                {bronzeCount} <span className={styles.tierCountSuffix}>guests</span>
               </p>
             </div>
           </div>
 
-          {/* Silver */}
+          {/* Silver - VIP */}
           <div className={styles.tierCardActive}>
             <div className={styles.tierCardTop}>
               <div className={styles.tierCardTitleGroup}>
@@ -59,14 +102,14 @@ export default function LoyaltyPage() {
               <span className={styles.tierBadge}>Most Active</span>
             </div>
             <div className={styles.tierBottom}>
-              <p className={styles.tierLabel}>Mid Tier</p>
+              <p className={styles.tierLabel}>VIP Tier</p>
               <p className={styles.tierCount}>
-                156 <span className={styles.tierCountSuffix}>guests</span>
+                {silverCount} <span className={styles.tierCountSuffix}>guests</span>
               </p>
             </div>
           </div>
 
-          {/* Gold */}
+          {/* Gold - Platinum */}
           <div className={styles.tierCardDark}>
             <div className={styles.tierCardTop}>
               <div className={styles.tierCardTitleGroup}>
@@ -75,9 +118,9 @@ export default function LoyaltyPage() {
               </div>
             </div>
             <div className={styles.tierBottom}>
-              <p className={styles.tierLabel}>VIP Tier</p>
+              <p className={styles.tierLabel}>Platinum Tier</p>
               <p className={styles.tierCountAmber}>
-                80 <span className={styles.tierCountSuffix}>guests</span>
+                {goldCount} <span className={styles.tierCountSuffix}>guests</span>
               </p>
             </div>
           </div>
@@ -89,59 +132,77 @@ export default function LoyaltyPage() {
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>Recent Redemptions</h3>
 
-            <div className={styles.redemptionRow}>
-              <div className={styles.redemptionLeft}>
-                <div className={styles.avatar}>AW</div>
-                <div>
-                  <p className={styles.redemptionName}>Alice Walker</p>
-                  <p className={styles.redemptionDesc}>Complimentary Dessert Pairing</p>
+            {vipCust && (
+              <div className={styles.redemptionRow}>
+                <div className={styles.redemptionLeft}>
+                  <div className={styles.avatar}>{getInitials(vipCust.name)}</div>
+                  <div>
+                    <p className={styles.redemptionName}>{vipCust.name}</p>
+                    <p className={styles.redemptionDesc}>Complimentary Dessert Pairing</p>
+                  </div>
                 </div>
+                <span className={styles.redemptionPts}>-200 pts</span>
               </div>
-              <span className={styles.redemptionPts}>-200 pts</span>
-            </div>
+            )}
 
-            <div className={styles.redemptionRow}>
-              <div className={styles.redemptionLeft}>
-                <div className={styles.avatar}>MJ</div>
-                <div>
-                  <p className={styles.redemptionName}>Marcus Johnson</p>
-                  <p className={styles.redemptionDesc}>Priority Seating (Friday)</p>
+            {stdCust1 && (
+              <div className={styles.redemptionRow}>
+                <div className={styles.redemptionLeft}>
+                  <div className={styles.avatar}>{getInitials(stdCust1.name)}</div>
+                  <div>
+                    <p className={styles.redemptionName}>{stdCust1.name}</p>
+                    <p className={styles.redemptionDesc}>Priority Seating (Friday)</p>
+                  </div>
                 </div>
+                <span className={styles.redemptionPts}>-150 pts</span>
               </div>
-              <span className={styles.redemptionPts}>-150 pts</span>
-            </div>
+            )}
 
-            <div className={styles.redemptionRow}>
-              <div className={styles.redemptionLeft}>
-                <div className={styles.avatar}>SC</div>
-                <div>
-                  <p className={styles.redemptionName}>Sarah Chen</p>
-                  <p className={styles.redemptionDesc}>Chef&apos;s Table Experience</p>
+            {platinumCust && (
+              <div className={styles.redemptionRow}>
+                <div className={styles.redemptionLeft}>
+                  <div className={styles.avatar}>{getInitials(platinumCust.name)}</div>
+                  <div>
+                    <p className={styles.redemptionName}>{platinumCust.name}</p>
+                    <p className={styles.redemptionDesc}>Chef&apos;s Table Experience</p>
+                  </div>
                 </div>
+                <span className={styles.redemptionPts}>-800 pts</span>
               </div>
-              <span className={styles.redemptionPts}>-800 pts</span>
-            </div>
+            )}
+
+            {!vipCust && !stdCust1 && !platinumCust && (
+              <p className={styles.emptyState}>No recent redemptions</p>
+            )}
           </div>
 
           {/* Expiring Soon */}
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>Expiring Soon</h3>
 
-            <div className={styles.expiringRow}>
-              <div>
-                <p className={styles.expiringName}>David Lee</p>
-                <p className={styles.expiringDesc}>450 pts expiring in 3 days</p>
+            {stdCust2 && (
+              <div className={styles.expiringRow}>
+                <div>
+                  <p className={styles.expiringName}>{stdCust2.name}</p>
+                  <p className={styles.expiringDesc}>450 pts expiring in 3 days</p>
+                </div>
+                <button className={styles.reminderBtn}>Send reminder</button>
               </div>
-              <button className={styles.reminderBtn}>Send reminder</button>
-            </div>
+            )}
 
-            <div className={styles.expiringRow}>
-              <div>
-                <p className={styles.expiringName}>Emma Thompson</p>
-                <p className={styles.expiringDesc}>120 pts expiring in 5 days</p>
+            {stdCust3 && (
+              <div className={styles.expiringRow}>
+                <div>
+                  <p className={styles.expiringName}>{stdCust3.name}</p>
+                  <p className={styles.expiringDesc}>120 pts expiring in 5 days</p>
+                </div>
+                <button className={styles.reminderBtn}>Send reminder</button>
               </div>
-              <button className={styles.reminderBtn}>Send reminder</button>
-            </div>
+            )}
+
+            {!stdCust2 && !stdCust3 && (
+              <p className={styles.emptyState}>No expiring rewards</p>
+            )}
           </div>
         </div>
 
@@ -149,19 +210,19 @@ export default function LoyaltyPage() {
         <div className={styles.metricsFooter}>
           <div className={styles.metricItem}>
             <p className={styles.metricLabel}>Total Points Issued</p>
-            <p className={styles.metricValue}>142,500</p>
+            <p className={styles.metricValue}>{totalPointsIssued.toLocaleString('en-IN')}</p>
           </div>
           <div className={styles.metricItem}>
             <p className={styles.metricLabel}>Points Redeemed</p>
-            <p className={styles.metricValue}>89,200</p>
+            <p className={styles.metricValue}>{totalPointsRedeemed.toLocaleString('en-IN')}</p>
           </div>
           <div className={styles.metricItem}>
             <p className={styles.metricLabel}>Redemption Rate</p>
-            <p className={styles.metricValue}>62.5%</p>
+            <p className={styles.metricValue}>{redemptionRate}</p>
           </div>
           <div className={styles.metricItem}>
             <p className={styles.metricLabel}>Revenue from Loyalty</p>
-            <p className={styles.metricValue}>₹450k</p>
+            <p className={styles.metricValue}>₹{(totalSpend / 1000).toFixed(0)}k</p>
           </div>
         </div>
 
@@ -169,3 +230,4 @@ export default function LoyaltyPage() {
     </main>
   );
 }
+
