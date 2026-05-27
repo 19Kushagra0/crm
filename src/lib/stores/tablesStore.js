@@ -45,6 +45,20 @@ export const useTablesStore = create((set) => ({
       )
     })),
 
+  seatCustomer: (tableId, customerId) =>
+    set((state) => ({
+      tables: state.tables.map((t) =>
+        t.id === tableId ? { ...t, status: 'occupied', currentCustomerId: customerId } : t
+      )
+    })),
+
+  clearSeat: (tableId) =>
+    set((state) => ({
+      tables: state.tables.map((t) =>
+        t.id === tableId ? { ...t, currentCustomerId: undefined } : t
+      )
+    })),
+
   updateTablePosition: (tableId, x, y) =>
     set((state) => ({
       tables: state.tables.map((t) =>

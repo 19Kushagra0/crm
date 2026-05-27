@@ -5,6 +5,8 @@ import styles from '@/style/dashboard.module.css';
 import { Clock, Star, CalendarDays, Megaphone, BarChart3 } from '@/lib/icons';
 import OrderService from '@/services/OrderService';
 import TablesService from '@/services/TablesService';
+import ReservationService from '@/services/ReservationService';
+import CustomerService from '@/services/CustomerService';
 
 const getMinutesAgo = (createdAt) => {
   if (!createdAt) return '0m';
@@ -15,7 +17,10 @@ const getMinutesAgo = (createdAt) => {
 
 export default function DashboardPage() {
   const activeOrders = OrderService.useActiveOrders();
+  const completedOrders = OrderService.useCompletedOrders();
   const tables = TablesService.useTables();
+  const reservations = ReservationService.useReservations();
+  const customers = CustomerService.useCustomers();
 
   const occupiedTables = tables.filter(t => t.status === 'occupied').length;
   const totalTables = tables.length;
@@ -29,6 +34,21 @@ export default function DashboardPage() {
   const preparingCount = preparingOrders.length;
   const readyCount = readyOrders.length;
 
+  const totalRevenue = completedOrders.reduce((sum, o) => {
+    if (!o.price) return sum;
+    const numericPrice = parseFloat(o.price.replace(/[^\d.-]/g, '')) || 0;
+    return sum + numericPrice;
+  }, 0);
+
+  const getInitials = (name) => {
+    if (!name) return 'G';
+    const parts = name.trim().split(/\s+/);
+    return parts.map(p => p[0]).join('').substring(0, 2).toUpperCase() || 'G';
+  };
+
+  const sortedReservations = [...reservations].sort((a, b) => a.time.localeCompare(b.time));
+  const vipCustomers = customers.filter(c => c.tier !== 'Standard').slice(0, 3);
+
   return (
     <div className={styles.container}>
       {/* Row 1: KPI Cards */}
@@ -39,7 +59,7 @@ export default function DashboardPage() {
             <span className={styles.kpiLabel}>Today's Revenue</span>
             <span className={styles.badgeTertiary}>+12%</span>
           </div>
-          <div className={styles.kpiValue}>₹18,420</div>
+          <div className={styles.kpiValue}>₹{totalRevenue.toLocaleString('en-IN')}</div>
         </div>
         {/* Active Orders */}
         <div className={styles.kpiCard}>
@@ -90,7 +110,7 @@ export default function DashboardPage() {
                     <span className={styles.orderCardId}>#{o.id}</span>
                     <span className={styles.tableBadge}>{o.table}</span>
                   </div>
-                  <p className={styles.orderDetails}>{o.items.map(i => i.name).join(', ')}</p>
+                  <p className={styles.orderDetails}>{o.items ? o.items.map(i => i.name).join(', ') : 'No items'}</p>
                   <div className={styles.cardTimerRow}>
                     <Clock size={14} className={styles.timerAmber} />
                     <span className={`${styles.orderCardId} ${styles.timerAmber}`} suppressHydrationWarning>{getMinutesAgo(o.createdAt)}</span>
@@ -110,7 +130,7 @@ export default function DashboardPage() {
                     <span className={styles.orderCardId}>#{o.id}</span>
                     <span className={styles.tableBadge}>{o.table}</span>
                   </div>
-                  <p className={styles.orderDetails}>{o.items.map(i => i.name).join(', ')}</p>
+                  <p className={styles.orderDetails}>{o.items ? o.items.map(i => i.name).join(', ') : 'No items'}</p>
                   <div className={styles.cardTimerRow}>
                     <Clock size={14} className={styles.timerSecondary} />
                     <span className={`${styles.orderCardId} ${styles.timerSecondary}`} suppressHydrationWarning>{getMinutesAgo(o.createdAt)}</span>
@@ -130,7 +150,7 @@ export default function DashboardPage() {
                     <span className={styles.orderCardId}>#{o.id}</span>
                     <span className={styles.tableBadge}>{o.table}</span>
                   </div>
-                  <p className={styles.orderDetails}>{o.items.map(i => i.name).join(', ')}</p>
+                  <p className={styles.orderDetails}>{o.items ? o.items.map(i => i.name).join(', ') : 'No items'}</p>
                   <div className={styles.cardTimerRow}>
                     <Clock size={14} className={styles.timerSecondary} />
                     <span className={`${styles.orderCardId} ${styles.timerSecondary}`} suppressHydrationWarning>{getMinutesAgo(o.createdAt)}</span>
@@ -148,38 +168,28 @@ export default function DashboardPage() {
             <span className={styles.reservationsStatusText}>Next 2 Hrs</span>
           </div>
           <div className={styles.reservationsList}>
-            <div className={styles.reservationRow}>
-              <div className={styles.timeCell}>19:30</div>
-              <div className={styles.infoCell}>
-                <p className={styles.guestName}>Elara Vance</p>
-                <p className={styles.guestDetails}>Party of 4</p>
+            {sortedReservations.map((r, index) => {
+              const isLast = index === sortedReservations.length - 1;
+              const badgeClass = 
+                r.status === 'SEATED' ? styles.statusBadgeSeated :
+                r.status === 'CONFIRMED' ? styles.statusBadgeConfirmed :
+                styles.statusBadgePending;
+              return (
+                <div key={r.id} className={isLast ? styles.reservationRowLast : styles.reservationRow}>
+                  <div className={styles.timeCell}>{r.time}</div>
+                  <div className={styles.infoCell}>
+                    <p className={styles.guestName}>{r.guest}</p>
+                    <p className={styles.guestDetails}>{r.details}</p>
+                  </div>
+                  <div className={badgeClass}>{r.status.charAt(0) + r.status.slice(1).toLowerCase()}</div>
+                </div>
+              );
+            })}
+            {sortedReservations.length === 0 && (
+              <div style={{ color: '#888', fontStyle: 'italic', fontSize: '13px', padding: '24px 12px', textAlign: 'center' }}>
+                No reservations scheduled
               </div>
-              <div className={styles.statusBadgeSeated}>Seated</div>
-            </div>
-            <div className={styles.reservationRow}>
-              <div className={styles.timeCell}>19:45</div>
-              <div className={styles.infoCell}>
-                <p className={styles.guestName}>Dr. Sterling</p>
-                <p className={styles.guestDetails}>Party of 2 · VIP</p>
-              </div>
-              <div className={styles.statusBadgeConfirmed}>Confirmed</div>
-            </div>
-            <div className={styles.reservationRow}>
-              <div className={styles.timeCell}>20:00</div>
-              <div className={styles.infoCell}>
-                <p className={styles.guestName}>Otsuka Group</p>
-                <p className={styles.guestDetails}>Party of 8</p>
-              </div>
-              <div className={styles.statusBadgePending}>Pending</div>
-            </div>
-            <div className={styles.reservationRowLast}>
-              <div className={styles.timeCell}>20:15</div>
-              <div className={styles.infoCell}>
-                <p className={styles.guestName}>J. Reynolds</p>
-                <p className={styles.guestDetails}>Party of 2</p>
-              </div>
-              <div className={styles.statusBadgeConfirmed}>Confirmed</div>
-            </div>
+            )}
           </div>
         </div>
       </section>
@@ -227,36 +237,23 @@ export default function DashboardPage() {
         <div>
           <h2 className={styles.darkBandTitle}>Recent VIP Activity</h2>
           <div className={styles.vipGrid}>
-            <div className={styles.vipCard}>
-              <div className={styles.vipAvatar}>AS</div>
-              <div>
-                <div className={styles.vipNameRow}>
-                  <p className={styles.vipName}>A. Sterling</p>
-                  <Star className={styles.vipStarIcon} />
+            {vipCustomers.map((c) => (
+              <div key={c.id} className={styles.vipCard}>
+                <div className={styles.vipAvatar}>{getInitials(c.name)}</div>
+                <div>
+                  <div className={styles.vipNameRow}>
+                    <p className={styles.vipName}>{c.name}</p>
+                    <Star className={styles.vipStarIcon} />
+                  </div>
+                  <p className={styles.vipStatus}>{c.tier} · {c.visits} Visits</p>
                 </div>
-                <p className={styles.vipStatus}>Checked in 15m ago</p>
               </div>
-            </div>
-            <div className={styles.vipCard}>
-              <div className={styles.vipAvatar}>MW</div>
-              <div>
-                <div className={styles.vipNameRow}>
-                  <p className={styles.vipName}>M. Wallace</p>
-                  <Star className={styles.vipStarIcon} />
-                </div>
-                <p className={styles.vipStatus}>Reserved for Tmrw</p>
+            ))}
+            {vipCustomers.length === 0 && (
+              <div style={{ color: '#888', fontStyle: 'italic', fontSize: '13px', padding: '24px 12px', textAlign: 'center' }}>
+                No active VIP guests
               </div>
-            </div>
-            <div className={styles.vipCard}>
-              <div className={styles.vipAvatar}>KL</div>
-              <div>
-                <div className={styles.vipNameRow}>
-                  <p className={styles.vipName}>K. Laurent</p>
-                  <Star className={styles.vipStarIcon} />
-                </div>
-                <p className={styles.vipStatus}>Paid Bill 2h ago</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>

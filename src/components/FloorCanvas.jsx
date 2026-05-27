@@ -7,6 +7,21 @@ import TablesService from '@/services/TablesService';
 import UIService from '@/services/UIService';
 import { Pencil, Save, X, Lock, Unlock, Plus, Trash2 } from '@/lib/icons';
 
+const formatTimeTo12Hour = (timeStr) => {
+  if (!timeStr) return '';
+  if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) {
+    return timeStr;
+  }
+  const parts = timeStr.split(':');
+  if (parts.length < 2) return timeStr;
+  const hour = parseInt(parts[0], 10);
+  const min = parts[1];
+  if (isNaN(hour)) return timeStr;
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12}:${min} ${ampm}`;
+};
+
 export default function FloorCanvas({ 
   floorId, 
   isEditMode, 
@@ -110,7 +125,7 @@ export default function FloorCanvas({
         dash: null,
         textColor: "#141413",
         subColor: "#141413",
-        label: t.reservedAt || "19:30"
+        label: formatTimeTo12Hour(t.reservedAt || "19:30")
       },
       cleaning: {
         fill: "#efe9de", // Card background

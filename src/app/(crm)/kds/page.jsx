@@ -24,7 +24,7 @@ const getStation = (itemName) => {
 export default function KitchenDisplayPage() {
   const tickets = OrderService.useActiveOrders();
   const completedOrders = OrderService.useCompletedOrders();
-  const [selectedStation, setSelectedStation] = useState('ALL STATIONS');
+  const [activeFilter, setActiveFilter] = useState('ALL');
   const [time, setTime] = useState('19:42:05');
 
   useEffect(() => {
@@ -48,8 +48,16 @@ export default function KitchenDisplayPage() {
   const activeTickets = tickets.filter(t => t.status === 'incoming' || t.status === 'preparing');
 
   const filteredTickets = activeTickets.filter(t => {
-    if (selectedStation === 'ALL STATIONS') return true;
-    return t.items.some(item => getStation(item.name) === selectedStation);
+    if (activeFilter === 'ALL') return true;
+    if (activeFilter === 'START') return t.status === 'incoming';
+    if (activeFilter === 'BUMP') return t.status === 'preparing';
+    return true;
+  });
+
+  const sortedTickets = [...filteredTickets].sort((a, b) => {
+    if (a.status === 'incoming' && b.status === 'preparing') return -1;
+    if (a.status === 'preparing' && b.status === 'incoming') return 1;
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
   });
 
   const completedCount = 38 + completedOrders.length;
@@ -60,22 +68,22 @@ export default function KitchenDisplayPage() {
       <div className={styles.controlsRow}>
         <div className={styles.stationsWrapper}>
           <button 
-            className={selectedStation === 'ALL STATIONS' ? styles.stationBtnActive : styles.stationBtn}
-            onClick={() => setSelectedStation('ALL STATIONS')}
+            className={activeFilter === 'ALL' ? styles.stationBtnActive : styles.stationBtn}
+            onClick={() => setActiveFilter('ALL')}
           >
-            ALL STATIONS
+            ALL TICKETS
           </button>
           <button 
-            className={selectedStation === 'GRILL' ? styles.stationBtnActive : styles.stationBtn}
-            onClick={() => setSelectedStation('GRILL')}
+            className={activeFilter === 'START' ? styles.stationBtnActive : styles.stationBtn}
+            onClick={() => setActiveFilter('START')}
           >
-            GRILL
+            START
           </button>
           <button 
-            className={selectedStation === 'COLD' ? styles.stationBtnActive : styles.stationBtn}
-            onClick={() => setSelectedStation('COLD')}
+            className={activeFilter === 'BUMP' ? styles.stationBtnActive : styles.stationBtn}
+            onClick={() => setActiveFilter('BUMP')}
           >
-            COLD
+            BUMP
           </button>
         </div>
         <div className={styles.timeDisplay}>
@@ -85,7 +93,7 @@ export default function KitchenDisplayPage() {
       {/* Ticket Grid */}
       <div className={styles.ticketGridContainer}>
         <div className={styles.ticketGridRow}>
-          {filteredTickets.map((t) => {
+          {sortedTickets.map((t) => {
             const isUrgent = t.isDelayed || (Date.now() - new Date(t.createdAt).getTime() > 15 * 60 * 1000);
             const isWarning = !isUrgent && (Date.now() - new Date(t.createdAt).getTime() > 10 * 60 * 1000);
             const isNew = !isUrgent && !isWarning && (Date.now() - new Date(t.createdAt).getTime() < 3 * 60 * 1000);
@@ -169,7 +177,7 @@ export default function KitchenDisplayPage() {
             );
           })}
 
-          {filteredTickets.length === 0 && (
+          {sortedTickets.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px', color: '#888', gridColumn: '1 / -1', fontFamily: 'Inter, sans-serif' }}>
               No active tickets for this station.
             </div>

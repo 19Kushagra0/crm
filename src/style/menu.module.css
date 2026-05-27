@@ -41,6 +41,34 @@
   border-bottom: 1px solid var(--color-border-hairline, #e6dfd8);
 }
 
+.subNavFlexWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.addFoodBtn {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--color-primary, #8f482f);
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 150ms ease;
+  margin-bottom: 8px;
+}
+
+.addFoodBtn:hover {
+  background-color: #713824;
+}
+
 .subNavList {
   display: flex;
   gap: 1.25rem;

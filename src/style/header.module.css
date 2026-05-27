@@ -214,3 +214,184 @@
     font-size: 13px;
   }
 }
+
+/* Custom 12-Hour Selector Dropdowns for reservation modal */
+.timeSelectorRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+}
+
+.timeDropdown, .timeAmPmDropdown {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  background-color: var(--color-surface-bright, #ffffff);
+  color: var(--color-ink, #141413);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236c6a64'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2rem;
+}
+
+.timeDropdown:focus, .timeAmPmDropdown:focus {
+  border-color: var(--color-primary, #8f482f);
+  box-shadow: 0 0 0 2px rgba(143, 72, 47, 0.1);
+}
+
+.timeColon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-ink, #141413);
+}
+
+/* Customer Linking Styles */
+.searchGroup {
+  position: relative;
+  width: 100%;
+}
+
+.searchResultsList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--color-surface-bright, #ffffff);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 60;
+  box-shadow: 0 10px 25px -5px rgba(20, 20, 19, 0.08);
+  padding: 4px;
+  margin-top: 4px;
+}
+
+.searchResultItem {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+
+.searchResultItem:hover {
+  background-color: var(--color-surface-container, #efeeea);
+}
+
+.searchResultName {
+  font-weight: 500;
+  color: var(--color-ink, #141413);
+  font-size: 13px;
+}
+
+.searchResultPhone {
+  color: var(--color-secondary, #605e5b);
+  font-size: 11px;
+}
+
+.searchResultTier {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 9999px;
+}
+
+.tierStandard {
+  background-color: #f0ede6;
+  color: #6c6a64;
+}
+
+.tierVip {
+  background-color: #e5f6f3;
+  color: #0d8373;
+}
+
+.tierPlatinum {
+  background-color: #fbf5e6;
+  color: #b38600;
+}
+
+.linkedBadge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f7f6f0;
+  border: 1px dashed var(--color-border-hairline, #e6dfd8);
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.linkedInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.linkedGuestName {
+  font-weight: 600;
+  color: var(--color-ink, #141413);
+}
+
+.linkedGuestMeta {
+  font-size: 11px;
+  color: var(--color-secondary, #605e5b);
+}
+
+.unlinkBtn {
+  background: transparent;
+  border: none;
+  color: #8f482f;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.unlinkBtn:hover {
+  text-decoration: underline;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-hairline, #e6dfd8);
+  padding-bottom: 8px;
+}
+
+.tabBtn {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-secondary, #605e5b);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.tabBtnActive {
+  background-color: var(--color-surface-container, #efeeea);
+  color: var(--color-primary, #8f482f);
+  font-weight: 600;
+}
+

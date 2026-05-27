@@ -234,7 +234,9 @@
 }
 
 .segmentValue {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background-color: var(--color-surface, #fbf8f3);
   border: 1px solid var(--color-border-hairline, #e6dfd8);
   border-radius: 4px;
@@ -243,6 +245,26 @@
   font-size: 11px;
   font-weight: 500;
   color: var(--color-ink, #141413);
+}
+
+.iconGold {
+  color: #bfa054;
+}
+
+.iconSilver {
+  color: #8c8a87;
+}
+
+.iconBronze {
+  color: #ab7a4e;
+}
+
+.iconNew {
+  color: var(--color-primary, #5c6f3e);
+}
+
+.iconRisk {
+  color: #e8a55a;
 }
 
 /* Stats Row */

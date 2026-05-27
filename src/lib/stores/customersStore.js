@@ -95,5 +95,14 @@ export const useCustomersStore = create((set) => ({
   deleteCustomer: (id) =>
     set((state) => ({
       customers: state.customers.filter((c) => c.id !== id)
+    })),
+
+  recordVisit: (customerId) =>
+    set((state) => ({
+      customers: state.customers.map((c) =>
+        c.id === customerId
+          ? { ...c, visits: c.visits + 1, lastVisit: new Date() }
+          : c
+      )
     }))
 }));
