@@ -55,6 +55,20 @@ export async function DELETE(request, { params }) {
     if (index === -1) {
       return NextResponse.json({ error: 'Staff member not found' }, { status: 404 });
     }
+    const deletedStaff = mockDb.staff[index];
+
+    // Log to operations feed
+    if (!mockDb.operationsFeed) {
+      mockDb.operationsFeed = [];
+    }
+    const opId = `OP-${Date.now()}`;
+    mockDb.operationsFeed.unshift({
+      id: opId,
+      type: 'delete',
+      message: `Removed staff member: ${deletedStaff.name} (${deletedStaff.role})`,
+      timestamp: new Date()
+    });
+
     mockDb.staff.splice(index, 1);
     return NextResponse.json({ success: true });
   } catch (error) {

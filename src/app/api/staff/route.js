@@ -42,6 +42,19 @@ export async function POST(request) {
     };
     
     mockDb.staff.unshift(newStaff);
+    
+    // Log to operations feed
+    if (!mockDb.operationsFeed) {
+      mockDb.operationsFeed = [];
+    }
+    const opId = `OP-${Date.now()}`;
+    mockDb.operationsFeed.unshift({
+      id: opId,
+      type: 'add',
+      message: `Added new staff member: ${newStaff.name} (${newStaff.role})`,
+      timestamp: new Date()
+    });
+
     return NextResponse.json(newStaff, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
