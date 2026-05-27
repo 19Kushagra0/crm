@@ -1,83 +1,66 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '@/style/customers.module.css';
-import { Star, Medal, UserPlus, AlertTriangle, Search, ChevronLeft, ChevronRight } from '@/lib/icons';
-
-const initialCustomers = [
-  {
-    id: 1,
-    name: "Aisha Rahman",
-    contact: "+91 98765 43210",
-    avatar: "AR",
-    tier: "Gold",
-    visits: 42,
-    spent: "₹1,24,000",
-    lastVisit: "2 days ago",
-  },
-  {
-    id: 2,
-    name: "Vikram Singh",
-    contact: "+91 99887 76655",
-    avatar: "VS",
-    tier: "Silver",
-    visits: 18,
-    spent: "₹48,000",
-    lastVisit: "3 days ago",
-  },
-  {
-    id: 3,
-    name: "Maya Nambiar",
-    contact: "+91 91234 56789",
-    avatar: "MN",
-    tier: "At Risk",
-    visits: 2,
-    spent: "₹8,500",
-    lastVisit: "4 months ago",
-  },
-  {
-    id: 4,
-    name: "Priya Desai",
-    contact: "priya.d@example.com",
-    avatar: "PD",
-    tier: "New",
-    visits: 1,
-    spent: "₹12,000",
-    lastVisit: "Yesterday",
-  },
-  {
-    id: 5,
-    name: "Rahul Joshi",
-    contact: "+91 98888 11111",
-    avatar: "RJ",
-    tier: "Bronze",
-    visits: 5,
-    spent: "₹15,200",
-    lastVisit: "2 weeks ago",
-  }
-];
+import { Star, Medal, UserPlus, Search, ChevronLeft, ChevronRight } from '@/lib/icons';
+import CustomerService from '@/services/CustomerService';
 
 const segments = [
   { name: 'All', icon: null },
-  { name: 'Gold', icon: Star },
-  { name: 'Silver', icon: Medal },
-  { name: 'Bronze', icon: Medal },
-  { name: 'New', icon: UserPlus },
-  { name: 'At Risk', icon: AlertTriangle }
+  { name: 'Platinum', icon: Star },
+  { name: 'VIP', icon: Medal },
+  { name: 'Standard', icon: UserPlus }
 ];
 
 export default function Page() {
-  const [customers, setCustomers] = useState(initialCustomers);
+  const customers = CustomerService.useCustomers();
   const [selectedSegment, setSelectedSegment] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedSegment]);
 
   const getBadgeClass = (tier) => {
-    if (tier === 'Gold') return styles.badgeGold;
-    if (tier === 'Silver') return styles.badgeSilver;
-    if (tier === 'Bronze') return styles.badgeBronze;
-    if (tier === 'New') return styles.badgeNew;
-    if (tier === 'At Risk') return styles.badgeAtRisk;
+    if (tier === 'Platinum') return styles.badgeGold;
+    if (tier === 'VIP') return styles.badgeSilver;
+    if (tier === 'Standard') return styles.badgeNew;
     return '';
+  };
+
+  const getInitials = (name) => {
+    if (!name) return 'G';
+    const parts = name.trim().split(/\s+/);
+    return parts.map(p => p[0]).join('').substring(0, 2).toUpperCase() || 'G';
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const formatLastVisit = (date) => {
+    if (!date) return 'Never';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return 'Never';
+    
+    const diffMs = Date.now() - d.getTime();
+    const diffMins = Math.floor(diffMs / (60 * 1000));
+    const diffHours = Math.floor(diffMs / (60 * 60 * 1000));
+    const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d ago`;
+    
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const filteredCustomers = customers.filter(c => {
@@ -86,39 +69,104 @@ export default function Page() {
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      return c.name.toLowerCase().includes(q) || c.contact.toLowerCase().includes(q);
+      return (
+        c.name.toLowerCase().includes(q) ||
+        (c.email && c.email.toLowerCase().includes(q)) ||
+        (c.phone && c.phone.toLowerCase().includes(q))
+      );
     }
     return true;
   });
 
+  const totalPages = Math.ceil(filteredCustomers.length / ITEMS_PER_PAGE);
+  const paginatedCustomers = filteredCustomers.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 4) {
+        pages.push(1, 2, 3, 4, 5, '...', totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    return pages;
+  };
+
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingCustomerId, setEditingCustomerId] = useState(null);
   const [newGuestName, setNewGuestName] = useState('');
-  const [newGuestContact, setNewGuestContact] = useState('');
-  const [newGuestTier, setNewGuestTier] = useState('New');
+  const [newGuestEmail, setNewGuestEmail] = useState('');
+  const [newGuestPhone, setNewGuestPhone] = useState('');
+  const [newGuestTier, setNewGuestTier] = useState('Standard');
 
-  const handleAddCustomer = (e) => {
-    e.preventDefault();
-    if (!newGuestName.trim() || !newGuestContact.trim()) return;
-
-    // Get initials for avatar
-    const words = newGuestName.trim().split(' ');
-    const avatar = words.map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'G';
-
-    const newCust = {
-      id: Date.now(),
-      name: newGuestName,
-      contact: newGuestContact,
-      avatar,
-      tier: newGuestTier,
-      visits: newGuestTier === 'New' ? 1 : 0,
-      spent: '₹0',
-      lastVisit: 'Just now'
-    };
-
-    setCustomers([newCust, ...customers]);
+  const handleOpenAddClick = () => {
     setNewGuestName('');
-    setNewGuestContact('');
-    setNewGuestTier('New');
+    setNewGuestEmail('');
+    setNewGuestPhone('');
+    setNewGuestTier('Standard');
+    setEditingCustomerId(null);
+    setIsEditing(false);
+    setShowAddModal(true);
+  };
+
+  const handleEditClick = (customer) => {
+    setNewGuestName(customer.name);
+    setNewGuestEmail(customer.email || '');
+    setNewGuestPhone(customer.phone || '');
+    setNewGuestTier(customer.tier);
+    setEditingCustomerId(customer.id);
+    setIsEditing(true);
+    setShowAddModal(true);
+  };
+
+  const handleDeleteClick = (id) => {
+    if (window.confirm("Are you sure you want to delete this customer?")) {
+      CustomerService.deleteCustomer(id);
+    }
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (!newGuestName.trim() || !newGuestEmail.trim() || !newGuestPhone.trim()) return;
+
+    if (isEditing && editingCustomerId) {
+      CustomerService.updateCustomer(editingCustomerId, {
+        name: newGuestName.trim(),
+        email: newGuestEmail.trim(),
+        phone: newGuestPhone.trim(),
+        tier: newGuestTier
+      });
+    } else {
+      const newCust = {
+        id: `CUST-${Date.now()}`,
+        name: newGuestName.trim(),
+        email: newGuestEmail.trim(),
+        phone: newGuestPhone.trim(),
+        tier: newGuestTier,
+        visits: 1,
+        lastVisit: new Date(),
+        totalSpend: 0
+      };
+      CustomerService.addCustomer(newCust);
+    }
+
+    setNewGuestName('');
+    setNewGuestEmail('');
+    setNewGuestPhone('');
+    setNewGuestTier('Standard');
+    setEditingCustomerId(null);
+    setIsEditing(false);
     setShowAddModal(false);
   };
 
@@ -127,7 +175,7 @@ export default function Page() {
       <div className={styles.contentWrapper}>
         {/* Page Header */}
         <section className={styles.pageHeader} style={{ justifyContent: 'flex-end', paddingTop: 0 }}>
-          <button className={styles.addBtn} onClick={() => setShowAddModal(true)}>+ Add Customer</button>
+          <button className={styles.addBtn} onClick={handleOpenAddClick}>+ Add Customer</button>
         </section>
 
         {/* Search & Filters */}
@@ -175,7 +223,7 @@ export default function Page() {
 
             {/* Table Body */}
             <div className={styles.tableBody}>
-              {filteredCustomers.map((c, index) => (
+              {paginatedCustomers.map((c, index) => (
                 <div key={c.id} className={index % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
                   <div className={styles.guestCell}>
                     {c.avatarUrl ? (
@@ -185,11 +233,14 @@ export default function Page() {
                         src={c.avatarUrl}
                       />
                     ) : (
-                      <div className={styles.avatar}>{c.avatar}</div>
+                      <div className={styles.avatar}>{getInitials(c.name)}</div>
                     )}
                     <div className={styles.guestInfo}>
                       <div className={styles.guestName}>{c.name}</div>
-                      <div className={styles.guestContact}>{c.contact}</div>
+                      <div className={styles.guestContact}>
+                        <div>{c.email}</div>
+                        <div>{c.phone}</div>
+                      </div>
                     </div>
                   </div>
                   <div className={styles.tierCell}>
@@ -199,13 +250,14 @@ export default function Page() {
                     <span className={styles.visitsValue}>{c.visits}</span>
                   </div>
                   <div className={styles.spentCell}>
-                    <span className={styles.spentValue}>{c.spent}</span>
+                    <span className={styles.spentValue}>{formatCurrency(c.totalSpend)}</span>
                   </div>
                   <div className={styles.lastVisitCell}>
-                    <span className={styles.lastVisitValue}>{c.lastVisit}</span>
+                    <span className={styles.lastVisitValue}>{formatLastVisit(c.lastVisit)}</span>
                   </div>
-                  <div className={styles.actionCell}>
-                    <button className={styles.actionBtn}>View Profile</button>
+                  <div className={styles.actionCell} style={{ display: 'flex', gap: '16px' }}>
+                    <button className={styles.actionBtn} onClick={() => handleEditClick(c)}>Edit</button>
+                    <button className={styles.deleteBtn} onClick={() => handleDeleteClick(c.id)}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -218,25 +270,44 @@ export default function Page() {
             </div>
 
             {/* Pagination */}
-            <div className={styles.pagination}>
-              <button className={styles.paginationBtn}>
-                <ChevronLeft size={16} />
-                Previous
-              </button>
-              <div className={styles.pageNumbers}>
-                <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>1</button>
-                <button className={styles.pageBtn}>2</button>
-                <button className={styles.pageBtn}>3</button>
-                <span className={styles.ellipsis}>…</span>
-                <button className={styles.pageBtn}>42</button>
+            {totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button 
+                  className={styles.paginationBtn}
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft size={16} />
+                  Previous
+                </button>
+                <div className={styles.pageNumbers}>
+                  {getPageNumbers().map((page, idx) => {
+                    if (page === '...') {
+                      return <span key={`ellipsis-${idx}`} className={styles.ellipsis}>…</span>;
+                    }
+                    return (
+                      <button
+                        key={`page-${page}`}
+                        className={`${styles.pageBtn} ${currentPage === page ? styles.pageBtnActive : ''}`}
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button 
+                  className={styles.paginationBtn}
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <ChevronRight size={16} />
+                  </span>
+                </button>
               </div>
-              <button className={styles.paginationBtn}>
-                Next
-                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                  <ChevronRight size={16} />
-                </span>
-              </button>
-            </div>
+            )}
           </div>
         </section>
       </div>
@@ -244,8 +315,8 @@ export default function Page() {
       {showAddModal && (
         <div className={styles.modalOverlay} onClick={() => setShowAddModal(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles.modalTitle}>Add Customer</h2>
-            <form onSubmit={handleAddCustomer}>
+            <h2 className={styles.modalTitle}>{isEditing ? "Edit Customer" : "Add Customer"}</h2>
+            <form onSubmit={handleFormSubmit}>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Guest Name</label>
                 <input
@@ -259,14 +330,26 @@ export default function Page() {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Contact (Phone or Email)</label>
+                <label className={styles.formLabel}>Email Address</label>
                 <input
-                  type="text"
+                  type="email"
                   required
-                  placeholder="e.g. +91 98765 43210 or name@example.com"
+                  placeholder="e.g. name@example.com"
                   className={styles.formInput}
-                  value={newGuestContact}
-                  onChange={(e) => setNewGuestContact(e.target.value)}
+                  value={newGuestEmail}
+                  onChange={(e) => setNewGuestEmail(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Phone Number</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="e.g. +91 98765 43210"
+                  className={styles.formInput}
+                  value={newGuestPhone}
+                  onChange={(e) => setNewGuestPhone(e.target.value)}
                 />
               </div>
 
@@ -277,11 +360,9 @@ export default function Page() {
                   value={newGuestTier}
                   onChange={(e) => setNewGuestTier(e.target.value)}
                 >
-                  <option value="New">New</option>
-                  <option value="Gold">Gold</option>
-                  <option value="Silver">Silver</option>
-                  <option value="Bronze">Bronze</option>
-                  <option value="At Risk">At Risk</option>
+                  <option value="Standard">Standard</option>
+                  <option value="VIP">VIP</option>
+                  <option value="Platinum">Platinum</option>
                 </select>
               </div>
 
@@ -294,7 +375,7 @@ export default function Page() {
                   Cancel
                 </button>
                 <button type="submit" className={styles.modalSaveBtn}>
-                  Add Customer
+                  {isEditing ? "Save Changes" : "Add Customer"}
                 </button>
               </div>
             </form>

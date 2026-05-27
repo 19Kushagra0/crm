@@ -395,6 +395,24 @@
   text-decoration: underline;
 }
 
+.deleteBtn {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #c93b2b; /* Premium warm red */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  width: fit-content;
+  transition: all 0.2s ease;
+}
+
+.deleteBtn:hover {
+  color: #96251a;
+  text-decoration: underline;
+}
+
 /* PAGINATION */
 .pagination {
   display: flex;
@@ -411,7 +429,6 @@
     padding: 1.5rem 1rem;
   }
 }
-
 .paginationBtn {
   font-family: Inter, sans-serif;
   font-size: 13px;
@@ -432,6 +449,12 @@
   color: var(--color-ink, #141413);
   border-color: var(--color-border-hairline, #e6dfd8);
   background-color: var(--color-surface-card, #efe9de);
+}
+
+.paginationBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .pageNumbers {

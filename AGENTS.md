@@ -105,7 +105,8 @@ src/
   status: "incoming" | "preparing" | "ready",
   createdAt: Date,          // real timestamp — NOT a static string like "18m ago"
   price: "$64.00",          // string
-  isDelayed?: boolean
+  isDelayed?: boolean,
+  customerId?: string       // optional — associated customer ID (Phase 1b)
 }
 ```
 
@@ -131,6 +132,7 @@ src/
   seats: number,
   status: "available" | "occupied" | "reserved" | "cleaning",
   reservedAt?: string,      // time string e.g. "19:30"
+  currentCustomerId?: string, // optional — associated customer ID currently seated (Phase 1b)
 
   // Spatial Canvas extension fields (Phase 7a)
   x: number,                // canvas x position (px)
