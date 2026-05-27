@@ -107,7 +107,7 @@ export default function Page() {
                       <div className={styles.cardFooter}>
                         <div className={styles.cardTimerRow}>
                           <Clock size={14} className={styles.timerIcon} />
-                          <span className={styles.cardTimer}>
+                          <span className={styles.cardTimer} suppressHydrationWarning>
                             {getMinutesAgo(o.createdAt)}
                           </span>
                         </div>
@@ -174,7 +174,7 @@ export default function Page() {
                       <div className={styles.cardFooter}>
                         <div className={styles.cardTimerRow}>
                           <Clock size={14} className={o.isDelayed ? styles.timerIconDelayed : styles.timerIcon} />
-                          <span className={o.isDelayed ? styles.cardTimerDelayed : styles.cardTimer}>
+                          <span className={o.isDelayed ? styles.cardTimerDelayed : styles.cardTimer} suppressHydrationWarning>
                             {getMinutesAgo(o.createdAt)}
                           </span>
                         </div>
@@ -236,7 +236,7 @@ export default function Page() {
                       <div className={styles.cardFooter}>
                         <div className={styles.cardTimerRow}>
                           <Clock size={14} className={styles.timerIcon} />
-                          <span className={styles.cardTimer}>
+                          <span className={styles.cardTimer} suppressHydrationWarning>
                             {getMinutesAgo(o.createdAt)}
                           </span>
                         </div>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styles from '@/style/loyalty.module.css';
-import { Award, Medal, Star, Sparkles, Utensils, FileText } from '@/lib/icons';
+import { Award, Medal, Star, Sparkles } from '@/lib/icons';
 import CustomerService from '@/services/CustomerService';
 
 export default function LoyaltyPage() {
@@ -59,14 +59,6 @@ export default function LoyaltyPage() {
             </p>
           </div>
           <div className={styles.headerActions}>
-            <button className={styles.outlineBtn}>
-              <Utensils size={16} />
-              New Service
-            </button>
-            <button className={styles.outlineBtn}>
-              <FileText size={16} />
-              Shift Report
-            </button>
             <button className={styles.primaryBtn}>
               <Award size={16} />
               Create Reward

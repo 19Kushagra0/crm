@@ -67,7 +67,12 @@
   background-color: var(--color-surface-container, #efeeea);
 }
 
-.newOrderBtn {
+.dropdownContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.createBtn {
   background-color: var(--color-primary, #8f482f);
   color: var(--color-on-primary, #ffffff);
   padding: 0.625rem 1.25rem; /* py-2.5, px-5 */
@@ -78,11 +83,89 @@
   line-height: 1.55;
   border: none;
   cursor: pointer;
-  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), transform 100ms ease;
 }
 
-.newOrderBtn:hover {
+.createBtn:hover {
   background-color: var(--color-surface-tint, #924a31);
+}
+
+.createBtn:active {
+  transform: scale(0.98);
+}
+
+.createBtnIcon {
+  transition: transform 200ms ease;
+}
+
+.createBtn[aria-expanded="true"] .createBtnIcon {
+  transform: rotate(45deg);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 200px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(20, 20, 19, 0.08), 0 8px 10px -6px rgba(20, 20, 19, 0.08);
+  padding: 0.5rem;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform-origin: top right;
+  animation: slideDownFadeIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink, #141413);
+  background: transparent;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.dropdownItem:hover {
+  background-color: var(--color-surface-container, #efeeea);
+  color: var(--color-primary, #8f482f);
+}
+
+.dropdownItemIcon {
+  color: var(--color-secondary, #605e5b);
+  transition: color 150ms ease;
+}
+
+.dropdownItem:hover .dropdownItemIcon {
+  color: var(--color-primary, #8f482f);
+}
+
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Responsive Overrides */
@@ -126,7 +209,7 @@
     display: none; /* Hide date/time subtitle on mobile to save space */
   }
 
-  .newOrderBtn {
+  .createBtn {
     padding: 0.5rem 1rem;
     font-size: 13px;
   }

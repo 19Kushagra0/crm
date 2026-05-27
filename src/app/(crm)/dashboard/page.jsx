@@ -93,7 +93,7 @@ export default function DashboardPage() {
                   <p className={styles.orderDetails}>{o.items.map(i => i.name).join(', ')}</p>
                   <div className={styles.cardTimerRow}>
                     <Clock size={14} className={styles.timerAmber} />
-                    <span className={`${styles.orderCardId} ${styles.timerAmber}`}>{getMinutesAgo(o.createdAt)}</span>
+                    <span className={`${styles.orderCardId} ${styles.timerAmber}`} suppressHydrationWarning>{getMinutesAgo(o.createdAt)}</span>
                   </div>
                 </div>
               ))}
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                   <p className={styles.orderDetails}>{o.items.map(i => i.name).join(', ')}</p>
                   <div className={styles.cardTimerRow}>
                     <Clock size={14} className={styles.timerSecondary} />
-                    <span className={`${styles.orderCardId} ${styles.timerSecondary}`}>{getMinutesAgo(o.createdAt)}</span>
+                    <span className={`${styles.orderCardId} ${styles.timerSecondary}`} suppressHydrationWarning>{getMinutesAgo(o.createdAt)}</span>
                   </div>
                 </div>
               ))}
@@ -133,7 +133,7 @@ export default function DashboardPage() {
                   <p className={styles.orderDetails}>{o.items.map(i => i.name).join(', ')}</p>
                   <div className={styles.cardTimerRow}>
                     <Clock size={14} className={styles.timerSecondary} />
-                    <span className={`${styles.orderCardId} ${styles.timerSecondary}`}>{getMinutesAgo(o.createdAt)}</span>
+                    <span className={`${styles.orderCardId} ${styles.timerSecondary}`} suppressHydrationWarning>{getMinutesAgo(o.createdAt)}</span>
                   </div>
                 </div>
               ))}

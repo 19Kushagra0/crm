@@ -12,6 +12,22 @@ const OrderService = {
     useOrdersStore.getState().transitionOrder(orderId, newStatus);
   },
 
+  addOrder: (order) => {
+    useOrdersStore.getState().addOrder(order);
+  },
+
+  createWalkInOrder: (tableId, partySize) => {
+    const newOrder = {
+      id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+      table: tableId,
+      items: [{ name: `Walk-In (Party of ${partySize})` }],
+      status: "incoming",
+      createdAt: new Date(),
+      price: "$0.00"
+    };
+    useOrdersStore.getState().addOrder(newOrder);
+  },
+
   serveAndClose: (order) => {
     useOrdersStore.getState().serveAndClose(order);
   },

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from '@/style/kds.module.css';
-import { Award, Utensils, FileText } from '@/lib/icons';
 import OrderService from '@/services/OrderService';
 
 const getMinutesAgo = (createdAt) => {
@@ -79,20 +78,6 @@ export default function KitchenDisplayPage() {
             COLD
           </button>
         </div>
-        <div className={styles.quickActions}>
-          <button className={styles.quickActionBtn}>
-            <Award size={15} />
-            Create Reward
-          </button>
-          <button className={styles.quickActionBtn}>
-            <Utensils size={15} />
-            New Service
-          </button>
-          <button className={styles.quickActionBtnPrimary}>
-            <FileText size={15} />
-            Shift Report
-          </button>
-        </div>
         <div className={styles.timeDisplay}>
           {time}
         </div>
@@ -126,17 +111,17 @@ export default function KitchenDisplayPage() {
                 : styles.indicatorBarNew;
 
             return (
-              <article key={t.id} className={cardClass}>
+              <article key={t.id} className={cardClass} suppressHydrationWarning>
                 <header className={styles.ticketHeader}>
                   <div className={styles.ticketHeaderGroup}>
                     <span className={styles.ticketNum}>
                       #{t.id.replace('ORD-', '')}
                     </span>
-                    <span className={badgeClass}>
+                    <span className={badgeClass} suppressHydrationWarning>
                       {t.table}
                     </span>
                   </div>
-                  <span className={durationClass}>
+                  <span className={durationClass} suppressHydrationWarning>
                     {getMinutesAgo(t.createdAt)}
                   </span>
                 </header>
@@ -179,7 +164,7 @@ export default function KitchenDisplayPage() {
                   )}
                 </footer>
                 {/* Timer Bar */}
-                <div className={indicatorBarClass} />
+                <div className={indicatorBarClass} suppressHydrationWarning />
               </article>
             );
           })}

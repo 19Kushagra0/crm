@@ -5,6 +5,7 @@ import { TrendingUp, ArrowUp, CheckCircle, Sliders, Star, BookOpen, Heart, FileT
 import styles from '@/style/service.module.css';
 import Link from 'next/link';
 import OrderService from '@/services/OrderService';
+import ReservationService from '@/services/ReservationService';
 
 const getMinutesAgo = (createdAt) => {
   const diffMs = Date.now() - new Date(createdAt).getTime();
@@ -12,16 +13,9 @@ const getMinutesAgo = (createdAt) => {
   return `${diffMins}m ago`;
 };
 
-const initialReservations = [
-  { id: 1, guest: "Mr. Alistair Cook", details: "Party of 4 • VIP Tier 2", time: "19:30", status: "SEATED" },
-  { id: 2, guest: "Elena Rodriguez", details: "Party of 2 • Anniversary", time: "20:00", status: "CONFIRMED" },
-  { id: 3, guest: "The Goldman Group", details: "Party of 8 • Private Room", time: "20:15", status: "PENDING" },
-  { id: 4, guest: "Sarah Jenkins", details: "Party of 3", time: "21:00", status: "LATER" }
-];
-
 export default function ServicePage() {
   const orders = OrderService.useActiveOrders();
-  const [reservations, setReservations] = useState(initialReservations);
+  const reservations = ReservationService.useReservations();
 
   const incomingCount = orders.filter(o => o.status === 'incoming').length;
   const preparingCount = orders.filter(o => o.status === 'preparing').length;
@@ -41,15 +35,10 @@ export default function ServicePage() {
 
   const cycleReservationStatus = (resId) => {
     const statuses = ["PENDING", "CONFIRMED", "SEATED", "LATER"];
-    setReservations(prev =>
-      prev.map(r => {
-        if (r.id === resId) {
-          const nextIndex = (statuses.indexOf(r.status) + 1) % statuses.length;
-          return { ...r, status: statuses[nextIndex] };
-        }
-        return r;
-      })
-    );
+    const r = reservations.find(res => res.id === resId);
+    if (!r) return;
+    const nextIndex = (statuses.indexOf(r.status) + 1) % statuses.length;
+    ReservationService.updateReservationStatus(resId, statuses[nextIndex]);
   };
 
   const getReservationBadgeClass = (status) => {
@@ -168,7 +157,7 @@ export default function ServicePage() {
                         <span className={styles.orderTable}>
                           {o.table}
                         </span>
-                        <span className={styles.orderTime}>{getMinutesAgo(o.createdAt)}</span>
+                        <span className={styles.orderTime} suppressHydrationWarning>{getMinutesAgo(o.createdAt)}</span>
                       </div>
                       <p className={styles.orderTitle}>
                         {o.items.map(item => item.name).join(', ')}
@@ -200,7 +189,7 @@ export default function ServicePage() {
                         <span className={styles.orderTable}>
                           {o.table}
                         </span>
-                        <span className={styles.orderTime}>
+                        <span className={styles.orderTime} suppressHydrationWarning>
                           {getMinutesAgo(o.createdAt)}
                         </span>
                       </div>
