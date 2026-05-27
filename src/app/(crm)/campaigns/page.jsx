@@ -278,105 +278,107 @@ export default function CampaignsPage() {
               ))
             : filteredCampaigns.map((campaign) => (
                 <article key={campaign.id} className={styles.card}>
-                  <div className={styles.cardHeader}>
-                    <div>
-                      <h2 className={styles.cardTitle}>{campaign.title}</h2>
-                      <div className={styles.badgeGroup}>
-                        {campaign.status === "active" && (
-                          <span className={styles.badgeActive}>
-                            <span className={styles.badgeActiveDot} />
-                            Active
-                          </span>
-                        )}
-                        {campaign.status === "scheduled" && (
-                          <span className={styles.badgeScheduled}>
-                            <span className={styles.badgeScheduledDot} />
-                            Scheduled
-                          </span>
-                        )}
-                        {campaign.status === "completed" && (
-                          <span className={styles.badgeCompleted}>
-                            <CheckAllIcon />
-                            Completed
-                          </span>
-                        )}
-                        <span className={styles.badgeType}>
-                          {campaign.isEmail ? (
-                            <MailIcon />
-                          ) : (
-                            <MessageSquareIcon />
+                  <div className={styles.cardBody}>
+                    <div className={styles.cardHeader}>
+                      <div>
+                        <h2 className={styles.cardTitle}>{campaign.title}</h2>
+                        <div className={styles.badgeGroup}>
+                          {campaign.status === "active" && (
+                            <span className={styles.badgeActive}>
+                              <span className={styles.badgeActiveDot} />
+                              Active
+                            </span>
                           )}
-                          {campaign.type}
+                          {campaign.status === "scheduled" && (
+                            <span className={styles.badgeScheduled}>
+                              <span className={styles.badgeScheduledDot} />
+                              Scheduled
+                            </span>
+                          )}
+                          {campaign.status === "completed" && (
+                            <span className={styles.badgeCompleted}>
+                              <CheckAllIcon />
+                              Completed
+                            </span>
+                          )}
+                          <span className={styles.badgeType}>
+                            {campaign.isEmail ? (
+                              <MailIcon />
+                            ) : (
+                              <MessageSquareIcon />
+                            )}
+                            {campaign.type}
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.segmentInfo}>
+                        <span className={styles.segmentLabel}>Segment</span>
+                        <span className={styles.segmentValue}>
+                          {renderSegmentIcon(campaign.segment)}
+                          <span>{campaign.segmentMeta}</span>
                         </span>
                       </div>
                     </div>
-                    <div className={styles.segmentInfo}>
-                      <span className={styles.segmentLabel}>Segment</span>
-                      <span className={styles.segmentValue}>
-                        {renderSegmentIcon(campaign.segment)}
-                        <span>{campaign.segmentMeta}</span>
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Stats Row */}
-                  <div
-                    className={
-                      campaign.status === "scheduled"
-                        ? styles.statsRowMuted
-                        : styles.statsRow
-                    }
-                  >
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>Sent</span>
-                      <span className={styles.statValue}>{campaign.sent}</span>
+                    {/* Stats Row */}
+                    <div
+                      className={
+                        campaign.status === "scheduled"
+                          ? styles.statsRowMuted
+                          : styles.statsRow
+                      }
+                    >
+                      <div className={styles.statItem}>
+                        <span className={styles.statLabel}>Sent</span>
+                        <span className={styles.statValue}>{campaign.sent}</span>
+                      </div>
+                      <div className={styles.statItem}>
+                        <span className={styles.statLabel}>Opened</span>
+                        <span className={styles.statValue}>
+                          {campaign.opened}
+                          {campaign.sent > 0 && (
+                            <span
+                              className={`${styles.statSubtext} ${styles.statPrimary}`}
+                            >
+                              ({campaign.openedPct})
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className={styles.statItem}>
+                        <span className={styles.statLabel}>Redeemed</span>
+                        <span className={styles.statValue}>
+                          {campaign.redeemed}
+                          {campaign.sent > 0 && (
+                            <span
+                              className={`${styles.statSubtext} ${styles.statGreen}`}
+                            >
+                              ({campaign.redeemedPct})
+                            </span>
+                          )}
+                        </span>
+                      </div>
                     </div>
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>Opened</span>
-                      <span className={styles.statValue}>
-                        {campaign.opened}
-                        {campaign.sent > 0 && (
-                          <span
-                            className={`${styles.statSubtext} ${styles.statPrimary}`}
-                          >
-                            ({campaign.openedPct})
-                          </span>
+
+                    {/* Preview */}
+                    <div className={styles.previewContainer}>
+                      <p className={styles.previewText}>"{campaign.preview}"</p>
+                    </div>
+
+                    {/* Footer */}
+                    <div className={styles.cardFooter}>
+                      <span className={styles.footerDate}>
+                        {campaign.footerText}
+                      </span>
+                      <button className={styles.actionBtn}>
+                        {campaign.actionLabel}
+                        {campaign.status === "scheduled" ? (
+                          <EditIcon size={14} />
+                        ) : (
+                          <ArrowRightIcon size={14} />
                         )}
-                      </span>
+                      </button>
                     </div>
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>Redeemed</span>
-                      <span className={styles.statValue}>
-                        {campaign.redeemed}
-                        {campaign.sent > 0 && (
-                          <span
-                            className={`${styles.statSubtext} ${styles.statGreen}`}
-                          >
-                            ({campaign.redeemedPct})
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Preview */}
-                  <div className={styles.previewContainer}>
-                    <p className={styles.previewText}>"{campaign.preview}"</p>
-                  </div>
-
-                  {/* Footer */}
-                  <div className={styles.cardFooter}>
-                    <span className={styles.footerDate}>
-                      {campaign.footerText}
-                    </span>
-                    <button className={styles.actionBtn}>
-                      {campaign.actionLabel}
-                      {campaign.status === "scheduled" ? (
-                        <EditIcon size={14} />
-                      ) : (
-                        <ArrowRightIcon size={14} />
-                      )}
-                    </button>
                   </div>
                 </article>
               ))}
