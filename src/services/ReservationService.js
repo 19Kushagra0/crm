@@ -11,6 +11,10 @@ const ReservationService = {
 
   updateReservationStatus: (id, status) => {
     useReservationsStore.getState().updateReservationStatus(id, status);
+  },
+
+  assignTableToReservation: (id, tableId) => {
+    useReservationsStore.getState().assignTableToReservation(id, tableId);
   }
 };
 
