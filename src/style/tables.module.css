@@ -257,7 +257,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -277,7 +277,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 10px;
   cursor: pointer;
 }
@@ -407,7 +407,7 @@
   -right: 8px;
   background-color: var(--color-ink, #141413);
   color: var(--color-surface-bright, #fffbf6);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 9999px;
@@ -422,20 +422,20 @@
 }
 
 .tableCapacity {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   color: var(--color-muted, #6c6a64);
   margin-top: 4px;
 }
 
 .tableTime {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   margin-top: 4px;
 }
 
 .privateStatus {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 11px;
 }
 
@@ -494,7 +494,7 @@
   display: flex;
   justify-content: space-between;
   margin-top: 0.5rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 10px;
   color: var(--color-muted, #6c6a64);
 }
@@ -553,7 +553,7 @@
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .newReservationBtn {
     width: 100%;
     justify-content: center;
@@ -564,7 +564,8 @@
     justify-content: space-between;
   }
 
-  .viewBtn, .viewBtnActive {
+  .viewBtn,
+  .viewBtnActive {
     flex: 1;
     text-align: center;
   }
@@ -787,7 +788,7 @@
 }
 
 .hourLabel {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 10px;
   color: var(--color-muted, #6c6a64);
   width: 60px;
@@ -837,7 +838,7 @@
 }
 
 .tableDescGantt {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 10px;
   color: var(--color-muted, #6c6a64);
   margin-top: 2px;
@@ -868,7 +869,11 @@
 .hourLine {
   width: 1px;
   height: 100%;
-  background-image: linear-gradient(to bottom, var(--color-border-hairline, #e6dfd8) 50%, transparent 50%);
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-border-hairline, #e6dfd8) 50%,
+    transparent 50%
+  );
   background-size: 1px 6px;
   opacity: 0.7;
 }
@@ -993,7 +998,7 @@
 }
 
 .unassignedDetails {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 9px;
   color: var(--color-muted, #6c6a64);
   margin-top: 2px;
@@ -1070,7 +1075,7 @@
 }
 
 .timelineDetailTime {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   color: var(--color-ink, #141413);
 }
@@ -1185,7 +1190,7 @@
 }
 
 .customerSeatPhone {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 10px;
   color: var(--color-muted, #6c6a64);
 }
@@ -1278,7 +1283,7 @@
   border: 1px solid var(--color-border-hairline, #e6dfd8);
   background-color: var(--color-surface-bright, #ffffff);
   color: var(--color-ink, #141413);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   text-align: center;
   cursor: pointer;
@@ -1304,14 +1309,15 @@
   width: 100%;
 }
 
-.timeDropdown, .timeAmPmDropdown {
+.timeDropdown,
+.timeAmPmDropdown {
   flex: 1;
   padding: 0.75rem;
   border-radius: 8px;
   border: 1px solid var(--color-border-hairline, #e6dfd8);
   background-color: var(--color-surface-bright, #ffffff);
   color: var(--color-ink, #141413);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 14px;
   outline: none;
   cursor: pointer;
@@ -1324,13 +1330,14 @@
   padding-right: 2rem;
 }
 
-.timeDropdown:focus, .timeAmPmDropdown:focus {
+.timeDropdown:focus,
+.timeAmPmDropdown:focus {
   border-color: var(--color-primary, #8f482f);
   box-shadow: 0 0 0 2px rgba(143, 72, 47, 0.1);
 }
 
 .timeColon {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 18px;
   font-weight: 600;
   color: var(--color-ink, #141413);
@@ -1450,5 +1457,56 @@
   text-decoration: underline;
 }
 
+.containerLoading {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--spacing-margin-page, 24px);
+  gap: var(--spacing-section-v-rhythm, 24px);
+  background-color: #fbf8f3;
+  overflow: hidden;
+  height: 100%;
+}
 
+.skeletonHeader {
+  height: 48px;
+  width: 100%;
+  background: linear-gradient(90deg, #efe9de 25%, #f6f1e8 50%, #efe9de 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  border-radius: 8px;
+}
 
+.skeletonContent {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+  height: 100%;
+}
+
+.skeletonSidebar {
+  background: linear-gradient(90deg, #efe9de 25%, #f6f1e8 50%, #efe9de 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  border-radius: 12px;
+  width: 280px;
+  height: 100%;
+}
+
+.skeletonMap {
+  background: linear-gradient(90deg, #efe9de 25%, #f6f1e8 50%, #efe9de 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  border-radius: 12px;
+  flex: 1;
+  height: 100%;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

@@ -51,7 +51,6 @@
   background-color: #723924;
 }
 
-
 /* Hide scrollbar for filters */
 .filtersContainer::-webkit-scrollbar {
   display: none;
@@ -65,7 +64,9 @@
   font-family: Inter, sans-serif;
   font-size: 14px;
   font-weight: 500;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
   border: none;
   cursor: pointer;
   white-space: nowrap;
@@ -80,7 +81,9 @@
   font-family: Inter, sans-serif;
   font-size: 14px;
   font-weight: 500;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -154,7 +157,9 @@
 }
 
 .columnCount {
-  font-family: JetBrains Mono, monospace;
+  font-family:
+    JetBrains Mono,
+    monospace;
   font-size: 14px;
   line-height: 1.6;
   color: var(--color-secondary, #605e5b);
@@ -201,7 +206,9 @@
 }
 
 .orderId {
-  font-family: JetBrains Mono, monospace;
+  font-family:
+    JetBrains Mono,
+    monospace;
   font-size: 13px;
   color: var(--color-secondary, #605e5b);
 }
@@ -267,13 +274,17 @@
 }
 
 .cardTimer {
-  font-family: JetBrains Mono, monospace;
+  font-family:
+    JetBrains Mono,
+    monospace;
   font-size: 12px;
   color: var(--color-secondary, #605e5b);
 }
 
 .cardTimerDelayed {
-  font-family: JetBrains Mono, monospace;
+  font-family:
+    JetBrains Mono,
+    monospace;
   font-size: 12px;
   color: var(--color-accent-amber, #e8a55a);
   font-weight: 500;
@@ -382,7 +393,9 @@
 }
 
 .metricLabel {
-  font-family: JetBrains Mono, monospace;
+  font-family:
+    JetBrains Mono,
+    monospace;
   font-size: 12px;
   color: var(--color-primary-fixed-dim, #ffb59d);
   display: block;
@@ -453,7 +466,9 @@
 }
 
 .miniCardId {
-  font-family: JetBrains Mono, monospace;
+  font-family:
+    JetBrains Mono,
+    monospace;
   font-size: 11px;
   color: var(--color-secondary-fixed-dim, #cac6c2);
 }
@@ -634,7 +649,9 @@
 }
 
 .menuItemPrice {
-  font-family: JetBrains Mono, monospace;
+  font-family:
+    JetBrains Mono,
+    monospace;
   font-size: 11px;
   color: var(--color-secondary, #605e5b);
 }
@@ -671,7 +688,9 @@
 }
 
 .quantityVal {
-  font-family: JetBrains Mono, monospace;
+  font-family:
+    JetBrains Mono,
+    monospace;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-ink, #141413);
@@ -752,4 +771,65 @@
   user-select: none;
 }
 
+/* SKELETON LOADERS */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
 
+.skeletonCard {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 10px;
+  padding: 18px;
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeletonHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeletonId {
+  width: 60px;
+  height: 14px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
+
+.skeletonTableBadge {
+  width: 40px;
+  height: 18px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
+
+.skeletonText {
+  width: 140px;
+  height: 14px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
+
+.skeletonTextShort {
+  width: 80px;
+  height: 12px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
+
+.skeletonPrice {
+  width: 50px;
+  height: 18px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
