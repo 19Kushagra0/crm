@@ -132,6 +132,17 @@ export default function Header({ onMenuToggle }) {
     setActiveModal(null);
   };
 
+  const activeOrders = OrderService.useActiveOrders();
+  const tables = TablesService.useTables();
+  const customers = CustomerService.useCustomers();
+
+  const formattedDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
   let title = "Dashboard";
   let subtitle = formattedDate;
 
