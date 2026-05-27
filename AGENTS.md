@@ -130,7 +130,27 @@ src/
   zone: "WINDOW" | "CENTER" | "PRIVATE" | "BAR",
   seats: number,
   status: "available" | "occupied" | "reserved" | "cleaning",
-  reservedAt?: string       // time string e.g. "19:30"
+  reservedAt?: string,      // time string e.g. "19:30"
+
+  // Spatial Canvas extension fields (Phase 7a)
+  x: number,                // canvas x position (px)
+  y: number,                // canvas y position (px)
+  width: number,            // shape width (px)
+  height: number,           // shape height (px)
+  rotation: number,         // degrees
+  shape: "rect" | "round" | "bar", // visual shape type
+  floorId: string           // associated floor ID
+}
+```
+
+### Floor
+```js
+{
+  id: string,               // e.g. "floor-1"
+  name: string,             // e.g. "Main Dining"
+  order: number,            // display order sequence
+  canvasWidth: number,      // width (px)
+  canvasHeight: number      // height (px)
 }
 ```
 
@@ -141,7 +161,8 @@ src/
   guest: string,
   details: string,
   time: string,
-  status: "PENDING" | "CONFIRMED" | "SEATED" | "LATER"
+  status: "PENDING" | "CONFIRMED" | "SEATED" | "LATER",
+  tableId?: string          // associated table ID for the interactive timeline
 }
 ```
 

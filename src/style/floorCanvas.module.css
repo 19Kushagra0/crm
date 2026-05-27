@@ -1,0 +1,285 @@
+.canvasContainer {
+  position: relative;
+  width: 960px;
+  height: 570px;
+  background-color: #f6f1e8; /* Warm premium cream background */
+  background-image: radial-gradient(#d3cbbd 1.2px, transparent 1.2px); /* Beautiful micro dot grid */
+  background-size: 20px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  overflow: hidden;
+  box-shadow: inset 0 2px 10px rgba(20, 20, 19, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0 auto;
+}
+
+.canvasContainerEditing {
+  composes: canvasContainer;
+  border: 2px dashed var(--color-primary, #8f482f);
+  box-shadow: inset 0 2px 15px rgba(143, 72, 47, 0.08), 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Floor switcher tabs style */
+.floorSwitcherRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.floorTabs {
+  display: flex;
+  gap: 0.5rem;
+  background-color: var(--color-surface-container-low, #f4f4f0);
+  padding: 4px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+}
+
+.floorTab {
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: var(--color-muted, #6c6a64);
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floorTab:hover {
+  color: var(--color-ink, #141413);
+}
+
+.floorTabActive {
+  composes: floorTab;
+  background-color: var(--color-surface-bright, #ffffff);
+  color: var(--color-ink, #141413);
+  box-shadow: 0 1px 4px rgba(20, 20, 19, 0.06);
+}
+
+.floorTabAdd {
+  composes: floorTab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem 0.5rem;
+  border-radius: 9999px;
+  background-color: transparent;
+  color: var(--color-muted, #6c6a64);
+}
+
+.floorTabAdd:hover {
+  background-color: var(--color-surface-container-high, #e9e8e4);
+  color: var(--color-ink, #141413);
+}
+
+/* Action controls toolbar */
+.actionToolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.editToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  background-color: var(--color-surface-bright, #ffffff);
+  color: var(--color-ink, #141413);
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(20, 20, 19, 0.03);
+}
+
+.editToggleBtn:hover {
+  background-color: var(--color-surface-container-low, #f4f4f0);
+}
+
+.editToggleBtnActive {
+  composes: editToggleBtn;
+  background-color: var(--color-primary, #8f482f);
+  color: var(--color-on-primary, #ffffff);
+  border-color: var(--color-primary, #8f482f);
+}
+
+/* Floating overlay inside canvas */
+.canvasOverlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.editingBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: rgba(143, 72, 47, 0.9);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: 0 4px 12px rgba(143, 72, 47, 0.2);
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: #ffffff;
+}
+
+/* Snapping toggles and save buttons toolbar */
+.floatingToolbar {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(251, 248, 243, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  padding: 4px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(20, 20, 19, 0.08);
+}
+
+.toolbarBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-muted, #6c6a64);
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toolbarBtn:hover {
+  background-color: var(--color-surface-container-high, #e9e8e4);
+  color: var(--color-ink, #141413);
+}
+
+.toolbarBtnActive {
+  composes: toolbarBtn;
+  background-color: var(--color-ink, #141413);
+  color: var(--color-surface-bright, #fffbf6);
+}
+
+.toolbarSeparator {
+  width: 1px;
+  height: 16px;
+  background-color: var(--color-border-hairline, #e6dfd8);
+  margin: 0 2px;
+}
+
+.btnSave {
+  composes: toolbarBtn;
+  background-color: var(--color-primary, #8f482f);
+  color: var(--color-on-primary, #ffffff);
+}
+
+.btnSave:hover {
+  opacity: 0.9;
+  color: var(--color-on-primary, #ffffff);
+  background-color: var(--color-primary, #8f482f);
+}
+
+.btnDiscard {
+  composes: toolbarBtn;
+  background-color: transparent;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  color: var(--color-ink, #141413);
+}
+
+.btnDiscard:hover {
+  background-color: var(--color-surface-container-high, #e9e8e4);
+}
+
+.btnDelete {
+  composes: toolbarBtn;
+  background-color: #b33939;
+  color: #ffffff;
+}
+
+.btnDelete:hover {
+  background-color: #8c2525;
+  color: #ffffff;
+}
+
+.btnAddTable {
+  composes: toolbarBtn;
+  background-color: var(--color-ink, #141413);
+  color: var(--color-surface-bright, #fffbf6);
+  border: 1px solid var(--color-ink, #141413);
+}
+
+.btnAddTable:hover {
+  background-color: #e9e8e4;
+  color: var(--color-ink, #141413);
+  border-color: var(--color-border-hairline, #e6dfd8);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+.deleteFloorBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(179, 57, 57, 0.3);
+  background-color: var(--color-surface-bright, #ffffff);
+  color: #b33939;
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(20, 20, 19, 0.03);
+}
+
+.deleteFloorBtn:hover {
+  background-color: rgba(179, 57, 57, 0.05);
+  border-color: #b33939;
+}
+
+.deleteFloorBtn:active {
+  transform: scale(0.95);
+}
+

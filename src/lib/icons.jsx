@@ -315,3 +315,28 @@ export const ChevronRight = ({ className, size = 24 }) => (
     <path d="m9 18 6-6-6-6" />
   </svg>
 );
+
+// Lucide Lock
+export const Lock = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
+// Lucide Unlock
+export const Unlock = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+  </svg>
+);
+
+// Lucide Save
+export const Save = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+    <polyline points="17 21 17 13 7 13 7 21" />
+    <polyline points="7 3 7 8 15 8" />
+  </svg>
+);
