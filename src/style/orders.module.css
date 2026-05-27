@@ -14,14 +14,43 @@
   overflow: hidden;
 }
 
+.controlsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
 .filtersContainer {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
   -webkit-overflow-scrolling: touch;
 }
+
+.newOrderBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  background-color: var(--color-primary, #8f482f);
+  color: var(--color-surface-bright, #faf9f5);
+  border-radius: 9999px;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+  white-space: nowrap;
+}
+
+.newOrderBtn:hover {
+  background-color: #723924;
+}
+
 
 /* Hide scrollbar for filters */
 .filtersContainer::-webkit-scrollbar {
