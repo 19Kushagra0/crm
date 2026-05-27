@@ -4,6 +4,7 @@ import React from 'react';
 import styles from '@/style/tables.module.css';
 import { Plus } from '@/lib/icons';
 import TablesService from '@/services/TablesService';
+import UIService from '@/services/UIService';
 
 export default function TablesPage() {
   const tables = TablesService.useTables();
@@ -159,7 +160,10 @@ export default function TablesPage() {
                 Timeline
               </button>
             </div>
-            <button className={styles.newReservationBtn}>
+            <button 
+              className={styles.newReservationBtn}
+              onClick={() => UIService.openModal('RESERVATION')}
+            >
               <Plus size={16} />
               New Reservation
             </button>

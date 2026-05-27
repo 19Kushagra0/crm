@@ -76,6 +76,11 @@ export const useOrdersStore = create((set) => ({
       )
     })),
 
+  addOrder: (order) =>
+    set((state) => ({
+      activeOrders: [order, ...state.activeOrders]
+    })),
+
   serveAndClose: (order) =>
     set((state) => ({
       activeOrders: state.activeOrders.filter((o) => o.id !== order.id),
