@@ -283,3 +283,40 @@
   transform: scale(0.95);
 }
 
+.canvasContainerLoading {
+  composes: canvasContainer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fcfbfa;
+}
+
+.premiumLoader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.premiumLoader p {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-muted, #6c6a64);
+  letter-spacing: 0.02em;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(143, 72, 47, 0.1);
+  border-left-color: var(--color-primary, #8f482f);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+

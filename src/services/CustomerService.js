@@ -1,31 +1,77 @@
-import { useCustomersStore } from '@/lib/stores/customersStore';
+import { useQuery } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 
 const CustomerService = {
-  getCustomers: () => useCustomersStore.getState().customers,
-  useCustomers: () => useCustomersStore(state => state.customers),
-
-  addCustomer: (customer) => {
-    useCustomersStore.getState().addCustomer(customer);
+  // Sync getter from Query Cache
+  getCustomers: () => {
+    return queryClient.getQueryData(['customers']) || [];
   },
 
-  updateCustomer: (id, updates) => {
-    useCustomersStore.getState().updateCustomer(id, updates);
+  // Query Hook
+  useCustomers: () => {
+    return useQuery({
+      queryKey: ['customers'],
+      queryFn: async () => {
+        const res = await fetch('/api/customers');
+        if (!res.ok) throw new Error('Failed to fetch customers');
+        return res.json();
+      }
+    });
   },
 
-  deleteCustomer: (id) => {
-    useCustomersStore.getState().deleteCustomer(id);
+  // Mutations/Actions (can be called inside or outside React)
+  addCustomer: async (customer) => {
+    const res = await fetch('/api/customers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(customer)
+    });
+    if (!res.ok) throw new Error('Failed to add customer');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['customers'] });
+    return data;
   },
 
-  recordVisit: (id) => {
-    useCustomersStore.getState().recordVisit(id);
+  updateCustomer: async (id, updates) => {
+    const res = await fetch(`/api/customers/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) throw new Error('Failed to update customer');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['customers'] });
+    return data;
   },
 
-  updateSpend: (id, amount) => {
-    const customer = useCustomersStore.getState().customers.find(c => c.id === id);
+  deleteCustomer: async (id) => {
+    const res = await fetch(`/api/customers/${id}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) throw new Error('Failed to delete customer');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['customers'] });
+    return data;
+  },
+
+  recordVisit: async (id) => {
+    const customers = CustomerService.getCustomers();
+    const customer = customers.find(c => c.id === id);
+    const currentVisits = customer ? (customer.visits || 0) : 0;
+    
+    return CustomerService.updateCustomer(id, {
+      visits: currentVisits + 1,
+      lastVisit: new Date()
+    });
+  },
+
+  updateSpend: async (id, amount) => {
+    const customers = CustomerService.getCustomers();
+    const customer = customers.find(c => c.id === id);
     if (!customer) return;
+    
     const newSpend = (customer.totalSpend || 0) + amount;
     
-    // Determine tier threshold
     let newTier = 'Standard';
     if (newSpend >= 100000) {
       newTier = 'Platinum';
@@ -33,7 +79,7 @@ const CustomerService = {
       newTier = 'VIP';
     }
 
-    useCustomersStore.getState().updateCustomer(id, {
+    return CustomerService.updateCustomer(id, {
       totalSpend: newSpend,
       tier: newTier
     });

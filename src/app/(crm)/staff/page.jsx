@@ -35,7 +35,9 @@ const performanceData = [
 
 export default function StaffPage() {
   const [filter, setFilter] = useState('All');
-  const staffList = StaffService.useStaff();
+  const staffQueryResult = StaffService.useStaff();
+  const staffList = staffQueryResult.data || [];
+  const isLoading = staffQueryResult.isLoading;
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Form State
@@ -110,76 +112,82 @@ export default function StaffPage() {
 
         {/* Staff Grid */}
         <div className={styles.staffGrid}>
-          {filteredStaff.map(staff => (
-            <article key={staff.id} className={styles.card}>
-              <div className={styles.cardTop}>
-                <div className={styles.avatarCircle}>
-                  {staff.initials}
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, idx) => (
+              <div key={idx} className={styles.cardLoading} />
+            ))
+          ) : (
+            filteredStaff.map(staff => (
+              <article key={staff.id} className={styles.card}>
+                <div className={styles.cardTop}>
+                  <div className={styles.avatarCircle}>
+                    {staff.initials}
+                  </div>
+                  {staff.onShift ? (
+                    <button
+                      type="button"
+                      className={styles.badgeOnShift}
+                      onClick={() => StaffService.toggleShiftStatus(staff.id)}
+                      style={{ border: 'none', cursor: 'pointer' }}
+                    >
+                      <span className={styles.badgeOnShiftDot} />
+                      On Shift
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.badgeOff}
+                      onClick={() => StaffService.toggleShiftStatus(staff.id)}
+                      style={{ border: 'none', cursor: 'pointer' }}
+                    >
+                      Off
+                    </button>
+                  )}
                 </div>
-                {staff.onShift ? (
-                  <button
-                    type="button"
-                    className={styles.badgeOnShift}
-                    onClick={() => StaffService.toggleShiftStatus(staff.id)}
-                    style={{ border: 'none', cursor: 'pointer' }}
-                  >
-                    <span className={styles.badgeOnShiftDot} />
-                    On Shift
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <h3 className={styles.cardTitle}>{staff.name}</h3>
+                  <span className={styles.roleBadge}>{staff.role}</span>
+                </div>
+
+                {/* Stats Row */}
+                <div className={staff.onShift ? styles.cardStats : styles.cardStatsMuted}>
+                  <div className={styles.statItem}>
+                    <span className={styles.statLabel}>
+                      {staff.customLabels?.ordersLabel || "Orders Today"}
+                    </span>
+                    <span className={styles.statValue}>{staff.orders}</span>
+                  </div>
+                  <div className={styles.statItem}>
+                    <span className={styles.statLabel}>
+                      {staff.customLabels?.tablesLabel || "Tables"}
+                    </span>
+                    <span className={styles.statValue}>{staff.tables}</span>
+                  </div>
+                  <div className={styles.statItem}>
+                    <span className={styles.statLabel}>
+                      {staff.customLabels?.ratingLabel || "Avg Rating"}
+                    </span>
+                    <span className={styles.statValue}>{staff.rating}</span>
+                  </div>
+                </div>
+
+                {/* Tenure Info */}
+                <div className={styles.tenureText}>
+                  <CalendarIcon />
+                  <span>{staff.tenure}</span>
+                </div>
+
+                {/* Footer */}
+                <div className={styles.cardFooter}>
+                  <a href="#" className={styles.viewProfileLink}>View Profile</a>
+                  <button className={styles.iconBtn} aria-label="View Shift Schedule">
+                    <Clock size={16} />
                   </button>
-                ) : (
-                  <button
-                    type="button"
-                    className={styles.badgeOff}
-                    onClick={() => StaffService.toggleShiftStatus(staff.id)}
-                    style={{ border: 'none', cursor: 'pointer' }}
-                  >
-                    Off
-                  </button>
-                )}
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <h3 className={styles.cardTitle}>{staff.name}</h3>
-                <span className={styles.roleBadge}>{staff.role}</span>
-              </div>
-
-              {/* Stats Row */}
-              <div className={staff.onShift ? styles.cardStats : styles.cardStatsMuted}>
-                <div className={styles.statItem}>
-                  <span className={styles.statLabel}>
-                    {staff.customLabels?.ordersLabel || "Orders Today"}
-                  </span>
-                  <span className={styles.statValue}>{staff.orders}</span>
                 </div>
-                <div className={styles.statItem}>
-                  <span className={styles.statLabel}>
-                    {staff.customLabels?.tablesLabel || "Tables"}
-                  </span>
-                  <span className={styles.statValue}>{staff.tables}</span>
-                </div>
-                <div className={styles.statItem}>
-                  <span className={styles.statLabel}>
-                    {staff.customLabels?.ratingLabel || "Avg Rating"}
-                  </span>
-                  <span className={styles.statValue}>{staff.rating}</span>
-                </div>
-              </div>
-
-              {/* Tenure Info */}
-              <div className={styles.tenureText}>
-                <CalendarIcon />
-                <span>{staff.tenure}</span>
-              </div>
-
-              {/* Footer */}
-              <div className={styles.cardFooter}>
-                <a href="#" className={styles.viewProfileLink}>View Profile</a>
-                <button className={styles.iconBtn} aria-label="View Shift Schedule">
-                  <Clock size={16} />
-                </button>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          )}
         </div>
 
         {/* Today's Shift Schedule */}

@@ -7,6 +7,7 @@ import OrderService from '@/services/OrderService';
 import TablesService from '@/services/TablesService';
 import ReservationService from '@/services/ReservationService';
 import CustomerService from '@/services/CustomerService';
+import RevenueChart from '@/components/RevenueChart';
 
 const getMinutesAgo = (createdAt) => {
   if (!createdAt) return '0m';
@@ -16,11 +17,22 @@ const getMinutesAgo = (createdAt) => {
 };
 
 export default function DashboardPage() {
-  const activeOrders = OrderService.useActiveOrders();
-  const completedOrders = OrderService.useCompletedOrders();
-  const tables = TablesService.useTables();
-  const reservations = ReservationService.useReservations();
-  const customers = CustomerService.useCustomers();
+  const activeOrdersQueryResult = OrderService.useActiveOrders();
+  const activeOrders = activeOrdersQueryResult.data || [];
+
+  const completedOrdersQueryResult = OrderService.useCompletedOrders();
+  const completedOrders = completedOrdersQueryResult.data || [];
+
+  const tablesQueryResult = TablesService.useTables();
+  const tables = tablesQueryResult.data || [];
+  const reservationsQueryResult = ReservationService.useReservations();
+  const reservations = reservationsQueryResult.data || [];
+
+  const customersQueryResult = CustomerService.useCustomers();
+  const customers = customersQueryResult.data || [];
+
+  const revenueTrendQueryResult = OrderService.useRevenueTrend();
+  const revenueTrend = revenueTrendQueryResult.data || [];
 
   const occupiedTables = tables.filter(t => t.status === 'occupied').length;
   const totalTables = tables.length;
@@ -87,6 +99,15 @@ export default function DashboardPage() {
           </div>
           <div className={styles.kpiValue}>₹680</div>
         </div>
+      </section>
+
+      {/* Row 1.5: Performance Analysis Graph */}
+      <section className={styles.chartSection}>
+        <div className={styles.chartHeader}>
+          <h2 className={styles.chartTitle}>Performance Trends</h2>
+          <span className={styles.chartSubtitle}>Last 7 Days</span>
+        </div>
+        <RevenueChart data={revenueTrend} />
       </section>
 
       {/* Row 2: Live Pipeline & Reservations */}

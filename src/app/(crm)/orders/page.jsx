@@ -17,8 +17,13 @@ const getMinutesAgo = (createdAt) => {
 };
 
 export default function Page() {
-  const activeOrders = OrderService.useActiveOrders();
-  const completedOrders = OrderService.useCompletedOrders();
+  const activeOrdersQueryResult = OrderService.useActiveOrders();
+  const activeOrders = activeOrdersQueryResult.data || [];
+  const isLoading = activeOrdersQueryResult.isLoading;
+
+  const completedOrdersQueryResult = OrderService.useCompletedOrders();
+  const completedOrders = completedOrdersQueryResult.data || [];
+  
   const [activeFilter, setActiveFilter] = useState('All');
 
   const incomingCount = activeOrders.filter(o => o.status === 'incoming').length;
@@ -28,8 +33,11 @@ export default function Page() {
 
   // New Order Modal States
   const activeModal = UIService.useActiveModal();
-  const tables = TablesService.useTables();
-  const menuItems = MenuService.useMenuItems();
+  const tablesQueryResult = TablesService.useTables();
+  const tables = tablesQueryResult.data || [];
+
+  const menuItemsQueryResult = MenuService.useMenuItems();
+  const menuItems = menuItemsQueryResult.data || [];
   const [newOrderTableId, setNewOrderTableId] = useState('');
   const [newOrderPartySize, setNewOrderPartySize] = useState('2');
   const [selectedItems, setSelectedItems] = useState({}); // { [itemId]: quantity }
@@ -185,49 +193,67 @@ export default function Page() {
                     </h3>
                   </div>
                   <span className={styles.columnCount}>
-                    {incomingCount}
+                    {isLoading ? '...' : incomingCount}
                   </span>
                 </div>
                 <div className={styles.cardsList}>
-                  {activeOrders.filter(o => o.status === 'incoming').map(o => (
-                    <div key={o.id} className={styles.orderCard}>
-                      <div className={styles.cardHeader}>
-                        <span className={styles.orderId}>
-                          #{o.id}
-                        </span>
-                        <span className={styles.tableBadge}>
-                          {o.table}
-                        </span>
-                      </div>
-                      <div className={styles.cardBody}>
-                        <ul className={styles.itemsList}>
-                          {o.items.map((it, idx) => (
-                            <li key={idx} className={styles.itemsRow}>
-                              <span>{it.name}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardTimerRow}>
-                          <Clock size={14} className={styles.timerIcon} />
-                          <span className={styles.cardTimer} suppressHydrationWarning>
-                            {getMinutesAgo(o.createdAt)}
-                          </span>
+                  {isLoading ? (
+                    Array.from({ length: 2 }).map((_, idx) => (
+                      <div key={`incoming-skeleton-${idx}`} className={styles.skeletonCard}>
+                        <div className={styles.skeletonHeader}>
+                          <div className={styles.skeletonId} />
+                          <div className={styles.skeletonTableBadge} />
                         </div>
-                        <span className={styles.cardPrice}>
-                          {o.price}
-                        </span>
+                        <div className={styles.skeletonText} />
+                        <div className={styles.cardFooter} style={{ borderTop: '1px solid var(--color-border-hairline, #e6dfd8)', paddingTop: '0.75rem', marginTop: '0.5rem' }}>
+                          <div className={styles.skeletonTextShort} />
+                          <div className={styles.skeletonPrice} />
+                        </div>
                       </div>
-                      <div className={styles.statusText}>
-                        Sent to Kitchen...
-                      </div>
-                    </div>
-                  ))}
-                  {incomingCount === 0 && (
-                    <div style={{ textAlign: 'center', padding: '32px 16px', color: '#888', fontFamily: 'Inter, sans-serif' }}>
-                      No incoming orders.
-                    </div>
+                    ))
+                  ) : (
+                    <>
+                      {activeOrders.filter(o => o.status === 'incoming').map(o => (
+                        <div key={o.id} className={styles.orderCard}>
+                          <div className={styles.cardHeader}>
+                            <span className={styles.orderId}>
+                              #{o.id}
+                            </span>
+                            <span className={styles.tableBadge}>
+                              {o.table}
+                            </span>
+                          </div>
+                          <div className={styles.cardBody}>
+                            <ul className={styles.itemsList}>
+                              {o.items.map((it, idx) => (
+                                <li key={idx} className={styles.itemsRow}>
+                                  <span>{it.name}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div className={styles.cardFooter}>
+                            <div className={styles.cardTimerRow}>
+                              <Clock size={14} className={styles.timerIcon} />
+                              <span className={styles.cardTimer} suppressHydrationWarning>
+                                {getMinutesAgo(o.createdAt)}
+                              </span>
+                            </div>
+                            <span className={styles.cardPrice}>
+                              {o.price}
+                            </span>
+                          </div>
+                          <div className={styles.statusText}>
+                            Sent to Kitchen...
+                          </div>
+                        </div>
+                      ))}
+                      {incomingCount === 0 && (
+                        <div style={{ textAlign: 'center', padding: '32px 16px', color: '#888', fontFamily: 'Inter, sans-serif' }}>
+                          No incoming orders.
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -244,54 +270,72 @@ export default function Page() {
                     </h3>
                   </div>
                   <span className={styles.columnCount}>
-                    {preparingCount}
+                    {isLoading ? '...' : preparingCount}
                   </span>
                 </div>
                 <div className={styles.cardsList}>
-                  {activeOrders.filter(o => o.status === 'preparing').map(o => (
-                    <div key={o.id} className={styles.orderCard}>
-                      <div className={styles.cardHeader}>
-                        <span className={styles.orderId}>
-                          #{o.id}
-                        </span>
-                        <span className={styles.tableBadge}>
-                          {o.table}
-                        </span>
-                      </div>
-                      <div className={styles.cardBody}>
-                        <ul className={styles.itemsList}>
-                          {o.items.map((it, idx) => (
-                            <li key={idx} className={styles.itemsRow}>
-                              <span>{it.name}</span>{" "}
-                              {it.meta && (
-                                <span style={{ fontSize: '12px', color: 'var(--color-secondary, #605e5b)' }}>
-                                  {it.meta}
-                                </span>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardTimerRow}>
-                          <Clock size={14} className={o.isDelayed ? styles.timerIconDelayed : styles.timerIcon} />
-                          <span className={o.isDelayed ? styles.cardTimerDelayed : styles.cardTimer} suppressHydrationWarning>
-                            {getMinutesAgo(o.createdAt)}
-                          </span>
+                  {isLoading ? (
+                    Array.from({ length: 2 }).map((_, idx) => (
+                      <div key={`preparing-skeleton-${idx}`} className={styles.skeletonCard}>
+                        <div className={styles.skeletonHeader}>
+                          <div className={styles.skeletonId} />
+                          <div className={styles.skeletonTableBadge} />
                         </div>
-                        <span className={styles.cardPrice}>
-                          {o.price}
-                        </span>
+                        <div className={styles.skeletonText} />
+                        <div className={styles.cardFooter} style={{ borderTop: '1px solid var(--color-border-hairline, #e6dfd8)', paddingTop: '0.75rem', marginTop: '0.5rem' }}>
+                          <div className={styles.skeletonTextShort} />
+                          <div className={styles.skeletonPrice} />
+                        </div>
                       </div>
-                      <div className={styles.statusText}>
-                        Chef is cooking...
-                      </div>
-                    </div>
-                  ))}
-                  {preparingCount === 0 && (
-                    <div style={{ textAlign: 'center', padding: '32px 16px', color: '#888', fontFamily: 'Inter, sans-serif' }}>
-                      No orders in preparation.
-                    </div>
+                    ))
+                  ) : (
+                    <>
+                      {activeOrders.filter(o => o.status === 'preparing').map(o => (
+                        <div key={o.id} className={styles.orderCard}>
+                          <div className={styles.cardHeader}>
+                            <span className={styles.orderId}>
+                              #{o.id}
+                            </span>
+                            <span className={styles.tableBadge}>
+                              {o.table}
+                            </span>
+                          </div>
+                          <div className={styles.cardBody}>
+                            <ul className={styles.itemsList}>
+                              {o.items.map((it, idx) => (
+                                <li key={idx} className={styles.itemsRow}>
+                                  <span>{it.name}</span>{" "}
+                                  {it.meta && (
+                                    <span style={{ fontSize: '12px', color: 'var(--color-secondary, #605e5b)' }}>
+                                      {it.meta}
+                                    </span>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div className={styles.cardFooter}>
+                            <div className={styles.cardTimerRow}>
+                              <Clock size={14} className={o.isDelayed ? styles.timerIconDelayed : styles.timerIcon} />
+                              <span className={o.isDelayed ? styles.cardTimerDelayed : styles.cardTimer} suppressHydrationWarning>
+                                {getMinutesAgo(o.createdAt)}
+                              </span>
+                            </div>
+                            <span className={styles.cardPrice}>
+                              {o.price}
+                            </span>
+                          </div>
+                          <div className={styles.statusText}>
+                            Chef is cooking...
+                          </div>
+                        </div>
+                      ))}
+                      {preparingCount === 0 && (
+                        <div style={{ textAlign: 'center', padding: '32px 16px', color: '#888', fontFamily: 'Inter, sans-serif' }}>
+                          No orders in preparation.
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -308,52 +352,70 @@ export default function Page() {
                     </h3>
                   </div>
                   <span className={styles.columnCount}>
-                    {readyCount}
+                    {isLoading ? '...' : readyCount}
                   </span>
                 </div>
                 <div className={styles.cardsList}>
-                  {activeOrders.filter(o => o.status === 'ready').map(o => (
-                    <div key={o.id} className={styles.orderCard}>
-                      <div className={styles.cardHeader}>
-                        <span className={styles.orderId}>
-                          #{o.id}
-                        </span>
-                        <span className={styles.tableBadge}>
-                          {o.table}
-                        </span>
-                      </div>
-                      <div className={styles.cardBody}>
-                        <ul className={styles.itemsList}>
-                          {o.items.map((it, idx) => (
-                            <li key={idx} className={styles.itemsRow}>
-                              <span>{it.name}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardTimerRow}>
-                          <Clock size={14} className={styles.timerIcon} />
-                          <span className={styles.cardTimer} suppressHydrationWarning>
-                            {getMinutesAgo(o.createdAt)}
-                          </span>
+                  {isLoading ? (
+                    Array.from({ length: 1 }).map((_, idx) => (
+                      <div key={`ready-skeleton-${idx}`} className={styles.skeletonCard}>
+                        <div className={styles.skeletonHeader}>
+                          <div className={styles.skeletonId} />
+                          <div className={styles.skeletonTableBadge} />
                         </div>
-                        <span className={styles.cardPrice}>
-                          {o.price}
-                        </span>
+                        <div className={styles.skeletonText} />
+                        <div className={styles.cardFooter} style={{ borderTop: '1px solid var(--color-border-hairline, #e6dfd8)', paddingTop: '0.75rem', marginTop: '0.5rem' }}>
+                          <div className={styles.skeletonTextShort} />
+                          <div className={styles.skeletonPrice} />
+                        </div>
                       </div>
-                      <button 
-                        className={styles.readyActionBtn}
-                        onClick={() => serveAndCloseOrder(o)}
-                      >
-                        Serve &amp; Close
-                      </button>
-                    </div>
-                  ))}
-                  {readyCount === 0 && (
-                    <div style={{ textAlign: 'center', padding: '32px 16px', color: '#888', fontFamily: 'Inter, sans-serif' }}>
-                      No orders ready to serve.
-                    </div>
+                    ))
+                  ) : (
+                    <>
+                      {activeOrders.filter(o => o.status === 'ready').map(o => (
+                        <div key={o.id} className={styles.orderCard}>
+                          <div className={styles.cardHeader}>
+                            <span className={styles.orderId}>
+                              #{o.id}
+                            </span>
+                            <span className={styles.tableBadge}>
+                              {o.table}
+                            </span>
+                          </div>
+                          <div className={styles.cardBody}>
+                            <ul className={styles.itemsList}>
+                              {o.items.map((it, idx) => (
+                                <li key={idx} className={styles.itemsRow}>
+                                  <span>{it.name}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div className={styles.cardFooter}>
+                            <div className={styles.cardTimerRow}>
+                              <Clock size={14} className={styles.timerIcon} />
+                              <span className={styles.cardTimer} suppressHydrationWarning>
+                                {getMinutesAgo(o.createdAt)}
+                              </span>
+                            </div>
+                            <span className={styles.cardPrice}>
+                              {o.price}
+                            </span>
+                          </div>
+                          <button 
+                            className={styles.readyActionBtn}
+                            onClick={() => serveAndCloseOrder(o)}
+                          >
+                            Serve &amp; Close
+                          </button>
+                        </div>
+                      ))}
+                      {readyCount === 0 && (
+                        <div style={{ textAlign: 'center', padding: '32px 16px', color: '#888', fontFamily: 'Inter, sans-serif' }}>
+                          No orders ready to serve.
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -364,14 +426,18 @@ export default function Page() {
               <div style={{ flex: 1, padding: '24px', fontFamily: 'Inter, sans-serif', color: 'var(--color-ink, #141413)', backgroundColor: 'var(--color-surface-card, #efe9de)', borderRadius: '12px', border: '1px solid var(--color-border-hairline, #e6dfd8)' }}>
                 <h3 style={{ fontFamily: 'Newsreader, serif', fontSize: '20px', marginBottom: '16px' }}>All Completed Orders Today</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {completedOrders.map(o => (
-                    <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', backgroundColor: '#faf9f5', borderRadius: '6px', border: '1px solid var(--color-border-hairline, #e6dfd8)' }}>
-                      <div>
-                        <strong>#{o.id}</strong> <span style={{ color: '#666', marginLeft: '12px' }}>Table: {o.table}</span>
+                  {isLoading ? (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>Loading completed orders...</div>
+                  ) : (
+                    completedOrders.map(o => (
+                      <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', backgroundColor: '#faf9f5', borderRadius: '6px', border: '1px solid var(--color-border-hairline, #e6dfd8)' }}>
+                        <div>
+                          <strong>#{o.id}</strong> <span style={{ color: '#666', marginLeft: '12px' }}>Table: {o.table}</span>
+                        </div>
+                        <div style={{ fontWeight: '500' }}>{o.price}</div>
                       </div>
-                      <div style={{ fontWeight: '500' }}>{o.price}</div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             )}

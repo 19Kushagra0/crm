@@ -19,10 +19,17 @@ export default function Header({ onMenuToggle }) {
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const activeOrders = OrderService.useActiveOrders();
-  const tables = TablesService.useTables();
-  const customers = CustomerService.useCustomers();
-  const staff = StaffService.useStaff();
+  const activeOrdersQueryResult = OrderService.useActiveOrders();
+  const activeOrders = activeOrdersQueryResult.data || [];
+
+  const tablesQueryResult = TablesService.useTables();
+  const tables = tablesQueryResult.data || [];
+
+  const customersQueryResult = CustomerService.useCustomers();
+  const customers = customersQueryResult.data || [];
+
+  const staffQueryResult = StaffService.useStaff();
+  const staff = staffQueryResult.data || [];
 
   // Modals state
   const activeModal = UIService.useActiveModal();

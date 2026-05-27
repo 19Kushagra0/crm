@@ -1450,5 +1450,59 @@
   text-decoration: underline;
 }
 
+.containerLoading {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--spacing-margin-page, 24px);
+  gap: var(--spacing-section-v-rhythm, 24px);
+  background-color: #fbf8f3;
+  overflow: hidden;
+  height: 100%;
+}
+
+.skeletonHeader {
+  height: 48px;
+  width: 100%;
+  background: linear-gradient(90deg, #efe9de 25%, #f6f1e8 50%, #efe9de 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+.skeletonContent {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+  height: 100%;
+}
+
+.skeletonSidebar {
+  background: linear-gradient(90deg, #efe9de 25%, #f6f1e8 50%, #efe9de 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  border-radius: 12px;
+  width: 280px;
+  height: 100%;
+}
+
+.skeletonMap {
+  background: linear-gradient(90deg, #efe9de 25%, #f6f1e8 50%, #efe9de 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  border-radius: 12px;
+  flex: 1;
+  height: 100%;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 
 

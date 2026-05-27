@@ -28,7 +28,8 @@ export default function FloorCanvas({
   onToggleEditMode,
   onTableClick 
 }) {
-  const tables = TablesService.useTablesByFloor(floorId);
+  const tablesQueryResult = TablesService.useTablesByFloor(floorId);
+  const tables = tablesQueryResult.data || [];
   const [snapToGrid, setSnapToGrid] = useState(true);
   const [hoveredTableId, setHoveredTableId] = useState(null);
   const [selectedTableId, setSelectedTableId] = useState(null);
@@ -38,14 +39,25 @@ export default function FloorCanvas({
 
   useEffect(() => {
     // When edit mode is entered, take a snapshot of positions
-    if (isEditMode && !initialPositionsRef.current) {
+    if (isEditMode && !initialPositionsRef.current && !tablesQueryResult.isLoading) {
       initialPositionsRef.current = tables.map(t => ({ id: t.id, x: t.x, y: t.y }));
     } else if (!isEditMode) {
       initialPositionsRef.current = null;
     }
     // Reset selection when toggling edit mode or floor
     setSelectedTableId(null);
-  }, [isEditMode, tables, floorId]);
+  }, [isEditMode, tables, floorId, tablesQueryResult.isLoading]);
+
+  if (tablesQueryResult.isLoading) {
+    return (
+      <div className={styles.canvasContainerLoading}>
+        <div className={styles.premiumLoader}>
+          <div className={styles.spinner}></div>
+          <p>Loading floor layout...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleDiscard = () => {
     if (initialPositionsRef.current) {

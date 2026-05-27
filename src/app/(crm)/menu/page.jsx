@@ -9,7 +9,9 @@ const categories = ['All', 'Starters', 'Mains', 'Breads', 'Drinks', 'Desserts', 
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const menuItems = MenuService.useMenuItems();
+  const menuItemsQueryResult = MenuService.useMenuItems();
+  const menuItems = menuItemsQueryResult.data || [];
+  const isLoading = menuItemsQueryResult.isLoading;
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [itemToEdit, setItemToEdit] = useState(null);
@@ -135,55 +137,61 @@ export default function Page() {
           </div>
           {/* Main Grid Area */}
           <div className={styles.gridArea}>
-            {filteredItems.map((item) => (
-              <div key={item.id} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <span className={styles.categoryBadge}>
-                    {item.category}
-                  </span>
-                  <div
-                    className={`${styles.toggleSwitch} ${item.isActive ? styles.toggleActive : styles.toggleInactive}`}
-                    onClick={() => toggleActive(item.id)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className={`${styles.toggleThumb} ${item.isActive ? styles.toggleThumbActive : styles.toggleThumbInactive}`} />
-                  </div>
-                </div>
-                <h3 className={styles.cardTitle}>
-                  {item.name}
-                </h3>
-                <p className={styles.cardDescription}>
-                  {item.description}
-                </p>
-                <div className={styles.allergenList}>
-                  {item.allergens.map((allergen) => (
-                    <span key={allergen} className={styles.allergenBadge}>
-                      {allergen}
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, idx) => (
+                <div key={idx} className={styles.cardLoading} />
+              ))
+            ) : (
+              filteredItems.map((item) => (
+                <div key={item.id} className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <span className={styles.categoryBadge}>
+                      {item.category}
                     </span>
-                  ))}
-                </div>
-                <div className={styles.cardFooter}>
-                  <span className={styles.cardPrice}>₹{item.price}</span>
-                  <div className={styles.cardActions}>
-                    <button 
-                      className={styles.actionBtn}
-                      onClick={() => handleOpenEditModal(item)}
-                      aria-label="Edit Menu Item"
+                    <div
+                      className={`${styles.toggleSwitch} ${item.isActive ? styles.toggleActive : styles.toggleInactive}`}
+                      onClick={() => toggleActive(item.id)}
+                      style={{ cursor: 'pointer' }}
                     >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      className={`${styles.actionBtn} ${styles.deleteBtn}`}
-                      onClick={() => setItemToDelete(item)}
-                      aria-label="Delete Menu Item"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                      <div className={`${styles.toggleThumb} ${item.isActive ? styles.toggleThumbActive : styles.toggleThumbInactive}`} />
+                    </div>
+                  </div>
+                  <h3 className={styles.cardTitle}>
+                    {item.name}
+                  </h3>
+                  <p className={styles.cardDescription}>
+                    {item.description}
+                  </p>
+                  <div className={styles.allergenList}>
+                    {item.allergens.map((allergen) => (
+                      <span key={allergen} className={styles.allergenBadge}>
+                        {allergen}
+                      </span>
+                    ))}
+                  </div>
+                  <div className={styles.cardFooter}>
+                    <span className={styles.cardPrice}>₹{item.price}</span>
+                    <div className={styles.cardActions}>
+                      <button 
+                        className={styles.actionBtn}
+                        onClick={() => handleOpenEditModal(item)}
+                        aria-label="Edit Menu Item"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                        onClick={() => setItemToDelete(item)}
+                        aria-label="Delete Menu Item"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {filteredItems.length === 0 && (
+              ))
+            )}
+            {!isLoading && filteredItems.length === 0 && (
               <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#888' }}>
                 No items found in this category.
               </div>

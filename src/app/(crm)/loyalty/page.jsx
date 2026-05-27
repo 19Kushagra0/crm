@@ -6,7 +6,13 @@ import { Award, Medal, Star, Sparkles } from '@/lib/icons';
 import CustomerService from '@/services/CustomerService';
 
 export default function LoyaltyPage() {
-  const customers = CustomerService.useCustomers();
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const customersQueryResult = CustomerService.useCustomers();
+  const customers = isMounted ? (customersQueryResult.data || []) : [];
 
   // Dynamic calculations
   const totalEnrolled = customers.length;

@@ -33,11 +33,19 @@ const formatTimeTo12Hour = (timeStr) => {
 };
 
 export default function ServicePage() {
-  const orders = OrderService.useActiveOrders();
-  const completedOrders = OrderService.useCompletedOrders();
-  const reservations = ReservationService.useReservations();
-  const tables = TablesService.useTables();
-  const customers = CustomerService.useCustomers();
+  const ordersQueryResult = OrderService.useActiveOrders();
+  const orders = ordersQueryResult.data || [];
+
+  const completedOrdersQueryResult = OrderService.useCompletedOrders();
+  const completedOrders = completedOrdersQueryResult.data || [];
+
+  const reservationsQueryResult = ReservationService.useReservations();
+  const reservations = reservationsQueryResult.data || [];
+  const tablesQueryResult = TablesService.useTables();
+  const tables = tablesQueryResult.data || [];
+
+  const customersQueryResult = CustomerService.useCustomers();
+  const customers = customersQueryResult.data || [];
 
   const [billTableId, setBillTableId] = useState(null);
   const [isBillModalOpen, setIsBillModalOpen] = useState(false);

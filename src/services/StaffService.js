@@ -1,24 +1,69 @@
-import { useStaffStore } from '@/lib/stores/staffStore';
+import { useQuery } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 
 const StaffService = {
-  useStaff: () => useStaffStore((state) => state.staff),
-
-  getStaff: () => useStaffStore.getState().staff,
-
-  addStaff: (member) => {
-    useStaffStore.getState().addStaff(member);
+  // Synchronous cache getter
+  getStaff: () => {
+    return queryClient.getQueryData(['staff']) || [];
   },
 
-  updateStaff: (id, updates) => {
-    useStaffStore.getState().updateStaff(id, updates);
+  // Query Hook
+  useStaff: () => {
+    return useQuery({
+      queryKey: ['staff'],
+      queryFn: async () => {
+        const res = await fetch('/api/staff');
+        if (!res.ok) throw new Error('Failed to fetch staff members');
+        return res.json();
+      }
+    });
   },
 
-  deleteStaff: (id) => {
-    useStaffStore.getState().deleteStaff(id);
+  // Actions
+  addStaff: async (member) => {
+    const res = await fetch('/api/staff', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(member)
+    });
+    if (!res.ok) throw new Error('Failed to add staff member');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['staff'] });
+    return data;
   },
 
-  toggleShiftStatus: (id) => {
-    useStaffStore.getState().toggleShiftStatus(id);
+  updateStaff: async (id, updates) => {
+    const res = await fetch(`/api/staff/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) throw new Error('Failed to update staff member');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['staff'] });
+    return data;
+  },
+
+  deleteStaff: async (id) => {
+    const res = await fetch(`/api/staff/${id}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) throw new Error('Failed to delete staff member');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['staff'] });
+    return data;
+  },
+
+  toggleShiftStatus: async (id) => {
+    const res = await fetch(`/api/staff/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'toggleShiftStatus' })
+    });
+    if (!res.ok) throw new Error('Failed to toggle shift status');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['staff'] });
+    return data;
   }
 };
 

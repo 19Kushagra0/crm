@@ -592,6 +592,25 @@
   opacity: 0.88;
 }
 
+.cardLoading {
+  composes: card;
+  background: linear-gradient(90deg, #efe9de 25%, #f6f1e8 50%, #efe9de 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer-staff 1.5s infinite;
+  min-height: 240px;
+  border-color: var(--color-border-hairline, #e6dfd8);
+  pointer-events: none;
+}
+
+@keyframes loading-shimmer-staff {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

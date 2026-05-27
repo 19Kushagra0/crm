@@ -18,7 +18,10 @@ const segments = [
 ];
 
 export default function Page() {
-  const customers = CustomerService.useCustomers();
+  const customersQueryResult = CustomerService.useCustomers();
+  const customers = customersQueryResult.data || [];
+  const isLoading = customersQueryResult.isLoading;
+
   const [selectedSegment, setSelectedSegment] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,9 +29,14 @@ export default function Page() {
 
   const [selectedCustomerProfile, setSelectedCustomerProfile] = useState(null);
   const router = useRouter();
-  const reservations = ReservationService.useReservations();
-  const activeOrders = OrderService.useActiveOrders();
-  const completedOrders = OrderService.useCompletedOrders();
+  const reservationsQueryResult = ReservationService.useReservations();
+  const reservations = reservationsQueryResult.data || [];
+
+  const activeOrdersQueryResult = OrderService.useActiveOrders();
+  const activeOrders = activeOrdersQueryResult.data || [];
+
+  const completedOrdersQueryResult = OrderService.useCompletedOrders();
+  const completedOrders = completedOrdersQueryResult.data || [];
 
   useEffect(() => {
     setCurrentPage(1);
@@ -235,53 +243,84 @@ export default function Page() {
 
             {/* Table Body */}
             <div className={styles.tableBody}>
-              {paginatedCustomers.map((c, index) => {
-                if (!c) return null;
-                return (
-                  <div key={c.id} className={index % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <div key={`skeleton-${idx}`} className={styles.skeletonRow}>
                     <div className={styles.guestCell}>
-                      {c.avatarUrl ? (
-                        <img
-                          alt="Customer Avatar"
-                          className={styles.avatarImage}
-                          src={c.avatarUrl}
-                        />
-                      ) : (
-                        <div className={styles.avatar}>{getInitials(c.name)}</div>
-                      )}
+                      <div className={styles.skeletonAvatar} />
                       <div className={styles.guestInfo}>
-                        <div className={styles.guestName}>{c.name}</div>
-                        <div className={styles.guestContact}>
-                          <div>{c.email}</div>
-                          <div>{c.phone}</div>
-                        </div>
+                        <div className={styles.skeletonTextTitle} />
+                        <div className={styles.skeletonTextSubtitle} />
                       </div>
                     </div>
                     <div className={styles.tierCell}>
-                      <span className={getBadgeClass(c.tier)}>{c.tier}</span>
+                      <div className={styles.skeletonBadge} />
                     </div>
                     <div className={styles.visitsCell}>
-                      <span className={styles.visitsValue}>{c.visits}</span>
+                      <div className={styles.skeletonMetric} />
                     </div>
                     <div className={styles.spentCell}>
-                      <span className={styles.spentValue}>{formatCurrency(c.totalSpend)}</span>
+                      <div className={styles.skeletonMetric} />
                     </div>
                     <div className={styles.lastVisitCell}>
-                      <span className={styles.lastVisitValue}>{formatLastVisit(c.lastVisit)}</span>
+                      <div className={styles.skeletonMetric} />
                     </div>
-                    <div className={styles.actionCell} style={{ display: 'flex', gap: '12px' }}>
-                      <button className={styles.actionBtn} onClick={() => setSelectedCustomerProfile(c)} style={{ fontWeight: '600' }}>Profile</button>
-                      <button className={styles.actionBtn} onClick={() => handleEditClick(c)}>Edit</button>
-                      <button className={styles.deleteBtn} onClick={() => handleDeleteClick(c.id)}>Delete</button>
+                    <div className={styles.actionCell}>
+                      <div className={styles.skeletonAction} />
                     </div>
                   </div>
-                );
-              })}
-              
-              {filteredCustomers.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#888', gridColumn: '1 / -1', fontFamily: 'Inter, sans-serif' }}>
-                  No customers found matching this segment or query.
-                </div>
+                ))
+              ) : (
+                <>
+                  {paginatedCustomers.map((c, index) => {
+                    if (!c) return null;
+                    return (
+                      <div key={c.id} className={index % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+                        <div className={styles.guestCell}>
+                          {c.avatarUrl ? (
+                            <img
+                              alt="Customer Avatar"
+                              className={styles.avatarImage}
+                              src={c.avatarUrl}
+                            />
+                          ) : (
+                            <div className={styles.avatar}>{getInitials(c.name)}</div>
+                          )}
+                          <div className={styles.guestInfo}>
+                            <div className={styles.guestName}>{c.name}</div>
+                            <div className={styles.guestContact}>
+                              <div>{c.email}</div>
+                              <div>{c.phone}</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className={styles.tierCell}>
+                          <span className={getBadgeClass(c.tier)}>{c.tier}</span>
+                        </div>
+                        <div className={styles.visitsCell}>
+                          <span className={styles.visitsValue}>{c.visits}</span>
+                        </div>
+                        <div className={styles.spentCell}>
+                          <span className={styles.spentValue}>{formatCurrency(c.totalSpend)}</span>
+                        </div>
+                        <div className={styles.lastVisitCell}>
+                          <span className={styles.lastVisitValue}>{formatLastVisit(c.lastVisit)}</span>
+                        </div>
+                        <div className={styles.actionCell} style={{ display: 'flex', gap: '12px' }}>
+                          <button className={styles.actionBtn} onClick={() => setSelectedCustomerProfile(c)} style={{ fontWeight: '600' }}>Profile</button>
+                          <button className={styles.actionBtn} onClick={() => handleEditClick(c)}>Edit</button>
+                          <button className={styles.deleteBtn} onClick={() => handleDeleteClick(c.id)}>Delete</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {filteredCustomers.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#888', gridColumn: '1 / -1', fontFamily: 'Inter, sans-serif' }}>
+                      No customers found matching this segment or query.
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

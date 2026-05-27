@@ -752,4 +752,67 @@
   user-select: none;
 }
 
+/* SKELETON LOADERS */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.skeletonCard {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 10px;
+  padding: 18px;
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeletonHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeletonId {
+  width: 60px;
+  height: 14px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
+
+.skeletonTableBadge {
+  width: 40px;
+  height: 18px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
+
+.skeletonText {
+  width: 140px;
+  height: 14px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
+
+.skeletonTextShort {
+  width: 80px;
+  height: 12px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
+
+.skeletonPrice {
+  width: 50px;
+  height: 18px;
+  background-color: var(--color-surface-card, #efe9de);
+  border-radius: 4px;
+}
+
+
 

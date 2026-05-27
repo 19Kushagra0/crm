@@ -1,26 +1,87 @@
-import { useOrdersStore } from "@/lib/stores/ordersStore";
-import CustomerService from "@/services/CustomerService";
+import { useQuery } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 
 const OrderService = {
-  useActiveOrders: () => useOrdersStore((state) => state.activeOrders),
-
-  useCompletedOrders: () => useOrdersStore((state) => state.completedOrders),
-
-  getActiveOrders: () => useOrdersStore.getState().activeOrders,
-
-  getCompletedOrders: () => useOrdersStore.getState().completedOrders,
-
-  transitionOrder: (orderId, newStatus) => {
-    useOrdersStore.getState().transitionOrder(orderId, newStatus);
+  // Synchronous getters from Query Cache
+  getActiveOrders: () => {
+    const data = queryClient.getQueryData(['orders']);
+    return data?.activeOrders || [];
   },
 
-  addOrder: (order) => {
-    useOrdersStore.getState().addOrder(order);
+  getCompletedOrders: () => {
+    const data = queryClient.getQueryData(['orders']);
+    return data?.completedOrders || [];
   },
 
-  createWalkInOrder: (tableId, partySize, customerId) => {
+  getRevenueTrend: () => {
+    const data = queryClient.getQueryData(['orders']);
+    return data?.revenueTrend || [];
+  },
+
+  // Query Hooks
+  useActiveOrders: () => {
+    return useQuery({
+      queryKey: ['orders'],
+      queryFn: async () => {
+        const res = await fetch('/api/orders');
+        if (!res.ok) throw new Error('Failed to fetch orders');
+        return res.json();
+      },
+      select: (data) => data.activeOrders || []
+    });
+  },
+
+  useCompletedOrders: () => {
+    return useQuery({
+      queryKey: ['orders'],
+      queryFn: async () => {
+        const res = await fetch('/api/orders');
+        if (!res.ok) throw new Error('Failed to fetch orders');
+        return res.json();
+      },
+      select: (data) => data.completedOrders || []
+    });
+  },
+
+  useRevenueTrend: () => {
+    return useQuery({
+      queryKey: ['orders'],
+      queryFn: async () => {
+        const res = await fetch('/api/orders');
+        if (!res.ok) throw new Error('Failed to fetch orders');
+        return res.json();
+      },
+      select: (data) => data.revenueTrend || []
+    });
+  },
+
+  // Actions (can be called inside or outside React)
+  transitionOrder: async (orderId, newStatus) => {
+    const res = await fetch(`/api/orders/${orderId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    if (!res.ok) throw new Error('Failed to transition order');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['orders'] });
+    return data;
+  },
+
+  addOrder: async (order) => {
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order)
+    });
+    if (!res.ok) throw new Error('Failed to add order');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['orders'] });
+    return data;
+  },
+
+  createWalkInOrder: async (tableId, partySize, customerId) => {
     const newOrder = {
-      id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
       table: tableId,
       items: [{ name: `Walk-In (Party of ${partySize})` }],
       status: "incoming",
@@ -28,28 +89,33 @@ const OrderService = {
       price: "$0.00",
       customerId: customerId || undefined
     };
-    useOrdersStore.getState().addOrder(newOrder);
+    return OrderService.addOrder(newOrder);
   },
 
-  serveAndClose: (order) => {
-    useOrdersStore.getState().serveAndClose(order);
-    
-    if (order.customerId) {
-      const priceStr = order.price || "$0.00";
-      const numericPrice = parseFloat(priceStr.replace(/[^\d.-]/g, '')) || 0;
-      
-      const customers = CustomerService.getCustomers();
-      const customer = customers.find(c => c.id === order.customerId);
-      if (customer) {
-        const newSpend = (customer.totalSpend || 0) + numericPrice;
-        CustomerService.updateCustomer(customer.id, { totalSpend: newSpend });
-        CustomerService.recordVisit(customer.id);
-      }
-    }
+  serveAndClose: async (order) => {
+    const res = await fetch(`/api/orders/${order.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'serveAndClose' })
+    });
+    if (!res.ok) throw new Error('Failed to serve and close order');
+    const data = await res.json();
+    queryClient.invalidateQueries({ queryKey: ['orders'] });
+    queryClient.invalidateQueries({ queryKey: ['customers'] });
+    return data;
   },
 
   getTableBill: (tableId) => {
-    return useOrdersStore.getState().getTableBill(tableId);
+    const active = OrderService.getActiveOrders().filter((o) => o.table === tableId);
+    const completed = OrderService.getCompletedOrders().filter((o) => o.table === tableId);
+    const allOrders = [...active, ...completed];
+    const total = allOrders.reduce((sum, order) => {
+      if (!order.price) return sum;
+      const numericPrice = parseFloat(order.price.replace(/[^\d.-]/g, '')) || 0;
+      return sum + numericPrice;
+    }, 0);
+    return `₹${total.toFixed(2)}`;
   }
 };
+
 export default OrderService;

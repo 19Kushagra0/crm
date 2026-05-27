@@ -42,7 +42,8 @@ export default function TablesPage() {
   const [newTableSeats, setNewTableSeats] = useState(4);
 
   // Timeline & Reservation States
-  const reservations = ReservationService.useReservations();
+  const reservationsQueryResult = ReservationService.useReservations();
+  const reservations = reservationsQueryResult.data || [];
   const [selectedRes, setSelectedRes] = useState(null);
   const [prefilledTableId, setPrefilledTableId] = useState('');
   const [prefilledTime, setPrefilledTime] = useState('19:00');
@@ -56,7 +57,8 @@ export default function TablesPage() {
   const [seatingTableId, setSeatingTableId] = useState(null);
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [seatSearchQuery, setSeatSearchQuery] = useState('');
-  const customers = CustomerService.useCustomers();
+  const customersQueryResult = CustomerService.useCustomers();
+  const customers = customersQueryResult.data || [];
 
   const [resTimeTableId, setResTimeTableId] = useState(null);
   const [inputtedResTime, setInputtedResTime] = useState('19:30');
@@ -118,11 +120,34 @@ export default function TablesPage() {
 
   const activeModal = UIService.useActiveModal();
 
-  const floors = TablesService.useFloors();
-  const selectedFloorId = TablesService.useSelectedFloorId();
+  const floorsQueryResult = TablesService.useFloors();
+  const floors = floorsQueryResult.data || [];
+  const selectedFloorIdQueryResult = TablesService.useSelectedFloorId();
+  const selectedFloorId = selectedFloorIdQueryResult.data || 'floor-1';
   const activeFloor = floors.find(f => f.id === selectedFloorId) || floors[0];
-  const allTables = TablesService.useTables();
-  const currentFloorTables = TablesService.useTablesByFloor(selectedFloorId);
+  const allTablesQueryResult = TablesService.useTables();
+  const allTables = allTablesQueryResult.data || [];
+  const currentFloorTablesQueryResult = TablesService.useTablesByFloor(selectedFloorId);
+  const currentFloorTables = currentFloorTablesQueryResult.data || [];
+
+  const isLoading = floorsQueryResult.isLoading ||
+                    selectedFloorIdQueryResult.isLoading ||
+                    allTablesQueryResult.isLoading ||
+                    currentFloorTablesQueryResult.isLoading ||
+                    reservationsQueryResult.isLoading ||
+                    customersQueryResult.isLoading;
+
+  if (isLoading) {
+    return (
+      <div className={styles.containerLoading}>
+        <div className={styles.skeletonHeader}></div>
+        <div className={styles.skeletonContent}>
+          <div className={styles.skeletonSidebar}></div>
+          <div className={styles.skeletonMap}></div>
+        </div>
+      </div>
+    );
+  }
 
   // Next Table ID Helper
   const getNextTableId = (zone) => {
