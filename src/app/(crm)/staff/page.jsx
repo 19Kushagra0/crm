@@ -403,17 +403,6 @@ export default function StaffPage() {
                 />
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Initial Shift Status</label>
-                <select
-                  className={styles.formSelect}
-                  value={onShift ? "true" : "false"}
-                  onChange={(e) => setOnShift(e.target.value === "true")}
-                >
-                  <option value="true">On Shift Today</option>
-                  <option value="false">Off Shift Today</option>
-                </select>
-              </div>
 
               <div className={styles.modalActions}>
                 <button

@@ -527,6 +527,21 @@ const initialRevenueTrend = [
   { day: "Sun", revenue: 95000, orders: 90, occupancy: 92, avgValue: 1055 }
 ];
 
+const initialOperationsFeed = [
+  {
+    id: "OP-001",
+    type: "add",
+    message: "Added new staff member: Elena Rostova (Head Waiter)",
+    timestamp: new Date(Date.now() - 30 * 60 * 1000) // 30 mins ago
+  },
+  {
+    id: "OP-002",
+    type: "delete",
+    message: "Removed staff member: Marcus Kim (Sommelier)",
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
+  }
+];
+
 if (!globalThis.mockDb) {
   globalThis.mockDb = {
     customers: initialCustomers,
@@ -540,7 +555,8 @@ if (!globalThis.mockDb) {
     staff: initialStaff,
     campaigns: initialCampaigns,
     shiftNotes: initialShiftNotes,
-    revenueTrend: initialRevenueTrend
+    revenueTrend: initialRevenueTrend,
+    operationsFeed: initialOperationsFeed
   };
 } else {
   // Gracefully ensure they exist if HMR already loaded
@@ -553,6 +569,7 @@ if (!globalThis.mockDb) {
   if (!globalThis.mockDb.campaigns) globalThis.mockDb.campaigns = initialCampaigns;
   if (!globalThis.mockDb.shiftNotes) globalThis.mockDb.shiftNotes = initialShiftNotes;
   if (!globalThis.mockDb.revenueTrend) globalThis.mockDb.revenueTrend = initialRevenueTrend;
+  if (!globalThis.mockDb.operationsFeed) globalThis.mockDb.operationsFeed = initialOperationsFeed;
 }
 
 export const mockDb = globalThis.mockDb;

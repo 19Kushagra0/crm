@@ -2,11 +2,12 @@
 
 import React from "react";
 import styles from "@/style/dashboard.module.css";
-import { Clock, Star, CalendarDays, Megaphone, BarChart3 } from "@/lib/icons";
+import { Clock, Star, CalendarDays, Megaphone, BarChart3, Plus, Trash2 } from "@/lib/icons";
 import OrderService from "@/services/OrderService";
 import TablesService from "@/services/TablesService";
 import ReservationService from "@/services/ReservationService";
 import CustomerService from "@/services/CustomerService";
+import OperationsService from "@/services/OperationsService";
 import RevenueChart from "@/components/RevenueChart";
 
 const getMinutesAgo = (createdAt) => {
@@ -14,6 +15,18 @@ const getMinutesAgo = (createdAt) => {
   const diffMs = Date.now() - new Date(createdAt).getTime();
   const diffMins = Math.floor(diffMs / 60000);
   return `${diffMins}m`;
+};
+
+const getRelativeTime = (timestamp) => {
+  if (!timestamp) return "just now";
+  const diffMs = Date.now() - new Date(timestamp).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHrs = Math.floor(diffMins / 60);
+  if (diffHrs < 24) return `${diffHrs}h ago`;
+  const diffDays = Math.floor(diffHrs / 24);
+  return `${diffDays}d ago`;
 };
 
 export default function DashboardPage() {
@@ -33,6 +46,9 @@ export default function DashboardPage() {
 
   const revenueTrendQueryResult = OrderService.useRevenueTrend();
   const revenueTrend = revenueTrendQueryResult.data || [];
+
+  const operationsQueryResult = OperationsService.useOperationsFeed();
+  const operationsFeed = operationsQueryResult.data || [];
 
   const occupiedTables = tables.filter((t) => t.status === "occupied").length;
   const totalTables = tables.length;
@@ -366,33 +382,79 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Row 4: Quick Actions */}
-      <section className={styles.actionsGrid}>
-        <div className={styles.actionCard}>
-          <div className={styles.actionIconPrimary}>
-            <CalendarDays size={24} />
+      {/* Row 4: Operations Feed & Quick Actions */}
+      <section className={styles.bottomGrid}>
+        {/* Operations Feed (Left/Main Panel) */}
+        <div className={styles.operationsCol}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Operations Feed</h2>
+            <span className={styles.operationsStatusText}>Real-time Activity</span>
           </div>
-          <div>
-            <h3 className={styles.actionTitle}>Take Reservation</h3>
-            <p className={styles.actionDesc}>Manual booking entry</p>
+          <div className={styles.operationsList}>
+            {operationsFeed.map((op, index) => {
+              const isLast = index === operationsFeed.length - 1;
+              const isAdd = op.type === "add";
+              return (
+                <div
+                  key={op.id}
+                  className={isLast ? styles.operationRowLast : styles.operationRow}
+                >
+                  <div className={isAdd ? styles.operationIconAdd : styles.operationIconDelete}>
+                    {isAdd ? <Plus size={16} /> : <Trash2 size={16} />}
+                  </div>
+                  <div className={styles.operationMessage}>
+                    {op.message}
+                  </div>
+                  <div className={styles.operationTime} suppressHydrationWarning>
+                    {getRelativeTime(op.timestamp)}
+                  </div>
+                </div>
+              );
+            })}
+            {operationsFeed.length === 0 && (
+              <div
+                style={{
+                  color: "#888",
+                  fontStyle: "italic",
+                  fontSize: "13px",
+                  padding: "32px 12px",
+                  textAlign: "center",
+                }}
+              >
+                No recent operations logged
+              </div>
+            )}
           </div>
         </div>
-        <div className={styles.actionCard}>
-          <div className={styles.actionIconStandard}>
-            <Megaphone size={24} />
+
+        {/* Quick Actions (Right Sidebar Panel) */}
+        <div className={styles.actionsCol}>
+          <div className={styles.actionCardVertical}>
+            <div className={styles.actionIconPrimary}>
+              <CalendarDays size={24} />
+            </div>
+            <div>
+              <h3 className={styles.actionTitle}>Take Reservation</h3>
+              <p className={styles.actionDesc}>Manual booking entry</p>
+            </div>
           </div>
-          <div>
-            <h3 className={styles.actionTitle}>Guest Campaign</h3>
-            <p className={styles.actionDesc}>Send SMS/Email</p>
+          <div className={styles.actionCardVertical}>
+            <div className={styles.actionIconStandard}>
+              <Megaphone size={24} />
+            </div>
+            <div>
+              <h3 className={styles.actionTitle}>Guest Campaign</h3>
+              <p className={styles.actionDesc}>Send SMS/Email</p>
+            </div>
           </div>
-        </div>
-        <div className={styles.actionCard}>
-          <div className={styles.actionIconStandard}>
-            <BarChart3 size={24} />
-          </div>
-          <div>
-            <h3 className={styles.actionTitle}>End of Day Report</h3>
-            <p className={styles.actionDesc}>Generate summaries</p>
+          <div className={styles.actionCardVertical}>
+            <div className={styles.actionIconStandard}>
+              <BarChart3 size={24} />
+            </div>
+            <div>
+              <h3 className={styles.actionTitle}>End of Day Report</h3>
+              <p className={styles.actionDesc}>Generate summaries</p>
+            </div>
           </div>
         </div>
       </section>
