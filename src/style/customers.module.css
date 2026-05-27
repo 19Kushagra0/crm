@@ -306,14 +306,20 @@
   color: var(--color-muted, #6c6a64);
 }
 
-.tierCell, .visitsCell, .spentCell, .lastVisitCell, .actionCell {
+.tierCell,
+.visitsCell,
+.spentCell,
+.lastVisitCell,
+.actionCell {
   font-family: Inter, sans-serif;
   font-size: 14px;
   color: var(--color-ink, #141413);
 }
 
 .visitsValue {
-  font-family: JetBrains Mono, monospace;
+  font-family:
+    JetBrains Mono,
+    monospace;
   font-size: 14px;
 }
 
@@ -524,13 +530,15 @@
   padding: 32px;
   width: 90%;
   max-width: 440px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   animation: slideUp 200ms cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
 }
 
 .modalTitle {
-  font-family: 'Newsreader', serif;
+  font-family: "Newsreader", serif;
   font-size: 26px;
   color: var(--color-ink, #141413);
   margin-bottom: 20px;
@@ -545,14 +553,15 @@
 }
 
 .formLabel {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-secondary, #605e5b);
 }
 
-.formInput, .formSelect {
-  font-family: 'Inter', sans-serif;
+.formInput,
+.formSelect {
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   padding: 10px 14px;
   border-radius: 8px;
@@ -560,12 +569,15 @@
   background-color: #ffffff;
   color: var(--color-ink, #141413);
   outline: none;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
   width: 100%;
   box-sizing: border-box;
 }
 
-.formInput:focus, .formSelect:focus {
+.formInput:focus,
+.formSelect:focus {
   border-color: var(--color-primary, #00685a);
   box-shadow: 0 0 0 3px rgba(0, 104, 90, 0.1);
 }
@@ -578,7 +590,7 @@
 }
 
 .modalCancelBtn {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   padding: 10px 20px;
@@ -596,7 +608,7 @@
 }
 
 .modalSaveBtn {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   padding: 10px 20px;
@@ -613,13 +625,23 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(12px) scale(0.98); opacity: 0; }
-  to { transform: translateY(0) scale(1); opacity: 1; }
+  from {
+    transform: translateY(12px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 /* Customer Profile Detail Modal Styles */
@@ -788,11 +810,12 @@
 
 /* SKELETON LOADERS */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
-    opacity: .5;
+    opacity: 0.5;
   }
 }
 
@@ -849,5 +872,3 @@
   background-color: var(--color-surface-card, #efe9de);
   border-radius: 6px;
 }
-
-
