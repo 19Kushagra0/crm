@@ -553,3 +553,203 @@
     padding: 1rem;
   }
 }
+
+.modalCategoryTabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border-hairline, #e6dfd8);
+  margin-bottom: 1rem;
+}
+
+.modalCategoryTabs::-webkit-scrollbar {
+  display: none;
+}
+
+.modalCategoryTab {
+  padding: 0.375rem 0.75rem;
+  background-color: var(--color-surface-card, #efe9de);
+  color: var(--color-ink, #141413);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 9999px;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 150ms ease;
+}
+
+.modalCategoryTabActive {
+  composes: modalCategoryTab;
+  background-color: var(--color-primary, #8f482f);
+  color: var(--color-on-primary, #ffffff);
+  border-color: var(--color-primary, #8f482f);
+}
+
+.menuItemsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.menuItemsGrid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menuItemsGrid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menuItemsGrid::-webkit-scrollbar-thumb {
+  background: var(--color-border-hairline, #e6dfd8);
+  border-radius: 4px;
+}
+
+.menuItemRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background-color: #ffffff;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 0.375rem;
+}
+
+.menuItemInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.menuItemName {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink, #141413);
+}
+
+.menuItemPrice {
+  font-family: JetBrains Mono, monospace;
+  font-size: 11px;
+  color: var(--color-secondary, #605e5b);
+}
+
+.quantitySelector {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.quantityBtn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  background-color: var(--color-surface-container, #efeeea);
+  color: var(--color-ink, #141413);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 100ms ease;
+  user-select: none;
+}
+
+.quantityBtn:hover {
+  background-color: var(--color-border-hairline, #e6dfd8);
+}
+
+.quantityBtn:active {
+  transform: scale(0.92);
+}
+
+.quantityVal {
+  font-family: JetBrains Mono, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink, #141413);
+  min-width: 14px;
+  text-align: center;
+}
+
+.orderSummary {
+  background-color: var(--color-surface-container-low, #faf9f5);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.summaryTitle {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--color-secondary, #605e5b);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.summaryList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  max-height: 100px;
+  overflow-y: auto;
+  margin-bottom: 0.5rem;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: var(--color-ink, #141413);
+}
+
+.summaryTotalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--color-border-hairline, #e6dfd8);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.summaryTotalLabel {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink, #141413);
+}
+
+.summaryTotalValue {
+  font-family: Newsreader, serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-primary, #8f482f);
+}
+
+.statusText {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+  text-align: center;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-secondary, #605e5b);
+  background-color: var(--color-surface-container, #efeeea);
+  border-radius: 0.5rem;
+  border: 1px dashed var(--color-border-hairline, #e6dfd8);
+  user-select: none;
+}
+
+

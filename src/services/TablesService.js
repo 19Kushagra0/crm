@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useTablesStore } from '@/lib/stores/tablesStore';
+import CustomerService from '@/services/CustomerService';
 
 const TablesService = {
   // Hooks
@@ -27,6 +28,18 @@ const TablesService = {
 
   setTableStatus: (tableId, status, reservedAt) => {
     useTablesStore.getState().setTableStatus(tableId, status, reservedAt);
+  },
+
+  seatCustomer: (tableId, customerId) => {
+    useTablesStore.getState().seatCustomer(tableId, customerId);
+  },
+
+  clearSeat: (tableId) => {
+    const table = useTablesStore.getState().tables.find((t) => t.id === tableId);
+    if (table?.currentCustomerId) {
+      CustomerService.recordVisit(table.currentCustomerId);
+    }
+    useTablesStore.getState().clearSeat(tableId);
   },
 
   updateTablePosition: (tableId, x, y) => {

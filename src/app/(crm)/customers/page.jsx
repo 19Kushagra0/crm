@@ -4,6 +4,11 @@ import React, { useState, useEffect } from 'react';
 import styles from '@/style/customers.module.css';
 import { Star, Medal, UserPlus, Search, ChevronLeft, ChevronRight } from '@/lib/icons';
 import CustomerService from '@/services/CustomerService';
+import ReservationService from '@/services/ReservationService';
+import OrderService from '@/services/OrderService';
+import Modal from '@/components/Modal';
+import modalStyles from '@/style/modal.module.css';
+import { useRouter } from 'next/navigation';
 
 const segments = [
   { name: 'All', icon: null },
@@ -18,6 +23,12 @@ export default function Page() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
+
+  const [selectedCustomerProfile, setSelectedCustomerProfile] = useState(null);
+  const router = useRouter();
+  const reservations = ReservationService.useReservations();
+  const activeOrders = OrderService.useActiveOrders();
+  const completedOrders = OrderService.useCompletedOrders();
 
   useEffect(() => {
     setCurrentPage(1);
@@ -64,6 +75,7 @@ export default function Page() {
   };
 
   const filteredCustomers = customers.filter(c => {
+    if (!c) return false;
     if (selectedSegment !== 'All' && c.tier !== selectedSegment) {
       return false;
     }
@@ -223,44 +235,48 @@ export default function Page() {
 
             {/* Table Body */}
             <div className={styles.tableBody}>
-              {paginatedCustomers.map((c, index) => (
-                <div key={c.id} className={index % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
-                  <div className={styles.guestCell}>
-                    {c.avatarUrl ? (
-                      <img
-                        alt="Customer Avatar"
-                        className={styles.avatarImage}
-                        src={c.avatarUrl}
-                      />
-                    ) : (
-                      <div className={styles.avatar}>{getInitials(c.name)}</div>
-                    )}
-                    <div className={styles.guestInfo}>
-                      <div className={styles.guestName}>{c.name}</div>
-                      <div className={styles.guestContact}>
-                        <div>{c.email}</div>
-                        <div>{c.phone}</div>
+              {paginatedCustomers.map((c, index) => {
+                if (!c) return null;
+                return (
+                  <div key={c.id} className={index % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+                    <div className={styles.guestCell}>
+                      {c.avatarUrl ? (
+                        <img
+                          alt="Customer Avatar"
+                          className={styles.avatarImage}
+                          src={c.avatarUrl}
+                        />
+                      ) : (
+                        <div className={styles.avatar}>{getInitials(c.name)}</div>
+                      )}
+                      <div className={styles.guestInfo}>
+                        <div className={styles.guestName}>{c.name}</div>
+                        <div className={styles.guestContact}>
+                          <div>{c.email}</div>
+                          <div>{c.phone}</div>
+                        </div>
                       </div>
                     </div>
+                    <div className={styles.tierCell}>
+                      <span className={getBadgeClass(c.tier)}>{c.tier}</span>
+                    </div>
+                    <div className={styles.visitsCell}>
+                      <span className={styles.visitsValue}>{c.visits}</span>
+                    </div>
+                    <div className={styles.spentCell}>
+                      <span className={styles.spentValue}>{formatCurrency(c.totalSpend)}</span>
+                    </div>
+                    <div className={styles.lastVisitCell}>
+                      <span className={styles.lastVisitValue}>{formatLastVisit(c.lastVisit)}</span>
+                    </div>
+                    <div className={styles.actionCell} style={{ display: 'flex', gap: '12px' }}>
+                      <button className={styles.actionBtn} onClick={() => setSelectedCustomerProfile(c)} style={{ fontWeight: '600' }}>Profile</button>
+                      <button className={styles.actionBtn} onClick={() => handleEditClick(c)}>Edit</button>
+                      <button className={styles.deleteBtn} onClick={() => handleDeleteClick(c.id)}>Delete</button>
+                    </div>
                   </div>
-                  <div className={styles.tierCell}>
-                    <span className={getBadgeClass(c.tier)}>{c.tier}</span>
-                  </div>
-                  <div className={styles.visitsCell}>
-                    <span className={styles.visitsValue}>{c.visits}</span>
-                  </div>
-                  <div className={styles.spentCell}>
-                    <span className={styles.spentValue}>{formatCurrency(c.totalSpend)}</span>
-                  </div>
-                  <div className={styles.lastVisitCell}>
-                    <span className={styles.lastVisitValue}>{formatLastVisit(c.lastVisit)}</span>
-                  </div>
-                  <div className={styles.actionCell} style={{ display: 'flex', gap: '16px' }}>
-                    <button className={styles.actionBtn} onClick={() => handleEditClick(c)}>Edit</button>
-                    <button className={styles.deleteBtn} onClick={() => handleDeleteClick(c.id)}>Delete</button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               
               {filteredCustomers.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#888', gridColumn: '1 / -1', fontFamily: 'Inter, sans-serif' }}>
@@ -382,6 +398,121 @@ export default function Page() {
           </div>
         </div>
       )}
+
+      {selectedCustomerProfile && (() => {
+        const profile = selectedCustomerProfile;
+        if (!profile) return null;
+        const linkedRes = reservations.filter(r => r && r.customerId === profile.id);
+        const linkedActive = activeOrders.filter(o => o && o.customerId === profile.id);
+        const linkedCompleted = completedOrders.filter(o => o && o.customerId === profile.id);
+        const allLinkedOrders = [...linkedActive, ...linkedCompleted];
+
+        return (
+          <Modal
+            isOpen={!!profile}
+            onClose={() => setSelectedCustomerProfile(null)}
+            title="Guest Profile"
+          >
+            <div className={styles.profileSection}>
+              <div className={styles.profileHeader}>
+                <div className={styles.profileAvatar}>
+                  {getInitials(profile.name)}
+                </div>
+                <div className={styles.profileMainInfo}>
+                  <h3 className={styles.profileName}>{profile.name}</h3>
+                  <span className={styles.profileMeta}>{profile.email}</span>
+                  <span className={styles.profileMeta}>{profile.phone}</span>
+                </div>
+              </div>
+
+              <div className={styles.profileStatsGrid}>
+                <div className={styles.profileStatCard}>
+                  <span className={styles.profileStatLabel}>Tier Segment</span>
+                  <span className={`${getBadgeClass(profile.tier)}`} style={{ marginTop: '4px' }}>
+                    {profile.tier}
+                  </span>
+                </div>
+                <div className={styles.profileStatCard}>
+                  <span className={styles.profileStatLabel}>Total Spent</span>
+                  <span className={styles.profileStatVal} style={{ color: 'var(--color-primary, #00685a)' }}>
+                    {formatCurrency(profile.totalSpend || 0)}
+                  </span>
+                </div>
+                <div className={styles.profileStatCard}>
+                  <span className={styles.profileStatLabel}>Total Visits</span>
+                  <span className={styles.profileStatVal}>{profile.visits || 0} visits</span>
+                </div>
+                <div className={styles.profileStatCard}>
+                  <span className={styles.profileStatLabel}>Last Visit</span>
+                  <span className={styles.profileMeta} style={{ marginTop: '4px', fontWeight: '500' }}>
+                    {formatLastVisit(profile.lastVisit)}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h4 className={styles.profileSectionTitle}>Recent Reservations</h4>
+                <div className={styles.activityList}>
+                  {linkedRes.map(res => (
+                    <div key={res.id} className={styles.activityItem}>
+                      <div className={styles.activityLeft}>
+                        <span className={styles.activityTitle}>{res.time} Reservation</span>
+                        <span className={styles.activityDesc}>{res.details}</span>
+                      </div>
+                      <span className={styles.activityRight} style={{ fontSize: '10px', textTransform: 'uppercase', opacity: 0.8 }}>
+                        {res.status}
+                      </span>
+                    </div>
+                  ))}
+                  {linkedRes.length === 0 && (
+                    <p style={{ fontSize: '11px', color: '#888', fontStyle: 'italic', margin: '4px 0' }}>
+                       No linked reservations found.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h4 className={styles.profileSectionTitle}>Order History</h4>
+                <div className={styles.activityList}>
+                  {allLinkedOrders.map(order => {
+                    if (!order) return null;
+                    return (
+                      <div key={order.id} className={styles.activityItem}>
+                        <div className={styles.activityLeft}>
+                          <span className={styles.activityTitle}>Order #{order.id}</span>
+                          <span className={styles.activityDesc}>
+                            {order.items ? order.items.map(it => it.name).join(', ') : 'Walk-In Order'}
+                          </span>
+                        </div>
+                        <span className={styles.activityRight} style={{ fontFamily: 'Newsreader, serif' }}>
+                          {order.price}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  {allLinkedOrders.length === 0 && (
+                    <p style={{ fontSize: '11px', color: '#888', fontStyle: 'italic', margin: '4px 0' }}>
+                      No linked orders found today.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={styles.seatNowBtn}
+                onClick={() => {
+                  router.push(`/tables?seatCustomerId=${profile.id}`);
+                  setSelectedCustomerProfile(null);
+                }}
+              >
+                Seat Guest Now
+              </button>
+            </div>
+          </Modal>
+        );
+      })()}
     </main>
   );
 }

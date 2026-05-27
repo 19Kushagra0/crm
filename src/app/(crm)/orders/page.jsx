@@ -5,6 +5,7 @@ import styles from '@/style/orders.module.css';
 import { Clock, Plus } from '@/lib/icons';
 import OrderService from '@/services/OrderService';
 import TablesService from '@/services/TablesService';
+import MenuService from '@/services/MenuService';
 import UIService from '@/services/UIService';
 import Modal from '@/components/Modal';
 import modalStyles from '@/style/modal.module.css';
@@ -28,17 +29,19 @@ export default function Page() {
   // New Order Modal States
   const activeModal = UIService.useActiveModal();
   const tables = TablesService.useTables();
+  const menuItems = MenuService.useMenuItems();
   const [newOrderTableId, setNewOrderTableId] = useState('');
   const [newOrderPartySize, setNewOrderPartySize] = useState('2');
-  const [newOrderItems, setNewOrderItems] = useState('');
+  const [selectedItems, setSelectedItems] = useState({}); // { [itemId]: quantity }
+  const [modalCategory, setModalCategory] = useState('Starters');
 
-  const availableTables = tables.filter(t => t.status === 'available');
+  const orderableTables = tables.filter(t => t.status === 'occupied');
 
   useEffect(() => {
-    if (activeModal === 'NEW_ORDER' && availableTables.length > 0 && !newOrderTableId) {
-      setNewOrderTableId(availableTables[0].id);
+    if (activeModal === 'NEW_ORDER' && orderableTables.length > 0 && !newOrderTableId) {
+      setNewOrderTableId(orderableTables[0].id);
     }
-  }, [activeModal, availableTables, newOrderTableId]);
+  }, [activeModal, orderableTables, newOrderTableId]);
 
   const transitionOrder = (orderId, newStatus) => {
     OrderService.transitionOrder(orderId, newStatus);
@@ -48,17 +51,59 @@ export default function Page() {
     OrderService.serveAndClose(order);
   };
 
+  const handleCloseModal = () => {
+    setNewOrderTableId('');
+    setNewOrderPartySize('2');
+    setSelectedItems({});
+    setModalCategory('Starters');
+    UIService.closeModal();
+  };
+
+  const incrementItem = (itemId) => {
+    setSelectedItems(prev => ({
+      ...prev,
+      [itemId]: (prev[itemId] || 0) + 1
+    }));
+  };
+
+  const decrementItem = (itemId) => {
+    setSelectedItems(prev => {
+      const current = prev[itemId] || 0;
+      if (current <= 1) {
+        const next = { ...prev };
+        delete next[itemId];
+        return next;
+      }
+      return {
+        ...prev,
+        [itemId]: current - 1
+      };
+    });
+  };
+
+  const selectedItemsList = Object.entries(selectedItems).map(([itemId, qty]) => {
+    const item = menuItems.find(mi => mi.id === itemId);
+    return item ? { ...item, quantity: qty } : null;
+  }).filter(Boolean);
+
+  const subtotal = selectedItemsList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
   const handleCreateOrder = (e) => {
     e.preventDefault();
-    const tableId = newOrderTableId || (availableTables[0]?.id);
+    const tableId = newOrderTableId || (orderableTables[0]?.id);
     if (!tableId) return;
 
-    const itemsList = newOrderItems.trim() 
-      ? newOrderItems.split(',').map(item => ({ name: item.trim() }))
-      : [{ name: `Walk-In (Party of ${newOrderPartySize})` }];
+    if (selectedItemsList.length === 0) {
+      alert("Please select at least one menu item.");
+      return;
+    }
 
-    // Generate random realistic price
-    const randomPrice = `$${(Math.floor(Math.random() * 80) + 20)}.00`;
+    const itemsList = selectedItemsList.map(item => ({
+      name: `${item.quantity}x ${item.name}`
+    }));
+
+    // Formatted Price string in Rupees (en-IN)
+    const orderPrice = `₹${subtotal.toFixed(2)}`;
 
     const newOrder = {
       id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -66,7 +111,7 @@ export default function Page() {
       items: itemsList,
       status: "incoming",
       createdAt: new Date(),
-      price: randomPrice
+      price: orderPrice
     };
 
     // Transition table to occupied
@@ -74,10 +119,7 @@ export default function Page() {
     OrderService.addOrder(newOrder);
 
     // Reset state & close
-    setNewOrderTableId('');
-    setNewOrderPartySize('2');
-    setNewOrderItems('');
-    UIService.closeModal();
+    handleCloseModal();
   };
 
 
@@ -177,12 +219,9 @@ export default function Page() {
                           {o.price}
                         </span>
                       </div>
-                      <button 
-                        className={styles.primaryActionBtn}
-                        onClick={() => transitionOrder(o.id, 'preparing')}
-                      >
-                        Start Preparing
-                      </button>
+                      <div className={styles.statusText}>
+                        Sent to Kitchen...
+                      </div>
                     </div>
                   ))}
                   {incomingCount === 0 && (
@@ -244,12 +283,9 @@ export default function Page() {
                           {o.price}
                         </span>
                       </div>
-                      <button 
-                        className={styles.secondaryActionBtn}
-                        onClick={() => transitionOrder(o.id, 'ready')}
-                      >
-                        Mark Ready
-                      </button>
+                      <div className={styles.statusText}>
+                        Chef is cooking...
+                      </div>
                     </div>
                   ))}
                   {preparingCount === 0 && (
@@ -395,13 +431,13 @@ export default function Page() {
       {/* NEW ORDER MODAL */}
       <Modal 
         isOpen={activeModal === 'NEW_ORDER'} 
-        onClose={() => UIService.closeModal()} 
+        onClose={handleCloseModal} 
         title="Create New Order"
       >
         <form onSubmit={handleCreateOrder} className={modalStyles.form} id="new-order-form">
           <div className={modalStyles.formGroup}>
             <label className={modalStyles.label} htmlFor="new-order-table">Select Table</label>
-            {availableTables.length > 0 ? (
+            {orderableTables.length > 0 ? (
               <select 
                 id="new-order-table" 
                 className={modalStyles.select}
@@ -409,15 +445,15 @@ export default function Page() {
                 onChange={(e) => setNewOrderTableId(e.target.value)}
                 required
               >
-                {availableTables.map(t => (
+                {orderableTables.map(t => (
                   <option key={t.id} value={t.id}>
-                    {t.id} - {t.zone} Zone ({t.seats} seats)
+                    {t.id} - {t.zone} Zone ({t.seats} seats) {t.status === 'occupied' ? '(Occupied)' : ''}
                   </option>
                 ))}
               </select>
             ) : (
               <p style={{ color: '#8f482f', fontSize: '14px', margin: '4px 0 0 0', fontWeight: '500' }}>
-                No tables currently available.
+                No tables are currently occupied.
               </p>
             )}
           </div>
@@ -439,30 +475,89 @@ export default function Page() {
               <option value="10">10 People</option>
             </select>
           </div>
+          
           <div className={modalStyles.formGroup}>
-            <label className={modalStyles.label} htmlFor="new-order-items">Order Items (Comma-separated, optional)</label>
-            <input 
-              type="text"
-              id="new-order-items" 
-              className={modalStyles.input}
-              placeholder="e.g. Ribeye Steak, Caesar Salad, Pinot Noir"
-              value={newOrderItems}
-              onChange={(e) => setNewOrderItems(e.target.value)}
-            />
+            <label className={modalStyles.label}>Select Menu Items</label>
+            <div className={styles.modalCategoryTabs}>
+              {['Starters', 'Mains', 'Breads', 'Drinks', 'Desserts', 'Specials'].map(cat => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={modalCategory === cat ? styles.modalCategoryTabActive : styles.modalCategoryTab}
+                  onClick={() => setModalCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+            
+            <div className={styles.menuItemsGrid}>
+              {menuItems.filter(mi => mi.category === modalCategory && mi.isActive).map(item => {
+                const quantity = selectedItems[item.id] || 0;
+                return (
+                  <div key={item.id} className={styles.menuItemRow}>
+                    <div className={styles.menuItemInfo}>
+                      <span className={styles.menuItemName}>{item.name}</span>
+                      <span className={styles.menuItemPrice}>₹{item.price}</span>
+                    </div>
+                    <div className={styles.quantitySelector}>
+                      {quantity > 0 && (
+                        <>
+                          <button
+                            type="button"
+                            className={styles.quantityBtn}
+                            onClick={() => decrementItem(item.id)}
+                          >
+                            -
+                          </button>
+                          <span className={styles.quantityVal}>{quantity}</span>
+                        </>
+                      )}
+                      <button
+                        type="button"
+                        className={styles.quantityBtn}
+                        onClick={() => incrementItem(item.id)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
+
+          {selectedItemsList.length > 0 && (
+            <div className={styles.orderSummary}>
+              <h4 className={styles.summaryTitle}>Order Summary</h4>
+              <div className={styles.summaryList}>
+                {selectedItemsList.map(item => (
+                  <div key={item.id} className={styles.summaryRow}>
+                    <span>{item.quantity}x {item.name}</span>
+                    <span>₹{item.price * item.quantity}</span>
+                  </div>
+                ))}
+              </div>
+              <div className={styles.summaryTotalRow}>
+                <span className={styles.summaryTotalLabel}>Grand Total</span>
+                <span className={styles.summaryTotalValue}>₹{subtotal.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+
           <div className={modalStyles.footer}>
             <button 
               type="button" 
               className={modalStyles.cancelBtn} 
-              onClick={() => UIService.closeModal()}
+              onClick={handleCloseModal}
             >
               Cancel
             </button>
             <button 
               type="submit" 
               className={modalStyles.submitBtn}
-              disabled={availableTables.length === 0}
-              style={availableTables.length === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              disabled={orderableTables.length === 0 || selectedItemsList.length === 0}
+              style={(orderableTables.length === 0 || selectedItemsList.length === 0) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
               Create Order
             </button>

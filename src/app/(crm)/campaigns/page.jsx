@@ -1,7 +1,9 @@
 "use client";
 import React, { useState } from 'react';
 import styles from '@/style/campaigns.module.css';
-import { Megaphone, AlertTriangle } from '@/lib/icons';
+import { Megaphone, AlertTriangle, Star, Medal, UserPlus } from '@/lib/icons';
+import CampaignService from '@/services/CampaignService';
+import CustomerService from '@/services/CustomerService';
 
 // Custom lightweight inline icons to preserve bundle size and consistency
 const PlusIcon = ({ className, size = 16 }) => (
@@ -45,63 +47,27 @@ const CheckAllIcon = ({ className, size = 13 }) => (
   </svg>
 );
 
-const campaignsData = [
-  {
-    id: 1,
-    title: "Win-Back: Inactive Guests",
-    status: "active",
-    type: "Email",
-    segment: "At Risk",
-    segmentMeta: "⚠️ At Risk · 42 customers",
-    sent: 42,
-    opened: 38,
-    openedPct: "90%",
-    redeemed: 12,
-    redeemedPct: "28%",
-    preview: "We miss you! Come back this week and enjoy 20% off your next visit...",
-    footerText: "Sent May 20",
-    actionLabel: "View Report",
-    isEmail: true,
-  },
-  {
-    id: 2,
-    title: "Weekend Special: Wine Tasting",
-    status: "scheduled",
-    type: "SMS",
-    segment: "Gold",
-    segmentMeta: "⭐ Gold · 156 customers",
-    sent: 0,
-    opened: 0,
-    openedPct: "0%",
-    redeemed: 0,
-    redeemedPct: "0%",
-    preview: "Join us this Saturday for an exclusive wine tasting event...",
-    footerText: "Scheduled May 26 7PM",
-    actionLabel: "Edit Campaign",
-    isEmail: false,
-  },
-  {
-    id: 3,
-    title: "Anniversary Celebration",
-    status: "completed",
-    type: "WhatsApp",
-    segment: "Silver",
-    segmentMeta: "🥈 Silver · 80 customers",
-    sent: 80,
-    opened: 72,
-    openedPct: "90%",
-    redeemed: 18,
-    redeemedPct: "22.5%",
-    preview: "Happy Anniversary! Celebrate with a complimentary bottle of sparkling wine...",
-    footerText: "Sent May 15",
-    actionLabel: "View Report",
-    isEmail: false,
+const renderSegmentIcon = (segment) => {
+  switch (segment) {
+    case 'Gold':
+      return <Star size={14} className={styles.iconGold} />;
+    case 'Silver':
+      return <Medal size={14} className={styles.iconSilver} />;
+    case 'Bronze':
+      return <Medal size={14} className={styles.iconBronze} />;
+    case 'New':
+      return <UserPlus size={14} className={styles.iconNew} />;
+    case 'At Risk':
+      return <AlertTriangle size={14} className={styles.iconRisk} />;
+    default:
+      return null;
   }
-];
+};
 
 export default function CampaignsPage() {
   const [filter, setFilter] = useState('All');
-  const [campaigns, setCampaigns] = useState(campaignsData);
+  const campaigns = CampaignService.useCampaigns();
+  const customers = CustomerService.useCustomers();
   const [showModal, setShowModal] = useState(false);
 
   // Form State
@@ -111,15 +77,31 @@ export default function CampaignsPage() {
   const [campaignStatus, setCampaignStatus] = useState('scheduled');
   const [campaignPreview, setCampaignPreview] = useState('');
 
+  // Dynamically calculate segment sizes based on active customers
+  const getSegmentCount = (segmentName) => {
+    switch (segmentName) {
+      case 'Gold': // Maps to Platinum
+        return customers.filter(c => c.tier === 'Platinum').length;
+      case 'Silver': // Maps to VIP
+        return customers.filter(c => c.tier === 'VIP').length;
+      case 'Bronze': // Maps to Standard
+        return customers.filter(c => c.tier === 'Standard').length;
+      case 'New': // Basic/new customer profile with <= 1 visit
+        return customers.filter(c => c.visits <= 1).length;
+      case 'At Risk': // Inactive customers whose last visit was > 30 days ago
+        const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+        return customers.filter(c => new Date(c.lastVisit).getTime() < thirtyDaysAgo).length;
+      default:
+        return 0;
+    }
+  };
+
   const handleCreateCampaign = (e) => {
     e.preventDefault();
     if (!campaignTitle.trim() || !campaignPreview.trim()) return;
 
-    let segmentMeta = "⭐ Gold · 156 customers";
-    if (campaignSegment === 'At Risk') segmentMeta = "⚠️ At Risk · 42 customers";
-    if (campaignSegment === 'Silver') segmentMeta = "🥈 Silver · 80 customers";
-    if (campaignSegment === 'Bronze') segmentMeta = "🥉 Bronze · 64 customers";
-    if (campaignSegment === 'New') segmentMeta = "🆕 New · 112 customers";
+    const count = getSegmentCount(campaignSegment);
+    const segmentMeta = `${campaignSegment} · ${count} customers`;
 
     const newCampaign = {
       id: Date.now(),
@@ -128,18 +110,18 @@ export default function CampaignsPage() {
       type: campaignType,
       segment: campaignSegment,
       segmentMeta,
-      sent: campaignStatus === 'completed' ? 80 : 0,
-      opened: campaignStatus === 'completed' ? 72 : 0,
-      openedPct: campaignStatus === 'completed' ? "90%" : "0%",
-      redeemed: campaignStatus === 'completed' ? 18 : 0,
-      redeemedPct: campaignStatus === 'completed' ? "22.5%" : "0%",
+      sent: campaignStatus === 'completed' ? count : 0,
+      opened: campaignStatus === 'completed' ? Math.round(count * 0.85) : 0,
+      openedPct: campaignStatus === 'completed' ? "85%" : "0%",
+      redeemed: campaignStatus === 'completed' ? Math.round(count * 0.22) : 0,
+      redeemedPct: campaignStatus === 'completed' ? "22%" : "0%",
       preview: campaignPreview,
       footerText: campaignStatus === 'active' ? 'Sent Just Now' : campaignStatus === 'scheduled' ? 'Scheduled Tomorrow 7PM' : 'Drafted',
       actionLabel: campaignStatus === 'scheduled' ? 'Edit Campaign' : 'View Report',
       isEmail: campaignType === 'Email',
     };
 
-    setCampaigns([newCampaign, ...campaigns]);
+    CampaignService.addCampaign(newCampaign);
     setCampaignTitle('');
     setCampaignPreview('');
     setShowModal(false);
@@ -149,13 +131,34 @@ export default function CampaignsPage() {
     ? campaigns 
     : campaigns.filter(c => c.status.toLowerCase() === filter.toLowerCase());
 
+  // Aggregate Metrics derived from store
+  const totalSent = campaigns.reduce((sum, c) => sum + c.sent, 0);
+  const totalOpened = campaigns.reduce((sum, c) => sum + c.opened, 0);
+  const avgOpenRate = totalSent > 0 ? Math.round((totalOpened / totalSent) * 100) : 0;
+  const totalConversions = campaigns.reduce((sum, c) => sum + c.redeemed, 0);
+  // Assume each redemption brings ₹950 in revenue
+  const revenueGenerated = campaigns.reduce((sum, c) => sum + (c.redeemed * 950), 0);
+
+  // Best Performing Campaigns
+  const completedCampaigns = campaigns
+    .filter(c => c.sent > 0)
+    .map(c => {
+      const conversionRate = Math.round((c.redeemed / c.sent) * 100);
+      return { ...c, conversionRate };
+    })
+    .sort((a, b) => b.conversionRate - a.conversionRate)
+    .slice(0, 2);
+
   return (
     <main className={styles.container}>
       <div className={styles.inner}>
         {/* Page Header */}
         <div className={styles.pageHeader}>
           <div className={styles.titleGroup}>
-            
+            <h2 className={styles.pageTitle}>Marketing Campaigns</h2>
+            <p className={styles.pageSubtitle}>
+              {campaigns.length} campaigns · {totalSent.toLocaleString('en-IN')} total messages sent
+            </p>
           </div>
           <div className={styles.headerActions}>
             {/* Filter Pills */}
@@ -211,7 +214,10 @@ export default function CampaignsPage() {
                 </div>
                 <div className={styles.segmentInfo}>
                   <span className={styles.segmentLabel}>Segment</span>
-                  <span className={styles.segmentValue}>{campaign.segmentMeta}</span>
+                  <span className={styles.segmentValue}>
+                    {renderSegmentIcon(campaign.segment)}
+                    <span>{campaign.segmentMeta}</span>
+                  </span>
                 </div>
               </div>
 
@@ -271,39 +277,39 @@ export default function CampaignsPage() {
             <div className={styles.metricsContainer}>
               <div className={styles.metricItem}>
                 <span className={styles.metricLabel}>Total Sent</span>
-                <span className={styles.metricValue}>847</span>
+                <span className={styles.metricValue}>{totalSent.toLocaleString('en-IN')}</span>
               </div>
               <div className={styles.metricItem}>
                 <span className={styles.metricLabel}>Avg Open Rate</span>
-                <span className={styles.metricValue}>68%</span>
+                <span className={styles.metricValue}>{avgOpenRate}%</span>
               </div>
               <div className={styles.metricItem}>
                 <span className={styles.metricLabel}>Conversions</span>
-                <span className={styles.metricValue}>124</span>
+                <span className={styles.metricValue}>{totalConversions}</span>
               </div>
               <div className={styles.metricItem}>
                 <span className={styles.metricLabel}>Revenue Generated</span>
-                <span className={styles.metricValueAmber}>₹38,200</span>
+                <span className={styles.metricValueAmber}>₹{revenueGenerated.toLocaleString('en-IN')}</span>
               </div>
             </div>
 
             {/* Right: Best Performing */}
             <div className={styles.bestPerformingSection}>
               <h3 className={styles.bestPerformingTitle}>Best Performing</h3>
-              <div className={styles.performanceRow}>
-                <span className={styles.performanceName}>Mother's Day Brunch</span>
-                <div className={styles.progressBarTrack}>
-                  <div className={styles.progressBarFill} style={{ width: '42%' }} />
+              {completedCampaigns.map(c => (
+                <div key={c.id} className={styles.performanceRow}>
+                  <span className={styles.performanceName}>{c.title}</span>
+                  <div className={styles.progressBarTrack}>
+                    <div className={styles.progressBarFill} style={{ width: `${c.conversionRate}%` }} />
+                  </div>
+                  <span className={styles.performanceValue}>{c.conversionRate}%</span>
                 </div>
-                <span className={styles.performanceValue}>42%</span>
-              </div>
-              <div className={styles.performanceRow}>
-                <span className={styles.performanceName}>Spring Menu Launch</span>
-                <div className={styles.progressBarTrack}>
-                  <div className={styles.progressBarFill} style={{ width: '35%' }} />
-                </div>
-                <span className={styles.performanceValue}>35%</span>
-              </div>
+              ))}
+              {completedCampaigns.length === 0 && (
+                <p className={styles.performanceMuted} style={{ color: 'var(--color-secondary)', fontSize: '12px' }}>
+                  No completed campaigns yet
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -346,11 +352,11 @@ export default function CampaignsPage() {
                   value={campaignSegment}
                   onChange={(e) => setCampaignSegment(e.target.value)}
                 >
-                  <option value="Gold">⭐ Gold Segment</option>
-                  <option value="Silver">🥈 Silver Segment</option>
-                  <option value="Bronze">🥉 Bronze Segment</option>
-                  <option value="New">🆕 New Segment</option>
-                  <option value="At Risk">⚠️ At Risk Segment</option>
+                  <option value="Gold">Gold Segment ({getSegmentCount('Gold')} guests)</option>
+                  <option value="Silver">Silver Segment ({getSegmentCount('Silver')} guests)</option>
+                  <option value="Bronze">Bronze Segment ({getSegmentCount('Bronze')} guests)</option>
+                  <option value="New">New Segment ({getSegmentCount('New')} guests)</option>
+                  <option value="At Risk">At Risk Segment ({getSegmentCount('At Risk')} guests)</option>
                 </select>
               </div>
 

@@ -116,6 +116,6 @@ export const useOrdersStore = create((set, get) => ({
       const numericPrice = parseFloat(order.price.replace(/[^\d.-]/g, '')) || 0;
       return sum + numericPrice;
     }, 0);
-    return `$${total.toFixed(2)}`;
+    return `₹${total.toFixed(2)}`;
   }
 }));

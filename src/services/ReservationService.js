@@ -1,4 +1,5 @@
 import { useReservationsStore } from '@/lib/stores/reservationsStore';
+import TablesService from '@/services/TablesService';
 
 const ReservationService = {
   useReservations: () => useReservationsStore((state) => state.reservations),
@@ -11,6 +12,12 @@ const ReservationService = {
 
   updateReservationStatus: (id, status) => {
     useReservationsStore.getState().updateReservationStatus(id, status);
+    if (status === 'SEATED') {
+      const res = useReservationsStore.getState().reservations.find(r => r.id === id);
+      if (res && res.tableId) {
+        TablesService.seatCustomer(res.tableId, res.customerId);
+      }
+    }
   },
 
   assignTableToReservation: (id, tableId) => {

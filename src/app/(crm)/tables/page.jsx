@@ -8,11 +8,27 @@ import { Plus, Pencil, Lock, Unlock, Trash2 } from '@/lib/icons';
 import TablesService from '@/services/TablesService';
 import ReservationService from '@/services/ReservationService';
 import UIService from '@/services/UIService';
+import CustomerService from '@/services/CustomerService';
 import Modal from '@/components/Modal';
 import modalStyles from '@/style/modal.module.css';
 
 // Dynamically import FloorCanvas with SSR disabled to prevent Konva server bundling errors
 const FloorCanvas = dynamic(() => import('@/components/FloorCanvas'), { ssr: false });
+
+const formatTimeTo12Hour = (timeStr) => {
+  if (!timeStr) return '';
+  if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) {
+    return timeStr;
+  }
+  const parts = timeStr.split(':');
+  if (parts.length < 2) return timeStr;
+  const hour = parseInt(parts[0], 10);
+  const min = parts[1];
+  if (isNaN(hour)) return timeStr;
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12}:${min} ${ampm}`;
+};
 
 export default function TablesPage() {
   const [activeTab, setActiveTab] = useState("MAP"); // "MAP" | "LIST" | "TIMELINE"
@@ -33,6 +49,72 @@ export default function TablesPage() {
   const [newResGuest, setNewResGuest] = useState('');
   const [newResDetails, setNewResDetails] = useState('');
   const [newResStatus, setNewResStatus] = useState('CONFIRMED');
+  const [localResCustomerId, setLocalResCustomerId] = useState('');
+  const [localResSearchQuery, setLocalResSearchQuery] = useState('');
+  const [showLocalResSearchResults, setShowLocalResSearchResults] = useState(false);
+
+  const [seatingTableId, setSeatingTableId] = useState(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
+  const [seatSearchQuery, setSeatSearchQuery] = useState('');
+  const customers = CustomerService.useCustomers();
+
+  const [resTimeTableId, setResTimeTableId] = useState(null);
+  const [inputtedResTime, setInputtedResTime] = useState('19:30');
+
+  // Parse inputtedResTime ("19:30") to 12-hour components
+  const parseResTime = () => {
+    if (!inputtedResTime) return { hour: 7, minute: "30", ampm: "PM" };
+    const [hour24Str, minuteStr] = inputtedResTime.split(':');
+    const hour24 = parseInt(hour24Str, 10) || 0;
+    const ampm = hour24 >= 12 ? "PM" : "AM";
+    let hour12 = hour24 % 12;
+    if (hour12 === 0) hour12 = 12;
+    return {
+      hour: hour12,
+      minute: minuteStr || "00",
+      ampm
+    };
+  };
+
+  const { hour: selectedHour, minute: selectedMinute, ampm: selectedAmPm } = parseResTime();
+
+  const handleTimeChange = (h, m, ampm) => {
+    let hour24 = parseInt(h, 10);
+    if (ampm === "PM" && hour24 < 12) hour24 += 12;
+    if (ampm === "AM" && hour24 === 12) hour24 = 0;
+    const hourStr = hour24.toString().padStart(2, '0');
+    setInputtedResTime(`${hourStr}:${m}`);
+  };
+
+  // Parse prefilledTime ("19:00") to 12-hour components
+  const parsePrefilledTime = () => {
+    if (!prefilledTime) return { hour: 7, minute: "00", ampm: "PM" };
+    const [hour24Str, minuteStr] = prefilledTime.split(':');
+    const hour24 = parseInt(hour24Str, 10) || 0;
+    const ampm = hour24 >= 12 ? "PM" : "AM";
+    let hour12 = hour24 % 12;
+    if (hour12 === 0) hour12 = 12;
+    return {
+      hour: hour12,
+      minute: minuteStr || "00",
+      ampm
+    };
+  };
+
+  const { hour: prefHour, minute: prefMinute, ampm: prefAmPm } = parsePrefilledTime();
+
+  const handlePrefilledTimeChange = (h, m, ampm) => {
+    let hour24 = parseInt(h, 10);
+    if (ampm === "PM" && hour24 < 12) hour24 += 12;
+    if (ampm === "AM" && hour24 === 12) hour24 = 0;
+    const hourStr = hour24.toString().padStart(2, '0');
+    setPrefilledTime(`${hourStr}:${m}`);
+  };
+
+  const filteredCustomers = customers.filter(c =>
+    c.name.toLowerCase().includes(seatSearchQuery.toLowerCase()) ||
+    c.phone.includes(seatSearchQuery)
+  ).slice(0, 10);
 
   const activeModal = UIService.useActiveModal();
 
@@ -73,6 +155,29 @@ export default function TablesPage() {
       }
     }
   }, [activeModal, newTableZone, allTables]);
+
+  // Query parameter listener for Seat Customer shortcut from CRM profile
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const seatCustomerId = params.get('seatCustomerId');
+      if (seatCustomerId) {
+        // Find first available table
+        const available = allTables.find(t => t.status === 'available');
+        if (available) {
+          setSeatingTableId(available.id);
+          setSelectedCustomerId(seatCustomerId);
+          setSeatSearchQuery('');
+          
+          // Open Seat Customer modal
+          UIService.openModal('SEAT_CUSTOMER');
+          
+          // Clear query params so it doesn't trigger again on reload
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+      }
+    }
+  }, [allTables]);
 
   const handleCreateTable = (e) => {
     e.preventDefault();
@@ -142,13 +247,16 @@ export default function TablesPage() {
       details: newResDetails.trim() || "Party of 2",
       time: prefilledTime,
       status: newResStatus,
-      tableId: prefilledTableId
+      tableId: prefilledTableId,
+      customerId: localResCustomerId || undefined
     });
 
     // Clear and close
     setNewResGuest('');
     setNewResDetails('');
     setPrefilledTableId('');
+    setLocalResCustomerId('');
+    setLocalResSearchQuery('');
     UIService.closeModal();
   };
 
@@ -160,12 +268,38 @@ export default function TablesPage() {
     const currentIndex = statuses.indexOf(table.status);
     const nextStatus = statuses[(currentIndex + 1) % statuses.length];
     
-    let reservedAt = undefined;
-    if (nextStatus === "reserved") {
-      reservedAt = table.reservedAt || (table.id === "T-4" ? "19:30" : "20:00");
+    if (nextStatus === 'occupied') {
+      // Open seat assignment modal instead of immediately cycling
+      setSeatingTableId(table.id);
+      setSelectedCustomerId('');
+      setSeatSearchQuery('');
+      UIService.openModal('SEAT_CUSTOMER');
+    } else if (nextStatus === 'reserved') {
+      // Open custom reservation time setter modal instead of blindly cycling
+      setResTimeTableId(table.id);
+      setInputtedResTime(table.reservedAt || '19:30');
+      UIService.openModal('SET_RESERVATION_TIME');
+    } else {
+      if (table.status === 'occupied') {
+        // Table is LEAVING occupied — clear the seat and record visit
+        TablesService.clearSeat(table.id);
+      }
+      TablesService.setTableStatus(table.id, nextStatus, undefined);
     }
-    
-    TablesService.setTableStatus(table.id, nextStatus, reservedAt);
+  };
+
+  const handleConfirmSeat = () => {
+    if (!seatingTableId) return;
+    if (selectedCustomerId) {
+      TablesService.seatCustomer(seatingTableId, selectedCustomerId);
+    } else {
+      // Walk-in: set table status to occupied with no customer ID link
+      TablesService.setTableStatus(seatingTableId, 'occupied');
+    }
+    setSeatingTableId(null);
+    setSelectedCustomerId('');
+    setSeatSearchQuery('');
+    UIService.closeModal();
   };
 
   const handleToggleEditMode = () => {
@@ -347,8 +481,18 @@ export default function TablesPage() {
                             {t.status}
                           </span>
                         </td>
-                        <td className={styles.tableCellMuted}>
-                          {t.status === 'reserved' ? `Reservation at ${t.reservedAt || '19:30'}` : t.status === 'occupied' ? 'Currently Seated' : '—'}
+                        <td className={styles.tableCellMuted} suppressHydrationWarning>
+                          {t.status === 'reserved' ? (
+                            `Reservation at ${formatTimeTo12Hour(t.reservedAt || '19:30')}`
+                          ) : t.status === 'occupied' ? (
+                            t.currentCustomerId ? (
+                              customers.find((c) => c.id === t.currentCustomerId)?.name || 'Seated Customer'
+                            ) : (
+                              'Walk-in'
+                            )
+                          ) : (
+                            '—'
+                          )}
                         </td>
                         <td className={styles.tableCellRight}>
                           <button 
@@ -479,7 +623,7 @@ export default function TablesPage() {
                                   }}
                                 >
                                   <span className={styles.pillGuest}>{res.guest}</span>
-                                  <span className={styles.pillMeta}>{res.details.split('•')[0]} • {res.time}</span>
+                                  <span className={styles.pillMeta} suppressHydrationWarning>{res.details.split('•')[0]} • {formatTimeTo12Hour(res.time)}</span>
                                 </div>
                               );
                             })}
@@ -512,8 +656,8 @@ export default function TablesPage() {
                         <p className={styles.unassignedDetails}>{res.details}</p>
                         
                         <div className={styles.unassignedStatusRow}>
-                          <span className={styles.unassignedTime}>
-                            {res.time}
+                          <span className={styles.unassignedTime} suppressHydrationWarning>
+                            {formatTimeTo12Hour(res.time)}
                           </span>
                           
                           <select
@@ -738,25 +882,110 @@ export default function TablesPage() {
       <Modal
         isOpen={activeModal === 'LOCAL_RESERVATION'}
         onClose={() => {
-          UIService.closeModal();
           setNewResGuest('');
           setNewResDetails('');
+          setLocalResCustomerId('');
+          setLocalResSearchQuery('');
+          UIService.closeModal();
         }}
         title={`New Reservation for Table ${prefilledTableId}`}
       >
         <form onSubmit={handleCreateLocalReservation} className={modalStyles.form}>
           <div className={modalStyles.formGroup}>
             <label className={modalStyles.label} htmlFor="local-guest">Guest Name</label>
-            <input
-              type="text"
-              id="local-guest"
-              className={modalStyles.input}
-              placeholder="e.g. Lady Ada Lovelace"
-              value={newResGuest}
-              onChange={(e) => setNewResGuest(e.target.value)}
-              required
-              autoFocus
-            />
+            {localResCustomerId ? (
+              <div className={styles.linkedBadge}>
+                <div className={styles.linkedInfo}>
+                  <span className={styles.linkedGuestName}>{newResGuest}</span>
+                  <span className={styles.linkedGuestMeta}>
+                    {customers.find(c => c.id === localResCustomerId)?.phone} • {customers.find(c => c.id === localResCustomerId)?.tier} Segment
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.unlinkBtn}
+                  onClick={() => {
+                    setLocalResCustomerId('');
+                    setNewResGuest('');
+                    setLocalResSearchQuery('');
+                  }}
+                >
+                  Unlink
+                </button>
+              </div>
+            ) : (
+              <>
+                <input
+                  type="text"
+                  id="local-guest"
+                  className={modalStyles.input}
+                  placeholder="e.g. Lady Ada Lovelace"
+                  value={newResGuest}
+                  onChange={(e) => setNewResGuest(e.target.value)}
+                  required
+                  autoFocus
+                />
+                
+                <div className={styles.searchGroup} style={{ marginTop: '8px' }}>
+                  <label className={modalStyles.label} style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Or Search CRM Guest to Link
+                  </label>
+                  <input
+                    type="text"
+                    className={modalStyles.input}
+                    placeholder="Search by name or phone..."
+                    value={localResSearchQuery}
+                    onChange={(e) => {
+                      setLocalResSearchQuery(e.target.value);
+                      setShowLocalResSearchResults(true);
+                    }}
+                    onFocus={() => setShowLocalResSearchResults(true)}
+                  />
+                  {showLocalResSearchResults && localResSearchQuery.trim() && (
+                    <div className={styles.searchResultsList}>
+                      {customers
+                        .filter(c => 
+                          c.name.toLowerCase().includes(localResSearchQuery.toLowerCase()) || 
+                          c.phone.includes(localResSearchQuery)
+                        )
+                        .slice(0, 5)
+                        .map(c => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            className={styles.searchResultItem}
+                            onClick={() => {
+                              setLocalResCustomerId(c.id);
+                              setNewResGuest(c.name);
+                              setShowLocalResSearchResults(false);
+                            }}
+                          >
+                            <div>
+                              <div className={styles.searchResultName}>{c.name}</div>
+                              <div className={styles.searchResultPhone}>{c.phone}</div>
+                            </div>
+                            <span className={`${styles.searchResultTier} ${
+                              c.tier === 'Platinum' ? styles.tierPlatinum :
+                              c.tier === 'VIP' ? styles.tierVip :
+                              styles.tierStandard
+                            }`}>
+                              {c.tier}
+                            </span>
+                          </button>
+                        ))}
+                      {customers.filter(c => 
+                        c.name.toLowerCase().includes(localResSearchQuery.toLowerCase()) || 
+                        c.phone.includes(localResSearchQuery)
+                      ).length === 0 && (
+                        <div style={{ padding: '8px', fontSize: '12px', color: '#888', textAlign: 'center' }}>
+                          No guests found
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           <div className={modalStyles.formGroup}>
@@ -772,16 +1001,36 @@ export default function TablesPage() {
           </div>
 
           <div className={modalStyles.formGroup}>
-            <label className={modalStyles.label} htmlFor="local-time">Schedule Time</label>
-            <input
-              type="text"
-              id="local-time"
-              className={modalStyles.input}
-              placeholder="e.g. 19:30"
-              value={prefilledTime}
-              onChange={(e) => setPrefilledTime(e.target.value)}
-              required
-            />
+            <label className={modalStyles.label}>Schedule Time</label>
+            <div className={styles.timeSelectorRow}>
+              <select
+                className={styles.timeDropdown}
+                value={prefHour.toString().padStart(2, '0')}
+                onChange={(e) => handlePrefilledTimeChange(e.target.value, prefMinute, prefAmPm)}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
+                  <option key={h} value={h.toString().padStart(2, '0')}>{h}</option>
+                ))}
+              </select>
+              <span className={styles.timeColon}>:</span>
+              <select
+                className={styles.timeDropdown}
+                value={prefMinute}
+                onChange={(e) => handlePrefilledTimeChange(prefHour, e.target.value, prefAmPm)}
+              >
+                {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <select
+                className={styles.timeAmPmDropdown}
+                value={prefAmPm}
+                onChange={(e) => handlePrefilledTimeChange(prefHour, prefMinute, e.target.value)}
+              >
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
           </div>
 
           <div className={modalStyles.formGroup}>
@@ -848,7 +1097,7 @@ export default function TablesPage() {
               </div>
               <div className={styles.timelineDetailRow}>
                 <span className={styles.timelineDetailLabel}>Arrival Schedule</span>
-                <span className={styles.timelineDetailTime}>{selectedRes.time}</span>
+                <span className={styles.timelineDetailTime} suppressHydrationWarning>{formatTimeTo12Hour(selectedRes.time)}</span>
               </div>
               <div className={styles.timelineDetailRow}>
                 <span className={styles.timelineDetailLabel}>Current Status</span>
@@ -884,6 +1133,206 @@ export default function TablesPage() {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* SEAT CUSTOMER MODAL */}
+      <Modal
+        isOpen={activeModal === 'SEAT_CUSTOMER'}
+        onClose={() => {
+          UIService.closeModal();
+          setSeatingTableId(null);
+          setSelectedCustomerId('');
+          setSeatSearchQuery('');
+        }}
+        title={`Seat Customer at Table ${seatingTableId || ''}`}
+      >
+        <div className={modalStyles.form}>
+          <div className={modalStyles.formGroup}>
+            <label className={modalStyles.label} htmlFor="customer-search">Search CRM Customer</label>
+            <input
+              type="text"
+              id="customer-search"
+              className={modalStyles.input}
+              placeholder="Search by name or phone..."
+              value={seatSearchQuery}
+              onChange={(e) => {
+                setSeatSearchQuery(e.target.value);
+                setSelectedCustomerId(''); // Reset selection when searching
+              }}
+              autoFocus
+            />
+          </div>
+
+          <div className={modalStyles.formGroup}>
+            <label className={modalStyles.label}>Select Profile</label>
+            <div className={styles.seatCustomerList}>
+              {filteredCustomers.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={`${styles.seatCustomerItem} ${selectedCustomerId === c.id ? styles.seatCustomerItemActive : ''}`}
+                  onClick={() => setSelectedCustomerId(c.id)}
+                >
+                  <div className={styles.customerSeatMeta}>
+                    <span className={styles.customerSeatName}>{c.name}</span>
+                    <span className={styles.customerSeatPhone}>{c.phone}</span>
+                  </div>
+                  <span className={`${styles.tierBadge} ${
+                    c.tier === 'Platinum' ? styles.tierBadgePlatinum :
+                    c.tier === 'VIP' ? styles.tierBadgeVip :
+                    styles.tierBadgeStandard
+                  }`}>
+                    {c.tier}
+                  </span>
+                </button>
+              ))}
+              {filteredCustomers.length === 0 && (
+                <div className={styles.emptySearch}>
+                  No profiles match "{seatSearchQuery}"
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.walkInWrapper}>
+            <button
+              type="button"
+              className={`${styles.walkInBtn} ${selectedCustomerId === 'WALK-IN' ? styles.walkInBtnActive : ''}`}
+              onClick={() => setSelectedCustomerId('WALK-IN')}
+            >
+              <span>Walk-in Guest</span>
+              <span className={styles.walkInSubtitle}>(No CRM account link)</span>
+            </button>
+          </div>
+
+          <div className={modalStyles.footer}>
+            <button
+              type="button"
+              className={modalStyles.cancelBtn}
+              onClick={() => {
+                UIService.closeModal();
+                setSeatingTableId(null);
+                setSelectedCustomerId('');
+                setSeatSearchQuery('');
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className={modalStyles.submitBtn}
+              onClick={() => {
+                if (selectedCustomerId && selectedCustomerId !== 'WALK-IN') {
+                  TablesService.seatCustomer(seatingTableId, selectedCustomerId);
+                } else {
+                  TablesService.setTableStatus(seatingTableId, 'occupied');
+                }
+                setSeatingTableId(null);
+                setSelectedCustomerId('');
+                setSeatSearchQuery('');
+                UIService.closeModal();
+              }}
+            >
+              Seat Guest
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* SET RESERVATION TIME MODAL */}
+      <Modal
+        isOpen={activeModal === 'SET_RESERVATION_TIME'}
+        onClose={() => {
+          UIService.closeModal();
+          setResTimeTableId(null);
+        }}
+        title={`Set Reservation Time — Table ${resTimeTableId || ''}`}
+      >
+        <div className={modalStyles.form}>
+          <div className={modalStyles.formGroup}>
+            <label className={modalStyles.label}>Select Time</label>
+            <div className={styles.timeSelectorRow}>
+              <select
+                className={styles.timeDropdown}
+                value={selectedHour.toString().padStart(2, '0')}
+                onChange={(e) => handleTimeChange(e.target.value, selectedMinute, selectedAmPm)}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
+                  <option key={h} value={h.toString().padStart(2, '0')}>{h}</option>
+                ))}
+              </select>
+              <span className={styles.timeColon}>:</span>
+              <select
+                className={styles.timeDropdown}
+                value={selectedMinute}
+                onChange={(e) => handleTimeChange(selectedHour, e.target.value, selectedAmPm)}
+              >
+                {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <select
+                className={styles.timeAmPmDropdown}
+                value={selectedAmPm}
+                onChange={(e) => handleTimeChange(selectedHour, selectedMinute, e.target.value)}
+              >
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div className={modalStyles.formGroup}>
+            <label className={modalStyles.label}>Quick Presets</label>
+            <div className={styles.presetTimeGrid}>
+              {[
+                { value: "18:00", label: "6:00 PM" },
+                { value: "18:30", label: "6:30 PM" },
+                { value: "19:00", label: "7:00 PM" },
+                { value: "19:30", label: "7:30 PM" },
+                { value: "20:00", label: "8:00 PM" },
+                { value: "20:30", label: "8:30 PM" },
+                { value: "21:00", label: "9:00 PM" },
+                { value: "21:30", label: "9:30 PM" }
+              ].map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  className={`${styles.presetTimeBtn} ${inputtedResTime === preset.value ? styles.presetTimeBtnActive : ''}`}
+                  onClick={() => setInputtedResTime(preset.value)}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={modalStyles.footer}>
+            <button
+              type="button"
+              className={modalStyles.cancelBtn}
+              onClick={() => {
+                UIService.closeModal();
+                setResTimeTableId(null);
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className={modalStyles.submitBtn}
+              onClick={() => {
+                if (resTimeTableId) {
+                  TablesService.setTableStatus(resTimeTableId, 'reserved', inputtedResTime);
+                }
+                setResTimeTableId(null);
+                UIService.closeModal();
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
       </Modal>
     </>
   );

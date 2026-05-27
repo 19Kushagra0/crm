@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import styles from '@/style/staff.module.css';
 import { Clock } from '@/lib/icons';
+import StaffService from '@/services/StaffService';
 
 // Lightweight custom inline icons for performance
 const PlusIcon = ({ className, size = 16 }) => (
@@ -20,53 +21,6 @@ const CalendarIcon = ({ className, size = 13 }) => (
   </svg>
 );
 
-const staffData = [
-  {
-    id: 1,
-    name: "Elena Rostova",
-    initials: "ER",
-    role: "Head Waiter",
-    category: "Waiter",
-    onShift: true,
-    orders: 14,
-    tables: 4,
-    rating: "4.8★",
-    tenure: "Since March 2024",
-    isWaiter: true,
-  },
-  {
-    id: 2,
-    name: "Marcus Kim",
-    initials: "MK",
-    role: "Sommelier",
-    category: "Waiter",
-    onShift: false,
-    orders: 0,
-    tables: 0,
-    rating: "4.9★",
-    tenure: "Since Jan 2023",
-    isWaiter: true,
-  },
-  {
-    id: 3,
-    name: "Thomas Chen",
-    initials: "TC",
-    role: "Sous Chef",
-    category: "Kitchen",
-    onShift: true,
-    orders: 42, // Represents tickets
-    tables: "12m", // Prep time
-    rating: "98%", // Quality
-    tenure: "Since Aug 2022",
-    isKitchen: true,
-    customLabels: {
-      ordersLabel: "Tickets",
-      tablesLabel: "Prep Time",
-      ratingLabel: "Quality"
-    }
-  }
-];
-
 const timelineData = [
   { name: "Elena Rostova", left: "33%", right: "8%", hasBreak: true, breakLeft: "40%" },
   { name: "Thomas Chen", left: "16%", right: "40%", hasBreak: true, breakLeft: "60%" },
@@ -81,7 +35,7 @@ const performanceData = [
 
 export default function StaffPage() {
   const [filter, setFilter] = useState('All');
-  const [staffList, setStaffList] = useState(staffData);
+  const staffList = StaffService.useStaff();
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Form State
@@ -111,7 +65,7 @@ export default function StaffPage() {
       tenure: "Since May 2026",
     };
 
-    setStaffList([newStaff, ...staffList]);
+    StaffService.addStaff(newStaff);
     setName('');
     setRole('Waiter');
     setCategory('Waiter');
@@ -163,14 +117,24 @@ export default function StaffPage() {
                   {staff.initials}
                 </div>
                 {staff.onShift ? (
-                  <span className={styles.badgeOnShift}>
+                  <button
+                    type="button"
+                    className={styles.badgeOnShift}
+                    onClick={() => StaffService.toggleShiftStatus(staff.id)}
+                    style={{ border: 'none', cursor: 'pointer' }}
+                  >
                     <span className={styles.badgeOnShiftDot} />
                     On Shift
-                  </span>
+                  </button>
                 ) : (
-                  <span className={styles.badgeOff}>
+                  <button
+                    type="button"
+                    className={styles.badgeOff}
+                    onClick={() => StaffService.toggleShiftStatus(staff.id)}
+                    style={{ border: 'none', cursor: 'pointer' }}
+                  >
                     Off
-                  </span>
+                  </button>
                 )}
               </div>
 

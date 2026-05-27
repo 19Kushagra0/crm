@@ -12,6 +12,7 @@ import ReservationService from '@/services/ReservationService';
 import ShiftNoteService from '@/services/ShiftNoteService';
 import UIService from '@/services/UIService';
 import Modal from '@/components/Modal';
+import StaffService from '@/services/StaffService';
 
 export default function Header({ onMenuToggle }) {
   const pathname = usePathname() || '';
@@ -21,6 +22,7 @@ export default function Header({ onMenuToggle }) {
   const activeOrders = OrderService.useActiveOrders();
   const tables = TablesService.useTables();
   const customers = CustomerService.useCustomers();
+  const staff = StaffService.useStaff();
 
   // Modals state
   const activeModal = UIService.useActiveModal();
@@ -31,14 +33,60 @@ export default function Header({ onMenuToggle }) {
   const [resPartySize, setResPartySize] = useState('2');
   const [resTime, setResTime] = useState('19:30');
   const [resNotes, setResNotes] = useState('');
+  const [resCustomerId, setResCustomerId] = useState('');
+  const [resSearchQuery, setResSearchQuery] = useState('');
+  const [showResSearchResults, setShowResSearchResults] = useState(false);
+
+  // Parse resTime ("19:30") to 12-hour components
+  const parseResTime = () => {
+    if (!resTime) return { hour: 7, minute: "30", ampm: "PM" };
+    const [hour24Str, minuteStr] = resTime.split(':');
+    const hour24 = parseInt(hour24Str, 10) || 0;
+    const ampm = hour24 >= 12 ? "PM" : "AM";
+    let hour12 = hour24 % 12;
+    if (hour12 === 0) hour12 = 12;
+    return {
+      hour: hour12,
+      minute: minuteStr || "00",
+      ampm
+    };
+  };
+
+  const { hour: selectedHour, minute: selectedMinute, ampm: selectedAmPm } = parseResTime();
+
+  const handleTimeChange = (h, m, ampm) => {
+    let hour24 = parseInt(h, 10);
+    if (ampm === "PM" && hour24 < 12) hour24 += 12;
+    if (ampm === "AM" && hour24 === 12) hour24 = 0;
+    const hourStr = hour24.toString().padStart(2, '0');
+    setResTime(`${hourStr}:${m}`);
+  };
 
   // Seat Walk-In Form State
   const [walkInTableId, setWalkInTableId] = useState('');
   const [walkInPartySize, setWalkInPartySize] = useState('2');
+  const [walkInTab, setWalkInTab] = useState('anonymous'); // 'anonymous' | 'search' | 'new'
+  const [walkInCustomerId, setWalkInCustomerId] = useState('');
+  const [walkInSearchQuery, setWalkInSearchQuery] = useState('');
+  const [showWalkInSearchResults, setShowWalkInSearchResults] = useState(false);
+  const [walkInName, setWalkInName] = useState('');
+  const [walkInPhone, setWalkInPhone] = useState('');
+  const [walkInEmail, setWalkInEmail] = useState('');
 
   // Shift Note Form State
   const [noteContent, setNoteContent] = useState('');
-  const [noteAuthor, setNoteAuthor] = useState('Manager');
+  const [noteAuthor, setNoteAuthor] = useState('');
+
+  // Automatically select the default author when Shift Note modal is opened
+  useEffect(() => {
+    if (activeModal === 'SHIFT_NOTE' && !noteAuthor && staff && staff.length > 0) {
+      const activeStaff = staff.filter(s => s.onShift);
+      const defaultStaff = activeStaff.length > 0 ? activeStaff[0] : staff[0];
+      if (defaultStaff) {
+        setNoteAuthor(`${defaultStaff.name} (${defaultStaff.role})`);
+      }
+    }
+  }, [activeModal, staff, noteAuthor]);
 
   const formattedDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -90,7 +138,8 @@ export default function Header({ onMenuToggle }) {
       guest: resName.trim(),
       details: detailsStr,
       time: resTime.trim(),
-      status: 'CONFIRMED'
+      status: 'CONFIRMED',
+      customerId: resCustomerId || undefined
     });
 
     // Reset state & close
@@ -98,6 +147,8 @@ export default function Header({ onMenuToggle }) {
     setResPartySize('2');
     setResTime('19:30');
     setResNotes('');
+    setResCustomerId('');
+    setResSearchQuery('');
     setActiveModal(null);
   };
 
@@ -106,14 +157,46 @@ export default function Header({ onMenuToggle }) {
     const tableId = walkInTableId || (availableTables[0]?.id);
     if (!tableId) return;
 
-    // Transition table to occupied
-    TablesService.setTableStatus(tableId, 'occupied');
-    // Create new walk-in order
-    OrderService.createWalkInOrder(tableId, parseInt(walkInPartySize, 10) || 2);
+    let finalCustomerId = undefined;
+
+    if (walkInTab === 'new' && walkInName.trim()) {
+      const newCustId = `CUST-${Date.now()}`;
+      const newCust = {
+        id: newCustId,
+        name: walkInName.trim(),
+        email: walkInEmail.trim() || `${walkInName.trim().toLowerCase().replace(/\s+/g, '.')}@example.com`,
+        phone: walkInPhone.trim() || 'N/A',
+        tier: 'Standard',
+        visits: 1,
+        lastVisit: new Date(),
+        totalSpend: 0
+      };
+      CustomerService.addCustomer(newCust);
+      finalCustomerId = newCustId;
+    } else if (walkInTab === 'search' && walkInCustomerId) {
+      finalCustomerId = walkInCustomerId;
+    }
+
+    if (finalCustomerId) {
+      // Seat customer (transitions table to occupied and links currentCustomerId)
+      TablesService.seatCustomer(tableId, finalCustomerId);
+    } else {
+      // Transition table to occupied anonymously
+      TablesService.setTableStatus(tableId, 'occupied');
+    }
+
+    // Create walk-in order (which now stores the customerId!)
+    OrderService.createWalkInOrder(tableId, parseInt(walkInPartySize, 10) || 2, finalCustomerId);
 
     // Reset state & close
     setWalkInTableId('');
     setWalkInPartySize('2');
+    setWalkInTab('anonymous');
+    setWalkInCustomerId('');
+    setWalkInSearchQuery('');
+    setWalkInName('');
+    setWalkInPhone('');
+    setWalkInEmail('');
     setActiveModal(null);
   };
 
@@ -128,7 +211,7 @@ export default function Header({ onMenuToggle }) {
 
     // Reset state & close
     setNoteContent('');
-    setNoteAuthor('Manager');
+    setNoteAuthor('');
     setActiveModal(null);
   };
 
@@ -156,7 +239,7 @@ export default function Header({ onMenuToggle }) {
     subtitle = `Dinner Service · ${activeOrders.length} tickets open`;
   } else if (pathname.startsWith('/staff')) {
     title = "Staff";
-    subtitle = "12 staff members · 8 on shift today";
+    subtitle = `${staff.length} staff members · ${staff.filter(s => s.onShift).length} on shift today`;
   } else if (pathname.startsWith('/campaigns')) {
     title = "Campaigns";
     subtitle = "3 active · 12 sent this month · 68% avg open rate";
@@ -212,21 +295,109 @@ export default function Header({ onMenuToggle }) {
       {/* NEW RESERVATION MODAL */}
       <Modal 
         isOpen={activeModal === 'RESERVATION'} 
-        onClose={() => setActiveModal(null)} 
+        onClose={() => {
+          setResCustomerId('');
+          setResName('');
+          setResSearchQuery('');
+          setActiveModal(null);
+        }} 
         title="New Reservation"
       >
         <form onSubmit={handleReservationSubmit} className={modalStyles.form} id="new-reservation-form">
           <div className={modalStyles.formGroup}>
             <label className={modalStyles.label} htmlFor="guest-name">Guest Name</label>
-            <input 
-              type="text" 
-              id="guest-name" 
-              className={modalStyles.input} 
-              placeholder="e.g. John Doe"
-              value={resName}
-              onChange={(e) => setResName(e.target.value)}
-              required
-            />
+            {resCustomerId ? (
+              <div className={styles.linkedBadge}>
+                <div className={styles.linkedInfo}>
+                  <span className={styles.linkedGuestName}>{resName}</span>
+                  <span className={styles.linkedGuestMeta}>
+                    {customers.find(c => c.id === resCustomerId)?.phone} • {customers.find(c => c.id === resCustomerId)?.tier} Segment
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.unlinkBtn}
+                  onClick={() => {
+                    setResCustomerId('');
+                    setResName('');
+                    setResSearchQuery('');
+                  }}
+                >
+                  Unlink
+                </button>
+              </div>
+            ) : (
+              <>
+                <input 
+                  type="text" 
+                  id="guest-name" 
+                  className={modalStyles.input} 
+                  placeholder="e.g. John Doe"
+                  value={resName}
+                  onChange={(e) => setResName(e.target.value)}
+                  required
+                />
+                
+                <div className={styles.searchGroup} style={{ marginTop: '8px' }}>
+                  <label className={modalStyles.label} style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Or Search CRM Guest to Link
+                  </label>
+                  <input
+                    type="text"
+                    className={modalStyles.input}
+                    placeholder="Search by name or phone..."
+                    value={resSearchQuery}
+                    onChange={(e) => {
+                      setResSearchQuery(e.target.value);
+                      setShowResSearchResults(true);
+                    }}
+                    onFocus={() => setShowResSearchResults(true)}
+                  />
+                  {showResSearchResults && resSearchQuery.trim() && (
+                    <div className={styles.searchResultsList}>
+                      {customers
+                        .filter(c => 
+                          c.name.toLowerCase().includes(resSearchQuery.toLowerCase()) || 
+                          c.phone.includes(resSearchQuery)
+                        )
+                        .slice(0, 5)
+                        .map(c => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            className={styles.searchResultItem}
+                            onClick={() => {
+                              setResCustomerId(c.id);
+                              setResName(c.name);
+                              setShowResSearchResults(false);
+                            }}
+                          >
+                            <div>
+                              <div className={styles.searchResultName}>{c.name}</div>
+                              <div className={styles.searchResultPhone}>{c.phone}</div>
+                            </div>
+                            <span className={`${styles.searchResultTier} ${
+                              c.tier === 'Platinum' ? styles.tierPlatinum :
+                              c.tier === 'VIP' ? styles.tierVip :
+                              styles.tierStandard
+                            }`}>
+                              {c.tier}
+                            </span>
+                          </button>
+                        ))}
+                      {customers.filter(c => 
+                        c.name.toLowerCase().includes(resSearchQuery.toLowerCase()) || 
+                        c.phone.includes(resSearchQuery)
+                      ).length === 0 && (
+                        <div style={{ padding: '8px', fontSize: '12px', color: '#888', textAlign: 'center' }}>
+                          No guests found
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
           <div className={modalStyles.formGroup}>
             <label className={modalStyles.label} htmlFor="party-size">Party Size</label>
@@ -247,16 +418,36 @@ export default function Header({ onMenuToggle }) {
             </select>
           </div>
           <div className={modalStyles.formGroup}>
-            <label className={modalStyles.label} htmlFor="reservation-time">Reservation Time</label>
-            <input 
-              type="text" 
-              id="reservation-time" 
-              className={modalStyles.input} 
-              placeholder="e.g. 19:30"
-              value={resTime}
-              onChange={(e) => setResTime(e.target.value)}
-              required
-            />
+            <label className={modalStyles.label}>Reservation Time</label>
+            <div className={styles.timeSelectorRow}>
+              <select
+                className={styles.timeDropdown}
+                value={selectedHour.toString().padStart(2, '0')}
+                onChange={(e) => handleTimeChange(e.target.value, selectedMinute, selectedAmPm)}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
+                  <option key={h} value={h.toString().padStart(2, '0')}>{h}</option>
+                ))}
+              </select>
+              <span className={styles.timeColon}>:</span>
+              <select
+                className={styles.timeDropdown}
+                value={selectedMinute}
+                onChange={(e) => handleTimeChange(selectedHour, e.target.value, selectedAmPm)}
+              >
+                {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <select
+                className={styles.timeAmPmDropdown}
+                value={selectedAmPm}
+                onChange={(e) => handleTimeChange(selectedHour, selectedMinute, e.target.value)}
+              >
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
           </div>
           <div className={modalStyles.formGroup}>
             <label className={modalStyles.label} htmlFor="special-notes">Special Notes (Optional)</label>
@@ -333,6 +524,143 @@ export default function Header({ onMenuToggle }) {
               <option value="8">8 People</option>
             </select>
           </div>
+
+          <div className={modalStyles.formGroup}>
+            <label className={modalStyles.label}>Guest Profile Association</label>
+            <div className={styles.tabsContainer}>
+              <button
+                type="button"
+                className={`${styles.tabBtn} ${walkInTab === 'anonymous' ? styles.tabBtnActive : ''}`}
+                onClick={() => setWalkInTab('anonymous')}
+              >
+                Anonymous Walk-in
+              </button>
+              <button
+                type="button"
+                className={`${styles.tabBtn} ${walkInTab === 'search' ? styles.tabBtnActive : ''}`}
+                onClick={() => setWalkInTab('search')}
+              >
+                Link Existing Guest
+              </button>
+              <button
+                type="button"
+                className={`${styles.tabBtn} ${walkInTab === 'new' ? styles.tabBtnActive : ''}`}
+                onClick={() => setWalkInTab('new')}
+              >
+                New Profile
+              </button>
+            </div>
+
+            {walkInTab === 'search' && (
+              <div className={styles.searchGroup}>
+                {walkInCustomerId ? (
+                  <div className={styles.linkedBadge}>
+                    <div className={styles.linkedInfo}>
+                      <span className={styles.linkedGuestName}>
+                        {customers.find(c => c.id === walkInCustomerId)?.name}
+                      </span>
+                      <span className={styles.linkedGuestMeta}>
+                        {customers.find(c => c.id === walkInCustomerId)?.phone} • {customers.find(c => c.id === walkInCustomerId)?.tier}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.unlinkBtn}
+                      onClick={() => {
+                        setWalkInCustomerId('');
+                        setWalkInSearchQuery('');
+                      }}
+                    >
+                      Change
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      className={modalStyles.input}
+                      placeholder="Search existing guest by name or phone..."
+                      value={walkInSearchQuery}
+                      onChange={(e) => {
+                        setWalkInSearchQuery(e.target.value);
+                        setShowWalkInSearchResults(true);
+                      }}
+                      onFocus={() => setShowWalkInSearchResults(true)}
+                    />
+                    {showWalkInSearchResults && walkInSearchQuery.trim() && (
+                      <div className={styles.searchResultsList}>
+                        {customers
+                          .filter(c => 
+                            c.name.toLowerCase().includes(walkInSearchQuery.toLowerCase()) || 
+                            c.phone.includes(walkInSearchQuery)
+                          )
+                          .slice(0, 5)
+                          .map(c => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              className={styles.searchResultItem}
+                              onClick={() => {
+                                setWalkInCustomerId(c.id);
+                                setShowWalkInSearchResults(false);
+                              }}
+                            >
+                              <div>
+                                <div className={styles.searchResultName}>{c.name}</div>
+                                <div className={styles.searchResultPhone}>{c.phone}</div>
+                              </div>
+                              <span className={`${styles.searchResultTier} ${
+                                c.tier === 'Platinum' ? styles.tierPlatinum :
+                                c.tier === 'VIP' ? styles.tierVip :
+                                styles.tierStandard
+                              }`}>
+                                {c.tier}
+                              </span>
+                            </button>
+                          ))}
+                        {customers.filter(c => 
+                          c.name.toLowerCase().includes(walkInSearchQuery.toLowerCase()) || 
+                          c.phone.includes(walkInSearchQuery)
+                        ).length === 0 && (
+                          <div style={{ padding: '8px', fontSize: '12px', color: '#888', textAlign: 'center' }}>
+                            No guests found
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {walkInTab === 'new' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <input
+                  type="text"
+                  className={modalStyles.input}
+                  placeholder="Full Name"
+                  value={walkInName}
+                  onChange={(e) => setWalkInName(e.target.value)}
+                  required
+                />
+                <input
+                  type="tel"
+                  className={modalStyles.input}
+                  placeholder="Phone Number (e.g. +91 99999 88888)"
+                  value={walkInPhone}
+                  onChange={(e) => setWalkInPhone(e.target.value)}
+                  required
+                />
+                <input
+                  type="email"
+                  className={modalStyles.input}
+                  placeholder="Email Address (Optional)"
+                  value={walkInEmail}
+                  onChange={(e) => setWalkInEmail(e.target.value)}
+                />
+              </div>
+            )}
+          </div>
           <div className={modalStyles.footer}>
             <button 
               type="button" 
@@ -356,21 +684,30 @@ export default function Header({ onMenuToggle }) {
       {/* SHIFT NOTE MODAL */}
       <Modal 
         isOpen={activeModal === 'SHIFT_NOTE'} 
-        onClose={() => setActiveModal(null)} 
+        onClose={() => {
+          setNoteContent('');
+          setNoteAuthor('');
+          setActiveModal(null);
+        }} 
         title="New Shift Note"
       >
         <form onSubmit={handleShiftNoteSubmit} className={modalStyles.form} id="new-shift-note-form">
           <div className={modalStyles.formGroup}>
             <label className={modalStyles.label} htmlFor="note-author">Author / Role</label>
-            <input 
-              type="text" 
+            <select 
               id="note-author" 
-              className={modalStyles.input} 
-              placeholder="e.g. Manager / Head Chef"
+              className={modalStyles.select}
               value={noteAuthor}
               onChange={(e) => setNoteAuthor(e.target.value)}
               required
-            />
+            >
+              <option value="" disabled>Select Staff Member...</option>
+              {(staff.filter(s => s.onShift).length > 0 ? staff.filter(s => s.onShift) : staff).map(s => (
+                <option key={s.id} value={`${s.name} (${s.role})`}>
+                  {s.name} ({s.role}) {s.onShift ? '• On Shift' : ''}
+                </option>
+              ))}
+            </select>
           </div>
           <div className={modalStyles.formGroup}>
             <label className={modalStyles.label} htmlFor="note-content">Note Content</label>

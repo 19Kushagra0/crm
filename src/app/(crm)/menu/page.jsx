@@ -2,43 +2,15 @@
 
 import React, { useState } from 'react';
 import styles from '@/style/menu.module.css';
-import { Pencil, Trash2 } from '@/lib/icons';
-
-const initialMenuItems = [
-  {
-    id: 1,
-    name: "Truffle Risotto",
-    category: "Mains",
-    description: "Arborio rice slow-cooked in wild mushroom broth, finished with aged parmesan and shaved black truffle.",
-    allergens: ["Dairy", "Gluten"],
-    price: "₹850",
-    isActive: true,
-  },
-  {
-    id: 2,
-    name: "Burrata Heirloom",
-    category: "Starters",
-    description: "Fresh Puglia burrata served with heritage tomatoes, basil oil, and aged balsamic reduction.",
-    allergens: ["Dairy"],
-    price: "₹650",
-    isActive: false,
-  },
-  {
-    id: 3,
-    name: "Seared Scallops",
-    category: "Mains",
-    description: "Hokkaido scallops pan-seared, served atop cauliflower purée with caper and raisin dressing.",
-    allergens: ["Shellfish"],
-    price: "₹1200",
-    isActive: true,
-  }
-];
+import { Pencil, Trash2, Plus } from '@/lib/icons';
+import MenuService from '@/services/MenuService';
 
 const categories = ['All', 'Starters', 'Mains', 'Breads', 'Drinks', 'Desserts', 'Specials'];
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [menuItems, setMenuItems] = useState(initialMenuItems);
+  const menuItems = MenuService.useMenuItems();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [itemToEdit, setItemToEdit] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -48,15 +20,20 @@ export default function Page() {
     price: '',
     allergens: ''
   });
+  const [addForm, setAddForm] = useState({
+    name: '',
+    category: 'Starters',
+    description: '',
+    price: '',
+    allergens: ''
+  });
 
   const toggleActive = (id) => {
-    setMenuItems(prev =>
-      prev.map(item => item.id === id ? { ...item, isActive: !item.isActive } : item)
-    );
+    MenuService.toggleActive(id);
   };
 
   const deleteItem = (id) => {
-    setMenuItems(prev => prev.filter(item => item.id !== id));
+    MenuService.deleteItem(id);
   };
 
   const confirmDelete = () => {
@@ -72,28 +49,43 @@ export default function Page() {
       name: item.name,
       category: item.category,
       description: item.description,
-      price: item.price,
+      price: String(item.price),
       allergens: item.allergens.join(', '),
     });
   };
 
   const handleSaveEdit = (e) => {
     e.preventDefault();
-    setMenuItems(prev =>
-      prev.map(item =>
-        item.id === itemToEdit.id
-          ? {
-              ...item,
-              name: editForm.name,
-              category: editForm.category,
-              description: editForm.description,
-              price: editForm.price,
-              allergens: editForm.allergens.split(',').map(s => s.trim()).filter(Boolean),
-            }
-          : item
-      )
-    );
+    if (!itemToEdit) return;
+    const numericPrice = parseFloat(editForm.price.replace(/[^\d.-]/g, '')) || 0;
+    MenuService.updateItem(itemToEdit?.id, {
+      name: editForm.name,
+      category: editForm.category,
+      description: editForm.description,
+      price: numericPrice,
+      allergens: editForm.allergens.split(',').map(s => s.trim()).filter(Boolean),
+    });
     setItemToEdit(null);
+  };
+
+  const handleSaveNew = (e) => {
+    e.preventDefault();
+    const numericPrice = parseFloat(addForm.price.replace(/[^\d.-]/g, '')) || 0;
+    MenuService.addItem({
+      name: addForm.name,
+      category: addForm.category,
+      description: addForm.description,
+      price: numericPrice,
+      allergens: addForm.allergens.split(',').map(s => s.trim()).filter(Boolean),
+    });
+    setAddForm({
+      name: '',
+      category: 'Starters',
+      description: '',
+      price: '',
+      allergens: ''
+    });
+    setIsAddModalOpen(false);
   };
 
   const filteredItems = selectedCategory === 'All'
@@ -109,28 +101,37 @@ export default function Page() {
 
           {/* Sub-nav */}
           <div className={styles.subNavContainer}>
-            <ul className={styles.subNavList}>
-              {categories.map((cat) => {
-                const isActive = selectedCategory === cat;
-                return (
-                  <li
-                    key={cat}
-                    className={isActive ? styles.subNavItemActive : styles.subNavItem}
-                  >
-                    <a
-                      className={isActive ? styles.subNavLinkActive : styles.subNavLink}
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSelectedCategory(cat);
-                      }}
+            <div className={styles.subNavFlexWrapper}>
+              <ul className={styles.subNavList}>
+                {categories.map((cat) => {
+                  const isActive = selectedCategory === cat;
+                  return (
+                    <li
+                      key={cat}
+                      className={isActive ? styles.subNavItemActive : styles.subNavItem}
                     >
-                      {cat}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
+                      <a
+                        className={isActive ? styles.subNavLinkActive : styles.subNavLink}
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedCategory(cat);
+                        }}
+                      >
+                        {cat}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+              <button 
+                className={styles.addFoodBtn}
+                onClick={() => setIsAddModalOpen(true)}
+              >
+                <Plus size={16} />
+                <span>Create</span>
+              </button>
+            </div>
           </div>
           {/* Main Grid Area */}
           <div className={styles.gridArea}>
@@ -162,7 +163,7 @@ export default function Page() {
                   ))}
                 </div>
                 <div className={styles.cardFooter}>
-                  <span className={styles.cardPrice}>{item.price}</span>
+                  <span className={styles.cardPrice}>₹{item.price}</span>
                   <div className={styles.cardActions}>
                     <button 
                       className={styles.actionBtn}
@@ -344,6 +345,84 @@ export default function Page() {
                   className={styles.modalSaveBtn}
                 >
                   Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Modal */}
+      {isAddModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setIsAddModalOpen(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>Add Menu Item</h3>
+            <form onSubmit={handleSaveNew}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Item Name</label>
+                <input
+                  type="text"
+                  required
+                  className={styles.formInput}
+                  value={addForm.name}
+                  onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Category</label>
+                <select
+                  required
+                  className={styles.formSelect}
+                  value={addForm.category}
+                  onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}
+                >
+                  {categories.filter(c => c !== 'All').map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Price</label>
+                <input
+                  type="text"
+                  required
+                  className={styles.formInput}
+                  value={addForm.price}
+                  onChange={(e) => setAddForm({ ...addForm, price: e.target.value })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Description</label>
+                <textarea
+                  required
+                  className={styles.formTextarea}
+                  value={addForm.description}
+                  onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Allergens (comma separated)</label>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  value={addForm.allergens}
+                  onChange={(e) => setAddForm({ ...addForm, allergens: e.target.value })}
+                  placeholder="e.g. Dairy, Gluten, Nuts"
+                />
+              </div>
+              <div className={styles.modalActions} style={{ marginTop: '24px' }}>
+                <button 
+                  type="button"
+                  className={styles.modalCancelBtn} 
+                  onClick={() => setIsAddModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className={styles.modalSaveBtn}
+                >
+                  Add Item
                 </button>
               </div>
             </form>
