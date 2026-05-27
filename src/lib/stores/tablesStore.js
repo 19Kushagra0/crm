@@ -8,13 +8,13 @@ const initialTables = [
   // Floor 1 (Main Dining)
   // Window Zone (Left)
   { id: "T-1",  zone: "WINDOW",  seats: 2,  status: "available", x: 60,  y: 60,  width: 70,  height: 100, rotation: 0, shape: "rect",  floorId: "floor-1" },
-  { id: "T-2",  zone: "WINDOW",  seats: 2,  status: "occupied",  x: 60,  y: 190, width: 70,  height: 100, rotation: 0, shape: "rect",  floorId: "floor-1" },
+  { id: "T-2",  zone: "WINDOW",  seats: 2,  status: "occupied",  x: 60,  y: 190, width: 70,  height: 100, rotation: 0, shape: "rect",  floorId: "floor-1", currentCustomerId: "CUST-001" },
   { id: "T-3",  zone: "WINDOW",  seats: 4,  status: "occupied",  x: 60,  y: 320, width: 70,  height: 100, rotation: 0, shape: "rect",  floorId: "floor-1" },
   { id: "T-4",  zone: "WINDOW",  seats: 4,  status: "reserved",  x: 60,  y: 450, width: 70,  height: 100, rotation: 0, shape: "rect",  floorId: "floor-1", reservedAt: "19:30" },
 
   // Center Zone (Middle)
   { id: "T-5",  zone: "CENTER",  seats: 4,  status: "available", x: 280, y: 120, width: 100, height: 100, rotation: 0, shape: "round", floorId: "floor-1" },
-  { id: "T-6",  zone: "CENTER",  seats: 4,  status: "occupied",  x: 280, y: 340, width: 100, height: 100, rotation: 0, shape: "round", floorId: "floor-1" },
+  { id: "T-6",  zone: "CENTER",  seats: 4,  status: "occupied",  x: 280, y: 340, width: 100, height: 100, rotation: 0, shape: "round", floorId: "floor-1", currentCustomerId: "CUST-002" },
   { id: "T-7",  zone: "CENTER",  seats: 4,  status: "reserved",  x: 500, y: 120, width: 100, height: 100, rotation: 0, shape: "round", floorId: "floor-1", reservedAt: "20:00" },
   { id: "T-8",  zone: "CENTER",  seats: 6,  status: "occupied",  x: 500, y: 340, width: 120, height: 120, rotation: 0, shape: "round", floorId: "floor-1" },
 

@@ -10,6 +10,10 @@ const CustomerService = {
 
   updateCustomer: (id, updates) => {
     useCustomersStore.getState().updateCustomer(id, updates);
+  },
+
+  deleteCustomer: (id) => {
+    useCustomersStore.getState().deleteCustomer(id);
   }
 };
 
