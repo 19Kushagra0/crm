@@ -411,3 +411,304 @@
     border-bottom: none;
   }
 }
+
+/* ── Rewards Catalog Section ─────────────────────── */
+.rewardsCatalogSection {
+  margin-bottom: 3rem;
+}
+
+.rewardsCatalogHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.rewardsCatalogTitle {
+  font-family: Inter, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-ink, #141413);
+  margin: 0;
+}
+
+.rewardsCatalogGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.rewardCard {
+  background-color: var(--color-surface-card, #efe9de);
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  min-height: 140px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rewardCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.rewardCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.rewardName {
+  font-family: Newsreader, serif;
+  font-size: 18px;
+  color: var(--color-ink, #141413);
+  font-weight: 400;
+  margin: 0;
+}
+
+.rewardCost {
+  background-color: var(--color-primary, #5c6f3e);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rewardDesc {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: var(--color-secondary, #605e5b);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.rewardDelete {
+  background: none;
+  border: none;
+  color: #e03131;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  align-self: flex-start;
+  transition: opacity 0.15s;
+}
+
+.rewardDelete:hover {
+  opacity: 0.8;
+}
+
+/* ── At Risk Guests Specifics ───────────────────── */
+.atRiskRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.75rem;
+  border-left: 3px solid #e03131;
+  border-bottom: 1px solid var(--color-border-hairline, #e6dfd8);
+  margin-bottom: 0.5rem;
+  background-color: rgba(224, 49, 49, 0.02);
+  border-radius: 0 6px 6px 0;
+}
+
+.atRiskRow:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.atRiskName {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink, #141413);
+}
+
+.atRiskDays {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--color-secondary, #605e5b);
+  margin-top: 2px;
+}
+
+.reengageBtn {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--color-primary, #5c6f3e);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.reengageBtn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.reengageBtnSent {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: #0ca678;
+  background: none;
+  border: none;
+  cursor: default;
+  white-space: nowrap;
+  padding: 0;
+  font-weight: 600;
+}
+
+/* ── Modal & Form Elements ─────────────────────── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(20, 20, 19, 0.55);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 200ms ease-out;
+}
+
+.modalContent {
+  background-color: #faf9f5;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  border-radius: 18px;
+  padding: 32px;
+  width: 90%;
+  max-width: 460px;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.18);
+  animation: slideUp 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalTitle {
+  font-family: "Newsreader", serif;
+  font-size: 26px;
+  color: var(--color-ink, #141413);
+  margin-bottom: 20px;
+  margin-top: 0;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-secondary, #605e5b);
+}
+
+.formInput,
+.formTextArea {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  background-color: #ffffff;
+  color: var(--color-ink, #141413);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.formTextArea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.formInput:focus,
+.formTextArea:focus {
+  border-color: var(--color-primary, #5c6f3e);
+  box-shadow: 0 0 0 3px rgba(92, 111, 62, 0.12);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.modalCancelBtn {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-hairline, #e6dfd8);
+  background-color: transparent;
+  color: var(--color-secondary, #605e5b);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.modalCancelBtn:hover {
+  background-color: #efeeea;
+  color: var(--color-ink, #141413);
+}
+
+.modalSaveBtn {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--color-primary, #5c6f3e);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.modalSaveBtn:hover {
+  opacity: 0.88;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(12px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .rewardsCatalogGrid {
+    grid-template-columns: 1fr;
+  }
+}

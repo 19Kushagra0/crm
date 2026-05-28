@@ -84,6 +84,13 @@ const CustomerService = {
       tier: newTier,
     });
   },
+
+  // Award manual bonus points — updates totalSpend as a proxy for points
+  awardPoints: async (id, bonusPoints) => {
+    // Convert points back to spend equivalent: points * 10
+    const spendEquivalent = bonusPoints * 10;
+    return CustomerService.updateSpend(id, spendEquivalent);
+  },
 };
 
 export default CustomerService;

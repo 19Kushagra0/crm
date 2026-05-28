@@ -755,3 +755,167 @@
     opacity: 1;
   }
 }
+
+/* ── New Actions and Modal Styles ────────────────── */
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.launchBtn {
+  background-color: #0ca678;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.launchBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.deleteBtn {
+  background: none;
+  border: 1px solid transparent;
+  color: #e03131;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.deleteBtn:hover {
+  background-color: #fff5f5;
+  border-color: #ffc9c9;
+}
+
+/* Report Modal Specifics */
+.reportModal {
+  composes: modalContent;
+  max-width: 520px;
+}
+
+.reportStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.reportStatBox {
+  background-color: #f2ede6;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid #e2dbd2;
+}
+
+.reportStatLabel {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-secondary, #605e5b);
+  margin-bottom: 6px;
+}
+
+.reportStatValue {
+  font-family: Newsreader, serif;
+  font-size: 26px;
+  color: var(--color-ink, #141413);
+  font-weight: 500;
+}
+
+.reportStatSub {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--color-primary, #5c6f3e);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.reportChartSection {
+  margin-top: 24px;
+  border-top: 1px solid #e6dfd8;
+  padding-top: 20px;
+}
+
+.reportChartTitle {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-secondary, #605e5b);
+  margin-bottom: 16px;
+}
+
+.reportChartRow {
+  margin-bottom: 16px;
+}
+
+.reportChartRowHeader {
+  display: flex;
+  justify-content: space-between;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--color-ink, #141413);
+  margin-bottom: 6px;
+}
+
+.reportBar {
+  height: 8px;
+  background-color: #efe9de;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.reportBarFill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.reportPreviewSection {
+  margin-top: 20px;
+  background-color: #ffffff;
+  border: 1px solid #e6dfd8;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.reportPreviewLabel {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-secondary, #605e5b);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.reportPreviewText {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: var(--color-ink, #141413);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0;
+}

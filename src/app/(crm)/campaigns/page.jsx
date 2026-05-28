@@ -1,117 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import styles from "@/style/campaigns.module.css";
-import { Megaphone, AlertTriangle, Star, Medal, UserPlus } from "@/lib/icons";
+import { Megaphone, AlertTriangle, Star, Medal, UserPlus, Plus, Mail, MessageSquare, ArrowRight, Edit, CheckAll, Rocket, Trash2 } from "@/lib/icons";
 import CampaignService from "@/services/CampaignService";
 import CustomerService from "@/services/CustomerService";
-
-// Custom lightweight inline icons to preserve bundle size and consistency
-const PlusIcon = ({ className, size = 16 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-);
-
-const MailIcon = ({ className, size = 13 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-  </svg>
-);
-
-const MessageSquareIcon = ({ className, size = 13 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-  </svg>
-);
-
-const ArrowRightIcon = ({ className, size = 15 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-    <polyline points="12 5 19 12 12 19"></polyline>
-  </svg>
-);
-
-const EditIcon = ({ className, size = 15 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-  </svg>
-);
-
-const CheckAllIcon = ({ className, size = 13 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M17 6 7 17l-5-5"></path>
-    <path d="m22 10-7.5 7.5L13 16"></path>
-  </svg>
-);
 
 const renderSegmentIcon = (segment) => {
   switch (segment) {
@@ -145,6 +37,70 @@ export default function CampaignsPage() {
   const [campaignSegment, setCampaignSegment] = useState("Gold");
   const [campaignStatus, setCampaignStatus] = useState("scheduled");
   const [campaignPreview, setCampaignPreview] = useState("");
+
+  // Edit & Report Modals State
+  const [reportCampaign, setReportCampaign] = useState(null);
+  const [editCampaign, setEditCampaign] = useState(null);
+
+  // Form state for Edit
+  const [editTitle, setEditTitle] = useState("");
+  const [editType, setEditType] = useState("Email");
+  const [editSegment, setEditSegment] = useState("Gold");
+  const [editStatus, setEditStatus] = useState("scheduled");
+  const [editPreview, setEditPreview] = useState("");
+
+  const handleEditClick = (campaign) => {
+    setEditCampaign(campaign);
+    setEditTitle(campaign.title);
+    setEditType(campaign.type);
+    setEditSegment(campaign.segment);
+    setEditStatus(campaign.status);
+    setEditPreview(campaign.preview);
+  };
+
+  const handleUpdateCampaign = async (e) => {
+    e.preventDefault();
+    if (!editCampaign) return;
+    const count = getSegmentCount(editSegment);
+    const segmentMeta = `${editSegment} · ${count} customers`;
+    
+    const updates = {
+      title: editTitle,
+      type: editType,
+      segment: editSegment,
+      segmentMeta,
+      preview: editPreview,
+      status: editStatus,
+      isEmail: editType === "Email",
+      sent: editStatus === "completed" ? count : editCampaign.sent,
+      opened: editStatus === "completed" ? Math.round(count * 0.85) : editCampaign.opened,
+      openedPct: editStatus === "completed" ? "85%" : editCampaign.openedPct,
+      redeemed: editStatus === "completed" ? Math.round(count * 0.22) : editCampaign.redeemed,
+      redeemedPct: editStatus === "completed" ? "22%" : editCampaign.redeemedPct,
+      footerText:
+        editStatus === "active"
+          ? "Sent Just Now"
+          : editStatus === "scheduled"
+            ? "Scheduled Tomorrow 7PM"
+            : "Drafted",
+      actionLabel:
+        editStatus === "scheduled" ? "Edit Campaign" : "View Report",
+    };
+    
+    await CampaignService.updateCampaign(editCampaign.id, updates);
+    setEditCampaign(null);
+  };
+
+  const handleLaunchCampaign = async (id, segment) => {
+    const count = getSegmentCount(segment);
+    await CampaignService.launchCampaign(id, count);
+  };
+
+  const handleDeleteCampaign = async (id) => {
+    if (confirm("Are you sure you want to delete this campaign?")) {
+      await CampaignService.deleteCampaign(id);
+    }
+  };
 
   // Dynamically calculate segment sizes based on active customers
   const getSegmentCount = (segmentName) => {
@@ -264,7 +220,7 @@ export default function CampaignsPage() {
               className={styles.primaryBtn}
               onClick={() => setShowModal(true)}
             >
-              <PlusIcon />
+              <Plus size={16} />
               New Campaign
             </button>
           </div>
@@ -297,15 +253,15 @@ export default function CampaignsPage() {
                           )}
                           {campaign.status === "completed" && (
                             <span className={styles.badgeCompleted}>
-                              <CheckAllIcon />
+                              <CheckAll size={13} />
                               Completed
                             </span>
                           )}
                           <span className={styles.badgeType}>
                             {campaign.isEmail ? (
-                              <MailIcon />
+                              <Mail size={13} />
                             ) : (
-                              <MessageSquareIcon />
+                              <MessageSquare size={13} />
                             )}
                             {campaign.type}
                           </span>
@@ -370,14 +326,51 @@ export default function CampaignsPage() {
                       <span className={styles.footerDate}>
                         {campaign.footerText}
                       </span>
-                      <button className={styles.actionBtn}>
-                        {campaign.actionLabel}
-                        {campaign.status === "scheduled" ? (
-                          <EditIcon size={14} />
-                        ) : (
-                          <ArrowRightIcon size={14} />
-                        )}
-                      </button>
+                      {campaign.status === "scheduled" && (
+                        <div className={styles.cardActions}>
+                          <button
+                            className={styles.actionBtn}
+                            onClick={() => handleEditClick(campaign)}
+                          >
+                            Edit Campaign
+                            <Edit size={14} />
+                          </button>
+                          <button
+                            className={styles.launchBtn}
+                            onClick={() => handleLaunchCampaign(campaign.id, campaign.segment)}
+                          >
+                            Launch Now
+                            <Rocket size={14} />
+                          </button>
+                        </div>
+                      )}
+                      {campaign.status === "draft" && (
+                        <div className={styles.cardActions}>
+                          <button
+                            className={styles.actionBtn}
+                            onClick={() => handleEditClick(campaign)}
+                          >
+                            Edit Campaign
+                            <Edit size={14} />
+                          </button>
+                          <button
+                            className={styles.deleteBtn}
+                            onClick={() => handleDeleteCampaign(campaign.id)}
+                            title="Delete Campaign"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      )}
+                      {(campaign.status === "active" || campaign.status === "completed") && (
+                        <button
+                          className={styles.actionBtn}
+                          onClick={() => setReportCampaign(campaign)}
+                        >
+                          View Report
+                          <ArrowRight size={14} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </article>
@@ -539,6 +532,204 @@ export default function CampaignsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {editCampaign && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setEditCampaign(null)}
+        >
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className={styles.modalTitle}>Edit Campaign</h2>
+            <form onSubmit={handleUpdateCampaign}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Campaign Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Summer Solstice Special"
+                  className={styles.formInput}
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Marketing Channel</label>
+                <select
+                  className={styles.formSelect}
+                  value={editType}
+                  onChange={(e) => setEditType(e.target.value)}
+                >
+                  <option value="Email">Email</option>
+                  <option value="SMS">SMS</option>
+                  <option value="WhatsApp">WhatsApp</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Target Segment</label>
+                <select
+                  className={styles.formSelect}
+                  value={editSegment}
+                  onChange={(e) => setEditSegment(e.target.value)}
+                >
+                  <option value="Gold">
+                    Gold Segment ({getSegmentCount("Gold")} guests)
+                  </option>
+                  <option value="Silver">
+                    Silver Segment ({getSegmentCount("Silver")} guests)
+                  </option>
+                  <option value="Bronze">
+                    Bronze Segment ({getSegmentCount("Bronze")} guests)
+                  </option>
+                  <option value="New">
+                    New Segment ({getSegmentCount("New")} guests)
+                  </option>
+                  <option value="At Risk">
+                    At Risk Segment ({getSegmentCount("At Risk")} guests)
+                  </option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Campaign Status</label>
+                <select
+                  className={styles.formSelect}
+                  value={editStatus}
+                  onChange={(e) => setEditStatus(e.target.value)}
+                >
+                  <option value="scheduled">Scheduled</option>
+                  <option value="active">Launch Instantly</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Message Content</label>
+                <textarea
+                  required
+                  placeholder="Type your message body here..."
+                  className={styles.formTextArea}
+                  value={editPreview}
+                  onChange={(e) => setEditPreview(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.modalActions}>
+                <button
+                  type="button"
+                  className={styles.modalCancelBtn}
+                  onClick={() => setEditCampaign(null)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className={styles.modalSaveBtn}>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {reportCampaign && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setReportCampaign(null)}
+        >
+          <div
+            className={styles.reportModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className={styles.modalTitle}>Campaign Report</h2>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Campaign</label>
+              <div style={{ fontSize: "16px", fontWeight: "600", color: "var(--color-ink)", marginBottom: "4px" }}>
+                {reportCampaign.title}
+              </div>
+              <div className={styles.badgeGroup}>
+                <span className={styles.badgeActive} style={{ textTransform: "capitalize" }}>
+                  {reportCampaign.status}
+                </span>
+                <span className={styles.badgeType}>
+                  {reportCampaign.type}
+                </span>
+                <span className={styles.segmentValue} style={{ fontSize: "10px", padding: "2px 8px" }}>
+                  {reportCampaign.segmentMeta}
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.reportStatsGrid}>
+              <div className={styles.reportStatBox}>
+                <span className={styles.reportStatLabel}>Sent</span>
+                <span className={styles.reportStatValue}>{reportCampaign.sent}</span>
+              </div>
+              <div className={styles.reportStatBox}>
+                <span className={styles.reportStatLabel}>Opened</span>
+                <span className={styles.reportStatValue}>{reportCampaign.opened}</span>
+                <span className={styles.reportStatSub}>{reportCampaign.openedPct} Open Rate</span>
+              </div>
+              <div className={styles.reportStatBox}>
+                <span className={styles.reportStatLabel}>Redeemed</span>
+                <span className={styles.reportStatValue}>{reportCampaign.redeemed}</span>
+                <span className={styles.reportStatSub} style={{ color: "#2f9e44" }}>{reportCampaign.redeemedPct} Conversion</span>
+              </div>
+              <div className={styles.reportStatBox}>
+                <span className={styles.reportStatLabel}>Est. Revenue</span>
+                <span className={styles.reportStatValue} style={{ color: "#c49a3e" }}>
+                  ₹{(reportCampaign.redeemed * 950).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.reportChartSection}>
+              <h3 className={styles.reportChartTitle}>Performance Analysis</h3>
+              <div className={styles.reportChartRow}>
+                <div className={styles.reportChartRowHeader}>
+                  <span>Open Rate</span>
+                  <span>{reportCampaign.openedPct}</span>
+                </div>
+                <div className={styles.reportBar}>
+                  <div
+                    className={styles.reportBarFill}
+                    style={{ width: reportCampaign.openedPct || "0%", backgroundColor: "var(--color-primary)" }}
+                  />
+                </div>
+              </div>
+              <div className={styles.reportChartRow}>
+                <div className={styles.reportChartRowHeader}>
+                  <span>Conversion Rate</span>
+                  <span>{reportCampaign.redeemedPct}</span>
+                </div>
+                <div className={styles.reportBar}>
+                  <div
+                    className={styles.reportBarFill}
+                    style={{ width: reportCampaign.redeemedPct || "0%", backgroundColor: "#2f9e44" }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.reportPreviewSection}>
+              <span className={styles.reportPreviewLabel}>Message Body</span>
+              <p className={styles.reportPreviewText}>"{reportCampaign.preview}"</p>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.modalCancelBtn}
+                onClick={() => setReportCampaign(null)}
+              >
+                Close Report
+              </button>
+            </div>
           </div>
         </div>
       )}
