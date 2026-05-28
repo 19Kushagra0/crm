@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useSession } from "next-auth/react";
 import styles from "@/style/staff.module.css";
 import { Clock } from "@/lib/icons";
 import StaffService from "@/services/StaffService";
@@ -40,6 +41,25 @@ const CalendarIcon = ({ className, size = 13 }) => (
     <line x1="16" y1="2" x2="16" y2="6"></line>
     <line x1="8" y1="2" x2="8" y2="6"></line>
     <line x1="3" y1="10" x2="21" y2="10"></line>
+  </svg>
+);
+
+const TrashIcon = ({ className, size = 16 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M3 6h18"></path>
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
   </svg>
 );
 
@@ -89,6 +109,9 @@ const performanceData = [
 ];
 
 export default function StaffPage() {
+  const { data: session } = useSession();
+  const currentUserRole = session?.user?.role || "staff";
+
   const [filter, setFilter] = useState("All");
   const staffQueryResult = StaffService.useStaff();
   const staffList = staffQueryResult.data || [];
@@ -97,13 +120,29 @@ export default function StaffPage() {
 
   // Form State
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("Waiter");
   const [category, setCategory] = useState("Waiter");
-  const [onShift, setOnShift] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleAddStaff = (e) => {
+  const handleAddStaff = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setErrorMsg("All fields are required");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMsg("Passwords do not match");
+      return;
+    }
+    if (password.length < 8) {
+      setErrorMsg("Password must be at least 8 characters long");
+      return;
+    }
+
+    setErrorMsg("");
 
     // Initials calculation
     const words = name.trim().split(" ");
@@ -115,24 +154,32 @@ export default function StaffPage() {
         .toUpperCase() || "S";
 
     const newStaff = {
-      id: Date.now(),
-      name,
+      name: name.trim(),
+      email: email.trim(),
+      password,
       initials,
       role,
       category,
-      onShift,
+      onShift: false, // Default is false, flips on login
       orders: 0,
       tables: 0,
       rating: "5.0★",
-      tenure: "Since May 2026",
+      tenure: `Since ${new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}`,
     };
 
-    StaffService.addStaff(newStaff);
-    setName("");
-    setRole("Waiter");
-    setCategory("Waiter");
-    setOnShift(true);
-    setShowAddModal(false);
+    try {
+      await StaffService.addStaff(newStaff);
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setRole("Waiter");
+      setCategory("Waiter");
+      setErrorMsg("");
+      setShowAddModal(false);
+    } catch (err) {
+      setErrorMsg(err.message || "Failed to add staff member");
+    }
   };
 
   const filteredStaff =
@@ -151,13 +198,15 @@ export default function StaffPage() {
         <div className={styles.pageHeader}>
           <div className={styles.titleGroup}></div>
           <div className={styles.headerActions}>
-            <button
-              className={styles.primaryBtn}
-              onClick={() => setShowAddModal(true)}
-            >
-              <PlusIcon />
-              Add Staff
-            </button>
+            {currentUserRole !== "staff" && (
+              <button
+                className={styles.primaryBtn}
+                onClick={() => setShowAddModal(true)}
+              >
+                <PlusIcon />
+                Add Staff
+              </button>
+            )}
           </div>
         </div>
 
@@ -190,8 +239,12 @@ export default function StaffPage() {
                       <button
                         type="button"
                         className={styles.badgeOnShift}
-                        onClick={() => StaffService.toggleShiftStatus(staff.id)}
-                        style={{ border: "none", cursor: "pointer" }}
+                        onClick={() => {
+                          if (currentUserRole !== "staff") {
+                            StaffService.toggleShiftStatus(staff.id);
+                          }
+                        }}
+                        style={{ border: "none", cursor: currentUserRole !== "staff" ? "pointer" : "default" }}
                       >
                         <span className={styles.badgeOnShiftDot} />
                         On Shift
@@ -200,8 +253,12 @@ export default function StaffPage() {
                       <button
                         type="button"
                         className={styles.badgeOff}
-                        onClick={() => StaffService.toggleShiftStatus(staff.id)}
-                        style={{ border: "none", cursor: "pointer" }}
+                        onClick={() => {
+                          if (currentUserRole !== "staff") {
+                            StaffService.toggleShiftStatus(staff.id);
+                          }
+                        }}
+                        style={{ border: "none", cursor: currentUserRole !== "staff" ? "pointer" : "default" }}
                       >
                         Off
                       </button>
@@ -250,12 +307,33 @@ export default function StaffPage() {
                     <a href="#" className={styles.viewProfileLink}>
                       View Profile
                     </a>
-                    <button
-                      className={styles.iconBtn}
-                      aria-label="View Shift Schedule"
-                    >
-                      <Clock size={16} />
-                    </button>
+                    
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      {currentUserRole !== "staff" && (
+                        (staff.category !== "Manager" || currentUserRole === "owner") ? (
+                          <button
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to remove ${staff.name}? This will also delete their login account.`)) {
+                                StaffService.deleteStaff(staff.id);
+                              }
+                            }}
+                            className={styles.iconBtn}
+                            style={{ color: "#ba1a1a", borderColor: "rgba(186, 26, 26, 0.2)" }}
+                            title={`Remove ${staff.name}`}
+                            aria-label={`Remove ${staff.name}`}
+                          >
+                            <TrashIcon size={16} />
+                          </button>
+                        ) : null
+                      )}
+
+                      <button
+                        className={styles.iconBtn}
+                        aria-label="View Shift Schedule"
+                      >
+                        <Clock size={16} />
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}
@@ -357,6 +435,13 @@ export default function StaffPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className={styles.modalTitle}>Add Staff Member</h2>
+            
+            {errorMsg && (
+              <div style={{ color: "#ffdad6", backgroundColor: "rgba(186, 26, 26, 0.8)", padding: "10px 14px", borderRadius: "8px", fontSize: "13px", marginBottom: "16px" }}>
+                {errorMsg}
+              </div>
+            )}
+
             <form onSubmit={handleAddStaff}>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Full Name</label>
@@ -367,6 +452,42 @@ export default function StaffPage() {
                   className={styles.formInput}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Login Email</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. elena@dineflow.com"
+                  className={styles.formInput}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Min 8 characters"
+                  className={styles.formInput}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Confirm Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Confirm password"
+                  className={styles.formInput}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
 
@@ -384,7 +505,7 @@ export default function StaffPage() {
                     else if (e.target.value === "Host") setRole("Hostess");
                   }}
                 >
-                  <option value="Manager">Manager</option>
+                  {currentUserRole === "owner" && <option value="Manager">Manager</option>}
                   <option value="Waiter">Waiter</option>
                   <option value="Kitchen">Kitchen</option>
                   <option value="Host">Host</option>
@@ -402,7 +523,6 @@ export default function StaffPage() {
                   onChange={(e) => setRole(e.target.value)}
                 />
               </div>
-
 
               <div className={styles.modalActions}>
                 <button

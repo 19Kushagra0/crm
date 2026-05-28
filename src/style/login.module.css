@@ -1,0 +1,241 @@
+.pageContainer {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #12110f;
+  font-family: 'Inter', sans-serif;
+  color: #faf9f5;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Background aesthetic ambient glows */
+.pageContainer::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 60%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(143, 72, 47, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pageContainer::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 50%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(0, 104, 90, 0.12) 0%, rgba(0, 0, 0, 0) 75%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.brandPanel {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 64px;
+  background-color: #1c1a17;
+  border-right: 1px solid rgba(143, 72, 47, 0.15);
+  position: relative;
+  z-index: 2;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.brandLogoSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandLogoText {
+  font-family: 'Newsreader', serif;
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  color: #ffb59d;
+}
+
+.brandTagline {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #605e5b;
+  margin-top: 4px;
+}
+
+.brandHeroSection {
+  margin-top: auto;
+  margin-bottom: auto;
+  max-width: 480px;
+}
+
+.brandQuote {
+  font-family: 'Newsreader', serif;
+  font-size: 48px;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  color: #faf9f5;
+  font-style: italic;
+}
+
+.brandParagraph {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #a8a59f;
+  margin-top: 24px;
+}
+
+.brandFooter {
+  font-size: 13px;
+  color: #605e5b;
+}
+
+/* Form Panel Styling */
+.formPanel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  z-index: 2;
+}
+
+.formCard {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(28, 26, 23, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(143, 72, 47, 0.2);
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.8s ease-out;
+}
+
+.cardHeader {
+  margin-bottom: 32px;
+}
+
+.cardTitle {
+  font-family: 'Newsreader', serif;
+  font-size: 32px;
+  color: #faf9f5;
+  margin-bottom: 8px;
+}
+
+.cardSubtitle {
+  font-size: 14px;
+  color: #a8a59f;
+}
+
+.errorBanner {
+  background-color: rgba(186, 26, 26, 0.15);
+  border: 1px solid #ba1a1a;
+  color: #ffdad6;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inputGroup {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #ffb59d;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  background-color: rgba(18, 17, 15, 0.6);
+  border: 1px solid rgba(143, 72, 47, 0.3);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: #faf9f5;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  border-color: #ffb59d;
+  box-shadow: 0 0 0 2px rgba(255, 181, 157, 0.2);
+  background-color: rgba(18, 17, 15, 0.9);
+}
+
+.signInBtn {
+  width: 100%;
+  background-color: #8f482f;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+  box-shadow: 0 4px 12px rgba(143, 72, 47, 0.3);
+}
+
+.signInBtn:hover {
+  background-color: #ad5f45;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(143, 72, 47, 0.4);
+}
+
+.signInBtn:active {
+  transform: translateY(0);
+}
+
+.signInBtnLoading {
+  background-color: rgba(143, 72, 47, 0.6);
+  cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 900px) {
+  .brandPanel {
+    display: none;
+  }
+  .formPanel {
+    flex: 1;
+    padding: 24px;
+  }
+  .formCard {
+    max-width: 100%;
+    padding: 32px 24px;
+  }
+}

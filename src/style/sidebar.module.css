@@ -234,3 +234,29 @@
     margin-bottom: 1rem;
   }
 }
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.logoutBtn {
+  background: none;
+  border: none;
+  color: var(--color-muted, #6c6a64);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.logoutBtn:hover {
+  color: var(--color-error, #ba1a1a);
+  background-color: var(--color-surface-container-high, #e9e8e4);
+}
+
