@@ -147,6 +147,30 @@
   gap: 8px;
 }
 
+.testCredentialsBox {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: rgba(143, 72, 47, 0.1);
+  border: 1px dashed rgba(143, 72, 47, 0.4);
+  border-radius: 8px;
+}
+
+.testCredentialsTitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #ffb59d;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.testCredentialsText {
+  font-size: 13px;
+  color: #faf9f5;
+  margin-bottom: 4px;
+  font-family: monospace;
+}
+
 .inputGroup {
   margin-bottom: 20px;
 }
