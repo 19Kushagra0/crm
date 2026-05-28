@@ -1,34 +1,14 @@
-"use client";
-import React, { useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import Header from '@/components/Header';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
+import CRMShell from '@/components/CRMShell';
 
-export default function CRMLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+export default async function CRMLayout({ children }) {
+  const session = await getServerSession(authOptions);
 
-  return (
-    <div>
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
-      {/* Mobile Sidebar overlay backdrop */}
-      {sidebarOpen && (
-        <div 
-          onClick={() => setSidebarOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            backdropFilter: 'blur(2px)',
-            zIndex: 45,
-            transition: 'opacity 0.2s ease'
-          }}
-        />
-      )}
+  if (!session) {
+    redirect('/login');
+  }
 
-      <div className="main-content-layout">
-        <Header onMenuToggle={() => setSidebarOpen(true)} />
-        {children}
-      </div>
-    </div>
-  );
+  return <CRMShell>{children}</CRMShell>;
 }
