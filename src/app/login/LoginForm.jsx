@@ -7,8 +7,8 @@ import styles from '@/style/login.module.css';
 
 export default function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('19kushagra0@gmail.com');
+  const [password, setPassword] = useState('asdasdasd');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -72,6 +72,12 @@ export default function LoginForm() {
           <div className={styles.cardHeader}>
             <h1 className={styles.cardTitle}>Sign In</h1>
             <p className={styles.cardSubtitle}>Access your operational suite</p>
+          </div>
+
+          <div className={styles.testCredentialsBox}>
+            <div className={styles.testCredentialsTitle}>Test Credentials</div>
+            <div className={styles.testCredentialsText}>Email: 19kushagra0@gmail.com</div>
+            <div className={styles.testCredentialsText}>Pass: asdasdasd</div>
           </div>
 
           {error && (
