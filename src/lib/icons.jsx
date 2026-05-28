@@ -350,3 +350,52 @@ export const LogOut = ({ className, size = 24 }) => (
   </svg>
 );
 
+// Lucide Mail
+export const Mail = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <rect width="20" height="16" x="2" y="4" rx="2" />
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+  </svg>
+);
+
+// Lucide MessageSquare
+export const MessageSquare = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+// Lucide ArrowRight
+export const ArrowRight = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
+// Lucide Edit (Pencil in Square)
+export const Edit = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z" />
+  </svg>
+);
+
+// Lucide CheckAll (Double Check)
+export const CheckAll = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M17 6 7 17l-5-5" />
+    <path d="m22 10-7.5 7.5L13 16" />
+  </svg>
+);
+
+// Lucide Rocket
+export const Rocket = ({ className, size = 24 }) => (
+  <svg {...baseSvgProps} width={size} height={size} className={className}>
+    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+    <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+  </svg>
+);
+

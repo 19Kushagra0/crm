@@ -542,6 +542,19 @@ const initialOperationsFeed = [
   }
 ];
 
+const initialRewards = [
+  { id: "RWD-001", name: "Complimentary Dessert", pointCost: 200, description: "A dessert of your choice, on us." },
+  { id: "RWD-002", name: "Priority Seating", pointCost: 150, description: "Skip the wait on Friday or Saturday." },
+  { id: "RWD-003", name: "Chef's Table Experience", pointCost: 800, description: "Private dining with the Head Chef." },
+  { id: "RWD-004", name: "Wine Pairing", pointCost: 350, description: "Sommelier-selected wine pairing." }
+];
+
+const initialRedemptionLog = [
+  { id: "RED-001", customerId: "CUST-002", customerName: "Vikram Singh", rewardName: "Complimentary Dessert", points: 200, date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) },
+  { id: "RED-002", customerId: "CUST-003", customerName: "Maya Nambiar", rewardName: "Priority Seating", points: 150, date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+  { id: "RED-003", customerId: "CUST-001", customerName: "Aisha Rahman", rewardName: "Chef's Table Experience", points: 800, date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+];
+
 if (!globalThis.mockDb) {
   globalThis.mockDb = {
     customers: initialCustomers,
@@ -556,7 +569,9 @@ if (!globalThis.mockDb) {
     campaigns: initialCampaigns,
     shiftNotes: initialShiftNotes,
     revenueTrend: initialRevenueTrend,
-    operationsFeed: initialOperationsFeed
+    operationsFeed: initialOperationsFeed,
+    rewards: initialRewards,
+    redemptionLog: initialRedemptionLog
   };
 } else {
   // Gracefully ensure they exist if HMR already loaded
@@ -570,6 +585,8 @@ if (!globalThis.mockDb) {
   if (!globalThis.mockDb.shiftNotes) globalThis.mockDb.shiftNotes = initialShiftNotes;
   if (!globalThis.mockDb.revenueTrend) globalThis.mockDb.revenueTrend = initialRevenueTrend;
   if (!globalThis.mockDb.operationsFeed) globalThis.mockDb.operationsFeed = initialOperationsFeed;
+  if (!globalThis.mockDb.rewards) globalThis.mockDb.rewards = initialRewards;
+  if (!globalThis.mockDb.redemptionLog) globalThis.mockDb.redemptionLog = initialRedemptionLog;
 }
 
 export const mockDb = globalThis.mockDb;
