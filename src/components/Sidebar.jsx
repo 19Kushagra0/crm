@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import styles from '@/style/sidebar.module.css';
 import { 
   LayoutDashboard, 
@@ -14,13 +15,35 @@ import {
   Megaphone, 
   Contact, 
   Clock,
-  X 
+  X,
+  LogOut
 } from '@/lib/icons';
+
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  
+  const user = session?.user;
+  const initials = user?.name
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+    : 'U';
+    
+  const roleLabel = user?.role
+    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+    : 'Staff';
+
+  const handleSignOut = async () => {
+    try {
+      await fetch('/api/auth/signout-event', { method: 'POST' });
+    } catch (e) {
+      console.error('Error logging signout event:', e);
+    }
+    signOut({ callbackUrl: '/login' });
+  };
 
   const isActive = (path) => pathname === path;
+
 
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
@@ -158,17 +181,28 @@ export default function Sidebar({ isOpen, onClose }) {
       <div className={styles.profileSection}>
         <div className={styles.profileContainer}>
           <div className={styles.avatarWrapper}>
-            <div className={styles.avatarText}>MC</div>
+            <div className={styles.avatarText}>{initials}</div>
           </div>
-          <div className={styles.profileInfo}>
-            <p className={styles.profileName}>Marie Curie</p>
-            <div className={styles.profileStatus}>
-              <span className={styles.statusDot} />
-              <p className={styles.profileRole}>Maitre D'</p>
+          <div className={styles.profileHeader}>
+            <div className={styles.profileInfo}>
+              <p className={styles.profileName}>{user?.name || 'Guest User'}</p>
+              <div className={styles.profileStatus}>
+                <span className={styles.statusDot} />
+                <p className={styles.profileRole}>{roleLabel}</p>
+              </div>
             </div>
+            <button 
+              onClick={handleSignOut} 
+              className={styles.logoutBtn}
+              title="Sign Out"
+              aria-label="Sign Out"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </div>
+
     </aside>
   );
 }
